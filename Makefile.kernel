@@ -1,0 +1,36 @@
+ARCH?= i386
+
+KERN?=	${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER/netbsd
+
+RAMDISK_S!=	cd ${.CURDIR}/../ramdisk-small/; \
+		printf "xxx: .MAKE\n\t@echo \$${.OBJDIR}/ramdisk-small.fs\n" | \
+		${MAKE} -s -f-
+
+netbsd: netbsd.gz
+	rm -f netbsd
+	ln netbsd.gz netbsd
+
+netbsd.gz: ${KERN}
+
+# make kernel
+${KERN}: conf/ROUTER
+	cp conf/ROUTER ${.CURDIR}/../../../../sys/arch/${ARCH}/conf
+	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/conf; config ROUTER)
+	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER; \
+		make depend ; \
+		make -j 4 \
+	)
+
+netbsd.gz: .NOTMAIN ${KERN} ${RAMDISK_S}
+	cp ${KERN} netbsd.tmp
+	${DESTDIR}/usr/sbin/mdsetimage -v netbsd.tmp ${RAMDISK_S}
+	nm netbsd.tmp > netbsd.symbols
+	${STRIP} netbsd.tmp
+	gzip -9 netbsd.tmp
+	mv netbsd.tmp.gz ${.TARGET}
+
+
+.include <bsd.own.mk>
+.include <bsd.obj.mk>
+.include <bsd.subdir.mk>
+.include <bsd.sys.mk>

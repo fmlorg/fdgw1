@@ -1,7 +1,7 @@
-#	$NetBSD: dot.profile,v 1.5 1999/01/08 04:32:33 abs Exp $
+# $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
-# Copyright (c) 1994 Christopher G. Demetriou
 # Copyright (c) 1997 Perry E. Metzger
+# Copyright (c) 1994 Christopher G. Demetriou
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -14,10 +14,12 @@
 #    documentation and/or other materials provided with the distribution.
 # 3. All advertising materials mentioning features or use of this software
 #    must display the following acknowledgement:
-#	This product includes software developed by Christopher G. Demetriou.
+#          This product includes software developed for the
+#          NetBSD Project.  See http://www.netbsd.org/ for
+#          information about NetBSD.
 # 4. The name of the author may not be used to endorse or promote products
-#    derived from this software without specific prior written permission
-#
+#    derived from this software without specific prior written permission.
+# 
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -28,7 +30,8 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+# 
+# <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
 export PATH
@@ -40,6 +43,8 @@ BLOCKSIZE=1k
 export BLOCKSIZE
 EDITOR=ed
 export EDITOR
+BOOTMODEL=small
+export BOOTMODEL
 
 umask 022
 
@@ -47,14 +52,12 @@ ROOTDEV=/dev/md0a
 
 if [ "X${DONEPROFILE}" = "X" ]; then
 	DONEPROFILE=YES
+	export DONEPROFILE
 
 	# set up some sane defaults
 	echo 'erase ^?, werase ^W, kill ^U, intr ^C'
 	stty newcrt werase ^W intr ^C kill ^U erase ^? 9600
 	echo ''
-
-	# run update, so that installed software is written as it goes.
-	update
 
 	# mount the ramdisk read write
 	mount -u $ROOTDEV /
@@ -65,20 +68,22 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# pull in the functions that people will use from the shell prompt.
 	# . /.commonutils
 	# . /.instutils
+	dmesg() cat /kern/msgbuf
+	grep() sed -n "/$1/p"
 
 	# run the installation or upgrade script.
-	# sysinst
+	#sysinst
 
-	# router or nat box
-	test -d conf || mkdir conf 
-	mount /dev/fd0a /conf
-	if [ -f /conf/etc/rc.router ]
-	then
-		sh /conf/etc/rc.router
-	else
-		echo "*** welcome to one floppy NetBSD nat box ***"
-		echo "no given configuration! please customize this by yourself"
-		echo "Enjoy Internetworking!"
-		echo "-- fukachan@fml.org"
-	fi
+        # router or nat box
+        test -d conf || mkdir conf 
+        mount /dev/fd0a /conf
+        if [ -f /conf/etc/rc.router ]
+        then
+                sh /conf/etc/rc.router
+        else
+                echo "*** welcome to one floppy NetBSD nat box ***"
+                echo "no given configuration! please customize this by yourself"
+                echo "Enjoy Internetworking!"
+                echo "-- fukachan@fml.org"
+        fi
 fi
