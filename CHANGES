@@ -1,6 +1,20 @@
 		CHANGES
 
+2002/02/13
+
+   add ipsec configuration
+
+2002/02/12
+
+   bug fix ramdiskbin.conf
+	remove -lbz2, which is not used
+
 2002/02/11
+
+   bug fix paths for configuration files
+	installed into /etc on fd0a not vnd0a
+
+   shrink squid.conf for floppy size limitation
 
    rename proxyfw -> proxybox model.
    clean up
@@ -55,4 +69,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.8 2002/02/12 08:34:02 fukachan Exp $
+$FML: CHANGES,v 1.9 2002/02/12 11:42:30 fukachan Exp $
