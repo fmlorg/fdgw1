@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.38 2002/02/12 12:36:09 fukachan Exp $
+# $FML: Makefile,v 1.39 2002/02/20 13:33:37 fukachan Exp $
 #
 
 #
@@ -68,7 +68,7 @@ clean cleandir:
 	- (cd src/gnu/stone ; gmake distclean )
 	- rm -f src/gnu/.stone_done
 	@ echo "===> clearing transproxy";
-	- (cd src/sbin/transproxy ; make clean )
+	- (cd src/sbin/transproxy ; make clean RM="rm -f")
 	- rm -f src/sbin/.transproxy_done
 	@ for dir in src.* ; do \
 		if [ -d $$dir ];then\
