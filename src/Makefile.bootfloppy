@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.19 2002/02/23 08:39:40 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.20 2002/02/25 10:20:03 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -40,7 +40,7 @@ VND_CRDEV=	/dev/r${VND}d
 MDEC=		${DESTDIR}/usr/mdec
 
 # XXX install netbsd boot.fs
-LISTS=		${TOP}/bootfloppy-common/list
+LISTS=		${.CURDIR}/distrib/${ARCH}/floppies/list
 
 DISKTYPE?=	floppy3
 DISKSIZE?=	2880
