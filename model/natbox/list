@@ -106,3 +106,12 @@ COPY	${CURDIR}/termcap.mini		usr/share/misc/termcap
 
 # and the installation tools
 COPY	${CURDIR}/dot.profile		.profile
+
+# prepare /etc/ and /usr/pkg/
+SPECIAL df -i ${MOUNT_POINT}/etc/
+SPECIAL mkdir -p ${MOUNT_POINT}/etc/rc.d
+SPECIAL mkdir -p ${MOUNT_POINT}/etc/ppp
+SPECIAL mkdir -p ${MOUNT_POINT}/usr
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin

@@ -60,6 +60,8 @@ SYMLINK	/bin/cat		usr/bin/more
 SYMLINK	/bin/cat		usr/bin/sed
 SYMLINK	/bin/cat		usr/bin/tar
 SYMLINK	/bin/cat		usr/bin/tip
+SYMLINK	/bin/cat		usr/bin/logger
+SYMLINK	/bin/cat		usr/bin/id
 #SYMLINK /bin/cat		usr/mdec/installboot
 #SYMLINK /bin/cat		usr/sbin/bad144
 SYMLINK	/bin/cat		usr/sbin/chown
@@ -106,16 +108,16 @@ COPY	${CURDIR}/termcap.mini		usr/share/misc/termcap
 # and the installation tools
 COPY	${CURDIR}/dot.profile		.profile
 
-# install boot scripts
+# prepare /etc/ and /usr/pkg/
 SPECIAL df -i ${MOUNT_POINT}/etc/
-
-# install pppoe package
 SPECIAL mkdir -p ${MOUNT_POINT}/etc/rc.d
 SPECIAL mkdir -p ${MOUNT_POINT}/etc/ppp
 SPECIAL mkdir -p ${MOUNT_POINT}/usr
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
+
+# install pppoe package
 SPECIAL cp -p /usr/pkg/etc/rc.d/pppoe ${MOUNT_POINT}/etc/rc.d
 SPECIAL install -c -s /usr/pkg/sbin/pppoe ${MOUNT_POINT}/usr/pkg/sbin/
 SPECIAL cp -p ${CURDIR}/work/adsl-* ${MOUNT_POINT}/usr/pkg/sbin/
