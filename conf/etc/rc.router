@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.25 2002/02/15 14:39:22 fukachan Exp $
+# $FML: rc.router,v 1.26 2002/02/18 10:47:35 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -102,7 +102,16 @@ if checkyesno ssh_proxy; then
    echo 'starting ssh proxy';
 
    if [ -x /usr/pkg/sbin/stone ];then
-	/usr/pkg/sbin/stone -N ssh-proxy -l -T localhost 10022 &
+	/usr/pkg/sbin/stone -N ssh-proxy -l -T localhost:0 localhost:10022 &
+   fi
+fi
+
+
+if checkyesno smtp_proxy; then
+   echo 'starting smtp proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N smtp-proxy -l -T localhost:0 localhost:10025 &
    fi
 fi
 
@@ -111,7 +120,34 @@ if checkyesno pop_proxy; then
    echo 'starting pop proxy';
 
    if [ -x /usr/pkg/sbin/stone ];then
-	/usr/pkg/sbin/stone -N pop-proxy -l -T localhost 10110 &
+	/usr/pkg/sbin/stone -N pop-proxy -l -T localhost:0 localhost:10110 &
+   fi
+fi
+
+
+if checkyesno https_proxy; then
+   echo 'starting https proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N https-proxy -l -T localhost:0 localhost:10443 &
+   fi
+fi
+
+
+if checkyesno anoncvs_proxy; then
+   echo 'starting anoncvs proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N anoncvs-proxy -l -T localhost:0 localhost:12401 &
+   fi
+fi
+
+
+if checkyesno irc_proxy; then
+   echo 'starting irc proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N irc-proxy -l -T localhost:0 localhost:16667 &
    fi
 fi
 
