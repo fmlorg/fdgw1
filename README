@@ -1,0 +1,46 @@
+		NetBSD One Floppy NAT Box
+
+*** How to install ***
+
+1. extract this package.
+
+2. move it to under /usr/src/distrib/i386/floppies/floppy_natbox
+   (here we assume it as "/usr/src/distrib/i386/floppies/floppy_natbox").
+
+3. cd /usr/src/distrib/i386/floppies/floppy_natbox
+
+4. check configuration file
+
+   conf/
+
+	conf/ROUTER	(kernel with /dev/md0*)
+	conf/mk.conf	${ARCH} (default "i386")
+
+   conf/etc/		router configuration
+			(corresponding to a subset of usual etc/).
+
+	conf/etc/ipf.conf
+	conf/etc/ipnat.conf
+	conf/etc/ifconfig.$YOUR_ETHER_INTERFACE
+
+5. make
+
+6. insert the floppy to your machine Floppy Drive.
+
+7. ./INSTALL.sh. 
+
+   Congraturations! You've got NetBSD NAT Box boot floppy! 
+
+8. reboot by the boot floppy
+
+
+*** advanced configuration ***
+
+1. edit this-directory/conf/etc/ and do the proceduers described above again.
+
+
+2. edit /conf/etc/* on NAT Box, that is files on the boot floppy. And reboot!
+
+
+$Id$
+Copyright (C) 1999 Ken'ichi Fukamachi <fukachan@fml.org>
