@@ -11,7 +11,10 @@ done
 
 if [ -f /conf/etc/ipf.conf ]
 then
+   echo enable IPFilter
    /sbin/ipf -E -f /conf/etc/ipf.conf
+   /usr/sbin/ipfstat -i
+   /usr/sbin/ipfstat -o
 
    if [ -f /conf/etc/ipnat.conf ]
    then
