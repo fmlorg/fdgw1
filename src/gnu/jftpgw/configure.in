@@ -1,0 +1,397 @@
+dnl =====================================================================
+dnl =========== This is the configure.in file for jftpgw ================
+dnl =====================================================================
+
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(jftpgw.c)
+PACKAGE="jftpgw"
+JFTPGW_VERSION="0.13.beta.j"
+AM_INIT_AUTOMAKE($PACKAGE, $JFTPGW_VERSION)
+
+AC_ARG_PROGRAM
+
+AM_SANITY_CHECK
+AC_PROG_INSTALL
+
+missing_dir=`cd $ac_aux_dir && pwd`
+AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
+AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+AM_MISSING_PROG(AUTOMAKE, automake, $missing_dir)
+AM_MISSING_PROG(AUTOHEADER, autoheader, $missing_dir)
+AM_MISSING_PROG(MAKEINFO, makeinfo, $missing_dir)
+
+
+dnl Checks for programs.
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AM_CONFIG_HEADER(config.h)
+
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h syslog.h unistd.h getopt.h \
+	signal.h sys/signal.h crypt.h strings.h stdarg.h varargs.h \
+	tcpd.h \
+	linux/netfilter_ipv4.h \
+	netinet/ip_fil.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_FUNC_WAIT3
+AC_CHECK_FUNCS(getcwd strdup seteuid setegid)
+
+dnl From icecast
+AC_MSG_CHECKING([for unix98 socklen_t])
+AC_TRY_COMPILE([#include <sys/socket.h>],
+	    [typedef socklen_t int; 
+	    int apan (void) {return 1;}],
+	AC_MSG_RESULT(yeah)
+	HAVE_SOCKLEN_T=yes,
+	AC_MSG_RESULT(nah)
+	HAVE_SOCKLEN_T=no)
+
+if test ${HAVE_SOCKLEN_T} = yes ;then 
+	AC_DEFINE(HAVE_SOCKLEN_T)		
+fi
+
+
+dnl Check for Solaris libs -lsocket
+AC_CHECK_LIB(socket,socket,
+AC_MSG_CHECKING([if we need to link against libsocket])
+AC_TRY_LINK(
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	,
+		socket(AF_INET, SOCK_STREAM, 0);
+	,
+	AC_MSG_RESULT(not necessary)
+	,
+	LIBS="$LIBS -lsocket"
+	LIBSOCKET="-lsocket"
+	AC_MSG_RESULT(linking against -lsocket)
+))
+
+
+dnl Checks for libraries.
+AC_CHECK_FUNC(setsockopt, , AC_CHECK_LIB(socket, setsockopt))
+
+
+dnl Check for Solaris libs:  -lnsl
+AC_CHECK_LIB(nsl,gethostbyname,
+AC_MSG_CHECKING([if we need to link against libnsl])
+AC_TRY_LINK(
+	#include <netdb.h>
+	,
+		gethostbyname("www.gnu.org");
+	,
+	AC_MSG_RESULT(not necessary)
+	,
+	LIBS="$LIBS -lnsl"
+	AC_MSG_RESULT(linking against -lnsl)
+))
+
+dnl Check for Solaris libs:  -lresolv
+AC_CHECK_LIB(resolv,inet_aton,
+AC_MSG_CHECKING([if we need to link against libresolv])
+AC_TRY_LINK(
+	#include <sys/types.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	,
+	inet_aton(NULL, NULL);
+	,
+	AC_MSG_RESULT(not necessary)
+	,
+	LIBS="$LIBS -lresolv"
+	AC_MSG_RESULT(linking against -lresolv)
+))
+
+AC_MSG_CHECKING([for libwrap])
+orig_LIBS="$LIBS"
+LIBS="$LIBS -lwrap"
+AC_TRY_LINK([
+	#include <tcpd.h>
+	int allow_severity;
+	int deny_severity;
+	],
+	struct request_info req;
+	hosts_access(&req);
+	,
+	libwrap_avail="yes"
+	LIBS="$orig_LIBS"
+	AC_MSG_RESULT(yes)
+	,
+	libwrap_avail=no
+	LIBS="$orig_LIBS"
+	AC_MSG_RESULT(no)
+)
+
+dnl Check for SIOCGIFADDR
+AC_MSG_CHECKING([if we can get interface IPs])
+AC_TRY_COMPILE([
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		#include <net/if.h>
+		#include <sys/ioctl.h>
+		#ifndef IF_NAMESIZE
+			#define IF_NAMESIZE IFNAMSIZ
+		#endif
+		],
+		[struct ifreq req;
+		int a = IF_NAMESIZE;
+		ioctl(0, SIOCGIFADDR, &req);
+		return 0;],
+		AC_DEFINE(HAVE_SIOCGIFADDR)
+		AC_MSG_RESULT(yes)
+		,
+		AC_MSG_RESULT(no)
+)
+
+dnl Check for SIOCGIFCONF
+AC_MSG_CHECKING([if we can get interface configuration])
+AC_TRY_COMPILE([
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		#include <net/if.h>
+		#include <sys/ioctl.h>
+		], [
+		struct ifconf ifc;
+		ioctl(0, SIOCGIFCONF, &ifc);
+		return 0;
+		],
+		AC_DEFINE(HAVE_SIOCGIFCONF)
+		AC_MSG_RESULT(yes)
+		,
+		AC_MSG_RESULT(no)
+)
+
+dnl See if the ICMP declaration stuff is fine
+AC_MSG_CHECKING([if ICMP declarations are fine])
+AC_TRY_COMPILE([
+		#include <sys/types.h>
+		#include <netinet/in_systm.h>
+		#include <netinet/in.h>
+		#include <netinet/ip.h>
+		#include <netinet/ip_icmp.h>
+
+		#define ICMP_SIZE 8
+		#define IP_SIZE (64 + 8)
+		],[
+		char icmp_packet[ ICMP_SIZE ];
+		char ip_packet[ IP_SIZE ];
+		struct icmp* icp = (struct icmp*) icmp_packet;
+		struct ip* ip = (struct ip*) ip_packet;
+		int len;
+
+		icp = (struct icmp*) &icmp_packet;
+		ip = (struct ip*) &ip_packet;
+
+		icp->icmp_type = ICMP_ECHO;
+		icp->icmp_code = 0;
+		icp->icmp_cksum = 0;
+
+		icp->icmp_hun.ih_idseq.icd_id = 0;
+		icp->icmp_hun.ih_idseq.icd_seq = 0;
+
+		len = ip->ip_hl;
+
+		return 0;
+		],
+		AC_DEFINE(HAVE_ICMP_SUPPORT)
+		AC_MSG_RESULT(yes)
+		,
+		AC_MSG_RESULT(no)
+)
+
+dnl See if the user is totally mad and wants to run jftpgw under
+dnl Windows!   :-)
+AC_MSG_CHECKING([if you want to compile for Windows])
+AC_ARG_WITH(with-windows,
+[  --with-windows         Compile a windows version])
+
+if test "x$with_windows" = "xyes"; then
+	AC_MSG_RESULT(yes)
+	WINDOWS=YES
+	AC_DEFINE(WINDOWS)
+else
+	AC_MSG_RESULT(no (use --with-windows to enable))
+	WINDOWS=no
+fi
+
+dnl See if LOG_* facilities are available
+AC_DEFUN(AC_LOGFACILITY,
+[AC_MSG_CHECKING(for log facility $1)
+AC_TRY_COMPILE([#include <syslog.h>],
+		[
+		   openlog("configure-test", 0, $1);
+		   return 0;
+		],
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_LOG_FACILITY_$1),
+		AC_MSG_RESULT(no)
+	)
+])
+
+AC_LOGFACILITY(LOG_AUTH    )
+AC_LOGFACILITY(LOG_AUTHPRIV)
+AC_LOGFACILITY(LOG_CRON    )
+AC_LOGFACILITY(LOG_DAEMON  )
+AC_LOGFACILITY(LOG_FTP     )
+AC_LOGFACILITY(LOG_KERN    )
+AC_LOGFACILITY(LOG_LOCAL0  )
+AC_LOGFACILITY(LOG_LOCAL1  )
+AC_LOGFACILITY(LOG_LOCAL2  )
+AC_LOGFACILITY(LOG_LOCAL3  )
+AC_LOGFACILITY(LOG_LOCAL4  )
+AC_LOGFACILITY(LOG_LOCAL5  )
+AC_LOGFACILITY(LOG_LOCAL6  )
+AC_LOGFACILITY(LOG_LOCAL7  )
+AC_LOGFACILITY(LOG_LPR     )
+AC_LOGFACILITY(LOG_MAIL    )
+AC_LOGFACILITY(LOG_NEWS    )
+AC_LOGFACILITY(LOG_SYSLOG  )
+AC_LOGFACILITY(LOG_USER    )
+AC_LOGFACILITY(LOG_UUCP    )
+AC_LOGFACILITY(LOG_CONSOLE )
+AC_LOGFACILITY(LOG_SECURITY)
+
+dnl See if a logfile path was specified
+AC_MSG_CHECKING([for the logfile path])
+AC_ARG_WITH(with-logpath,
+[  --with-logpath=path     Specify the path of the log files (this affects only                               the sample configfile])
+if test "x$with_logpath" != "x"; then
+	AC_MSG_RESULT(found $with_logpath)
+	LOGPATH="$with_logpath"
+else 
+	if test "x$prefix" != "xNONE"; then
+		# prefix specified
+		LOGPATH=$prefix
+		AC_MSG_RESULT(none specified - using prefix path $prefix)
+	else
+		AC_MSG_RESULT(none specified - Using /var/log as default location)
+		LOGPATH="/var/log"
+	fi
+	
+fi
+
+
+dnl Checks for library functions.
+AC_FUNC_STRFTIME
+AC_FUNC_VPRINTF
+
+AC_CHECK_FUNC(snprintf, [AC_DEFINE(HAVE_SNPRINTF)])
+AC_CHECK_FUNC(vsnprintf, [AC_DEFINE(HAVE_VSNPRINTF)])
+
+
+AC_CHECK_FUNCS(select socket strerror strtod getopt_long crypt)
+if test "x$ac_cv_func_crypt" = "xno"; then
+	AC_CHECK_LIB(crypt,crypt)
+	if test "x$ac_cv_lib_crypt_crypt" = "xyes"; then
+		ac_cryptpossible=yes
+	fi
+else
+	ac_cryptpossible=yes
+fi
+
+dnl See if crypt support is deprecated
+AC_MSG_CHECKING([for crypt support])
+AC_ARG_ENABLE(crypt,
+[  --disable-crypt         Compile without crypt support
+  --enable-crypt          Try to compile with crypt support])
+if test "x$enable_crypt" = "x" || test "x$enable_crypt" = "xyes"; then
+dnl	If neither enable-crypt nor disable-crypt is specified, try to
+dnl	enable
+	if test "x$ac_cryptpossible" = "xyes"; then
+		AC_MSG_RESULT(trying to enable crypt)
+		AC_DEFINE(HAVE_CRYPT)
+	else
+		AC_MSG_RESULT(could not enable crypt)
+	fi
+else 
+	AC_MSG_RESULT(disabling crypt)
+fi
+
+
+dnl See if libwrap (tcp_wrapper) support is deprecated
+AC_ARG_ENABLE(libwrap,
+[  --disable-libwrap       Compile without libwrap support
+  --enable-libwrap        Try to compile with libwrap support])
+if test "x$enable_libwrap" = "x" || test "x$enable_libwrap" = "xyes"; then
+dnl	If neither enable-libwrap nor disable-libwrap is specified, try to
+dnl	enable
+	if test ! "x$libwrap_avail" = "xno"; then
+		AC_MSG_RESULT(enabling libwrap)
+		AC_DEFINE(HAVE_LIBWRAP)
+		LIBS="$LIBS -lwrap"
+	else
+		AC_MSG_RESULT(disabling libwrap - libwrap not available)
+	fi
+else
+	AC_MSG_RESULT(disabling libwrap - user request)
+fi
+
+
+dnl Determine the current directory for a suggestion for the changerootdir
+dnl option
+
+PWDDIR="`pwd`"
+
+dnl Make LOGPATH absolute
+
+AC_MSG_CHECKING(if we can compile the rel2abs program)
+COMPILE="`$CC -DWITH_MAIN -o rel2abs $srcdir/rel2abs.c`"
+if test "x$COMPILE" = "x"; then
+	AC_MSG_RESULT(successful)
+	LOGPATH="`./rel2abs $LOGPATH $PWDDIR`"
+	`rm -f rel2abs`
+else
+	AC_MSG_RESULT(failed)
+fi
+
+
+dnl See if the compiler accepts -Wall
+orig_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wall"
+AC_MSG_CHECKING([if compiler accepts -Wall])
+AC_TRY_COMPILE([],
+		[ return 0; ]
+			,
+			AC_MSG_RESULT(yes)
+			,
+			AC_MSG_RESULT(no)
+			dnl reset flags
+			CFLAGS="$orig_CFLAGS"
+)
+
+
+CONFPATH="`eval echo $sysconfdir | sed -e s/NONE//`"
+
+AC_SUBST(LOGPATH)
+AC_SUBST(PWDDIR)
+AC_DEFINE_UNQUOTED(CONFPATH, "$CONFPATH")
+AC_SUBST(JFTPGW_VERSION)
+AC_SUBST(PACKAGE)
+AC_SUBST(LIBSOCKET)
+AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
+AC_DEFINE_UNQUOTED(JFTPGW_VERSION, "$JFTPGW_VERSION")
+AC_DEFINE(LINK_AS_LIBRARY)
+AC_SUBST(all_libraries)
+AC_SUBST(all_includes)
+
+AC_OUTPUT(Makefile \
+	support/Makefile \
+	jftpgw.conf.sample \
+	support/jftpgw.xinetd \
+	support/jftpgw-0.13.spec \
+	)

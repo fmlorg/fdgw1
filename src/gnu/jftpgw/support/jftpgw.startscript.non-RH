@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# jftpgw startup script - for System V like UNIX
+#
+# contributed by Juergen Meier <jpm@class.de>
+#
+
+# Set this to the location of the jftpgw files:
+
+JFTPGWPATH=/opt/jftpgw
+CONFFILE=$JFTPGWPATH/jftpgw.conf
+BINARY=$JFTPGWPATH/bin/jftpgw
+
+PATH=/usr/bin:$PATH
+
+if [ x"$CONFFILE" != x"" ] && [ -r $CONFFILE ] ; then
+	# echo "Conffile is readable";
+	PIDFILE=`cat $CONFFILE  | grep "^pidfile" | cut -f 2- -d' '`
+fi
+
+
+# if PIDFILE cannot be determined out of the config file (see above, set it
+# here. If it is not set, is is cut out of the ``ps'' output)
+
+#PIDFILE=/var/run/jftpgw.pid
+
+
+if [ ! -x $BINARY ]
+then
+	echo "Error: $BINARY not found, verify your installation!"
+        exit
+fi
+
+
+# Kill the named process(es) with the given signal
+# usage: killproc procname [-SIGNAL]
+killproc() {
+	extrct_pid=`ps -e |
+		grep -w "$1$" |
+		sed -e 's/^  *//' -e 's/ .*//'`
+
+	if [ x"$PIDFILE" != x"" ] && [ -r $PIDFILE ]; then
+		pid=`cat $PIDFILE`
+	        [ "$pid" != "" ] && kill $2 $pid
+		if [ "$2" == "" ] && [ -e $PIDFILE ]; then
+			# The pidfile still exists - grant two seconds
+			sleep 2;
+			if [ -e $PIDFILE ]; then
+				pid=$extrct_pid
+		        	[ "$pid" != "" ] && kill -KILL $pid
+			fi
+		fi
+	else
+		pid=$extrct_pid
+	        [ "$pid" != "" ] && kill $2 $pid
+	fi
+}
+
+# Start/stop processes required for jftpgw
+
+case "$1" in
+'start')
+        # Only start if there is a config file
+        if [ -r $CONFFILE ] ; then
+		echo -ne Starting $BINARY...
+                $BINARY
+		echo done
+	else
+		echo "Config file does not exist or is not readable"
+        fi
+        ;;
+'stop')
+        killproc jftpgw
+        ;;
+'restart')
+	$0 stop
+	$0 start
+	;;
+'reload')
+	killproc jftpgw -HUP
+	;;
+*)
+        echo "Usage: $0 { start | stop | restart | reload }"
+        ;;
+esac
+

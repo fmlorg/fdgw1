@@ -1,0 +1,28 @@
+<global>
+	serverport		21
+	defaultmode		asclient
+	debuglevel		6
+	dropprivileges		start
+	runasuser		nobody
+</global>
+
+<servertype standalone>
+	listen			0.0.0.0:2370
+	logstyle		files
+	logfile			@LOGPATH@/jftpgw.log
+	pidfile			/var/run/jftpgw.pid
+</servertype>
+
+<servertype inetd>
+	logstyle		syslog
+</servertype>
+
+
+<from 0.0.0.0/0>
+	access deny
+</from>
+
+<from 192.168.0.0/16>
+	access allow
+</from>
+

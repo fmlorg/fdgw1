@@ -1,0 +1,45 @@
+# single configuration file for xinetd
+
+# 20011029: Dr. Peter Bieringer <pbieringer@aerasec.de>
+#  - initial
+# 20011115: Dr. Peter Bieringer <pbieringer@aerasec.de>
+#  - minor review
+ 
+service jftpgw
+{
+	# port on which proxy should listen (local adaption needed!)
+	port		= 4021
+
+	# bind only to internal interface (local adaption needed!)
+	bind		= 127.0.0.1
+
+	# user services are normally not listed
+	type		= UNLISTED
+
+	id		= jftpgw
+
+	protocol	= tcp
+
+	socket_type	= stream
+
+	wait		= no
+
+	user		= nobody
+	
+	# define maximum instances
+	instances	= 10
+
+	# allow local subnet only  (local adaption needed!)
+	only_from	= 127.0.0.1
+
+	# disable TCPWRAPPER (be careful!)
+	flags		= NOLIBWRAP
+
+	# autoconf sets the path
+	server          = @bindir@/jftpgw
+	server_args     = --inetd
+
+	# service is disabled by default (local adaption needed!)
+	disable		= yes
+	# disable	= no
+}

@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# Startup script for the jftpgw FTP Proxy/Gateway Server
+# (RedHat)
+#
+# Contributed by Michele Vignali <mvignali@bci.it>
+#
+# description: JFTPGW Proxy/Gateway 
+#
+# processname: jftpgw
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	echo -n "Starting JFTPGW: "
+	daemon /usr/local/bin/jftpgw
+	touch /var/lock/subsys/jftpgw
+	echo
+	;;
+  stop)
+	echo -n "Shutting down JFTPGW: "
+        killproc jftpgw 
+	echo
+	rm -f /var/lock/subsys/jftpgw
+	;;
+  status)
+	status jftpgw
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  reload)
+	echo -n "Reloading JFTPGW: "
+	killproc jftpgw -HUP
+	echo
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|reload|status}"
+	exit 1
+esac
+
+exit 0
