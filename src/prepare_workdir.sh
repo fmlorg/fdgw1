@@ -1,10 +1,13 @@
 #!/bin/sh
 #
-# $FML: prepare_workdir.sh,v 1.2 2001/12/16 04:04:45 fukachan Exp $
+# $FML: prepare_workdir.sh,v 1.3 2001/12/16 06:15:53 fukachan Exp $
 #
 
 # alloc netbsd source area, which is shared among src.$model
 test -d src/NetBSD || mkdir -p src/NetBSD
+
+# alloc tar.gz area to fetch
+test -d src/distfiles || mkdir -p src/distfiles
 
 # symlink(2)
 for model in $*
