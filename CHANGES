@@ -2,9 +2,22 @@
 
 2002/02/20
 
-   o.k. http and ftp proxies on proxybox works !
+   o.k. proxybox works !
+	o add stone as functional proxies
 	o define ifconfig.lo0
 	o fix squid.conf fules
+
+   rc.router
+	define the following proxies:
+	o smtp_proxy
+	o https_proxy
+	o anoncvs_proxy
+	o irc_proxy
+
+   add stone for functional tcp proxy
+	+ libwrap
+	+ ip filter support
+	+ rename $0 by setproctitle()
 
 2002/02/19
 
@@ -111,4 +124,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.12 2002/02/18 13:49:25 fukachan Exp $
+$FML: CHANGES,v 1.13 2002/02/20 10:58:48 fukachan Exp $
