@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ -f /conf/etc/rc.subr ]
+then
+	. /conf/etc/rc.subr
+else
+	echo Error: /conf/etc/rc.subr not found 2>&1
+	exit 1
+fi
+
 # link for /bin/ps
 ln -s /conf/netbsd /netbsd
 
@@ -54,6 +62,11 @@ then
 	echo enable NAT Box
 	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
 	/usr/sbin/ipnat -l
+   fi
+
+   if checkyesno ipmon; then
+	echo 'starting ipmon'
+	ipmon $ipmon_flags &
    fi
 fi
 
