@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.1.1.1 2002/02/09 06:36:59 fukachan Exp $
+# $FML: list,v 1.1.1.1 2002/04/18 01:56:36 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -108,6 +108,11 @@ SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
 SPECIAL touch    ${MOUNT_POINT}/var/db/dhcpd.leases
-SYMLINK /bin/cat			usr/pkg/squid
-SPECIAL cp -p ${CURDIR}/gnu/squid/scripts/RunCache ${MOUNT_POINT}/usr/pkg/sbin/
-SPECIAL cp -p ${CURDIR}/gnu/squid/scripts/RunAccel ${MOUNT_POINT}/usr/pkg/sbin/
+
+
+# zebra to use BGP
+SYMLINK /bin/cat	usr/pkg/sbin/zebra
+SYMLINK /bin/cat	usr/pkg/sbin/bgpd
+SPECIAL mkdir -p ${CURDIR}/work/etc/zebra
+SPECIAL cp ${CURDIR}/etc/zebra/zebra.conf ${CURDIR}/work/etc/zebra
+SPECIAL cp ${CURDIR}/etc/zebra/bgpd.conf  ${CURDIR}/work/etc/zebra
