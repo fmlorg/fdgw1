@@ -1,24 +1,20 @@
 #!/bin/sh
 #
-# $Id$
+# $FML$
 #
 
-DIR=/var/tmp/netbsd
-
-VERSION=`cat conf/etc/release_version`
 VERSION=`date +%C%y%m%d`
+ID=floppy_natbox-$VERSION
+DIR=/var/tmp/$ID
 
-test -d /var/tmp/netbsd && mv /var/tmp/netbsd /var/tmp/netbsd.$$
-test -d /var/tmp/netbsd || mkdir /var/tmp/netbsd
+test -d $DIR || mkdir -p $DIR
 
-rsync --exclude distrib -av -C ./ /var/tmp/netbsd/
+rsync --exclude distrib -av -C ./ $DIR
 
-cd /var/tmp
+cd /var/tmp || exit 1
 
-mv netbsd floppy_natbox-$VERSION
-
-tar cvf floppy_natbox-$VERSION.tar floppy_natbox-$VERSION
-gzip -9 floppy_natbox-$VERSION.tar
+tar cvf $ID.tar $ID
+gzip -9 $ID.tar
 
 exit 0;
 
