@@ -45,7 +45,8 @@ all:	netbsd
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
 	rm -f ${IMAGE}.[0-9]* ${MODEL}.img
-	ln ${IMAGE} ${MODEL}.img
+	test -d ../image || mkdir -p ../image
+	cp -p ${IMAGE} ../image/${MODEL}.img
 
 .include <bsd.own.mk>
 .include <bsd.obj.mk>
