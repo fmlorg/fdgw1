@@ -7,7 +7,7 @@
 /*  All rights reserved. This program is free software; you can
 /*  redistribute it and/or modify it under the same terms as NetBSD itself. 
 /*
-/* $FML: ipfilter.c,v 1.16 2002/02/03 01:36:25 fukachan Exp $
+/* $FML: ipfilter.c,v 1.17 2002/04/13 15:09:45 fukachan Exp $
 /*
 */
 
@@ -49,8 +49,8 @@ get_realdst(fd, laddrp, faddrp, np)
     return(0);
   }
 
-  np->nl_inport   = laddrp->sin_port;
-  np->nl_outport  = faddrp->sin_port;
+  np->nl_inport   = ntohs(laddrp->sin_port);
+  np->nl_outport  = ntohs(faddrp->sin_port);
   np->nl_inip     = laddrp->sin_addr;
   np->nl_outip    = faddrp->sin_addr;
   np->nl_flags    = IPN_TCP;
