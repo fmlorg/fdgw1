@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.20 2001/12/15 14:31:51 fukachan Exp $
+# $FML: Makefile,v 1.21 2001/12/15 16:29:40 fukachan Exp $
 #
 
 
@@ -34,7 +34,7 @@ clean cleandir:
 	- (cd src/gnu/rp-pppoe/src/;make distclean)
 
 allclean: clean
-	-rm -fr src/obj.* src/work src/compile
+	-rm -fr src.* image.*
 
 mount:
 	vnconfig -v -c /dev/vnd0d src/ramdisk-small.fs
