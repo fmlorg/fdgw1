@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for $if in `ifconfig -l`
+for if in `ifconfig -l`
 do
 	if [ -f /config/etc/ifconfig.$if ]
 	then
