@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.kernel,v 1.10 2001/12/15 12:46:01 fukachan Exp $
+# $FML: Makefile.kernel,v 1.11 2001/12/16 06:07:46 fukachan Exp $
 #
 
 RAMDISK_S?=	ramdisk-small.fs
@@ -29,8 +29,9 @@ ${KERN}: ${_KERNEL_CONF}
 	cp -p ${_KERNEL_CONF} ${.WORKDIR}/CONFIG
 	(cd ${.WORKDIR}; \
 		config -s ${_SYS_DIR} ;\
+		make clean;\
 		make depend;\
-		make -j 4 \
+		make \
 	)
 
 
