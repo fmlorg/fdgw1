@@ -1,4 +1,4 @@
-# $FML: dot.profile,v 1.1.1.1 2002/06/20 09:19:30 fukachan Exp $
+# $FML: dot.profile,v 1.2 2002/12/09 03:20:03 fukachan Exp $
 # $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
 # Copyright (c) 1997 Perry E. Metzger
@@ -34,9 +34,9 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.1.1.1 2002/06/20 09:19:30 fukachan Exp $
+# $FML: dot.profile,v 1.2 2002/12/09 03:20:03 fukachan Exp $
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002,2003 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
@@ -87,6 +87,11 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# symlink(2) for /etc
 	mv /etc /etc.orig
 	cp -pr /conf/etc /etc
+
+	# warning
+	touch /etc/00_NOT_EDIT_HERE
+	echo "Please edit /conf/etc not here since /etc is a copy of /conf/etc." \
+		> /etc/00_CAUTION
 
 	# XXX not umount since ipnat needs /netbsd for kmem reading ;)
 	# umount /conf
