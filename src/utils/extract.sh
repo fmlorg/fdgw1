@@ -1,11 +1,22 @@
-#!/bin/sh
+#!/bin/sh -x
 #
-# $FML: extract.sh,v 1.2 2002/06/20 08:43:28 fukachan Exp $
+# $FML: extract.sh,v 1.3 2003/01/10 04:21:24 fukachan Exp $
 #
+
+RENAME () {
+	local name=$1
+	local target=$2
+
+	if expr $name : $target
+	then
+		echo rename $target* to $target
+		mv $target* $target || exit 1
+	fi
+}
 
 tmpdir=./trash/$$
 
-cd gnu || exit 1
+cd ${PKG_DIR} || exit 1
 
 test -d $tmpdir || mkdir -p $tmpdir
 
@@ -22,7 +33,7 @@ do
 
 	echo Extracting $tgz
 
-	checksum0=`grep $tgz distinfo |awk '{print $4}'`
+	checksum0=`grep $tgz ../distinfo |awk '{print $4}'`
 	checksum1=`digest sha1 $f |awk '{print $4}'`
 	if [ "X$checksum0" = "X$checksum1" ];then
 		echo "Checksum ok"
@@ -39,22 +50,26 @@ do
 	echo tar zxf $f
 	eval tar zxf $f
 
-	if expr $name : squid
-	then
-		mv squid* squid || exit 1
-	fi
+	for prog in squid jftpgw zebra racoon
+	do
+		RENAME $name $prog
 
-	if expr $name : jftpgw
-	then
-		mv jftpgw* jftpgw || exit 1
-	fi
+		if [ -d $prog ];then
+			_prog=$prog
+			echo o.k. $prog is extraced.		
+			touch .extract_${name}_done
+		fi
+	done
 
-	if expr $name : zebra
-	then
-		mv zebra* zebra || exit 1
-	fi
+	if [ -d ../patches/${_prog} ];then
+		patches_dir=../patches/${_prog}
 
-	touch .extract_${name}_done
+		echo Appling patches
+		for p in $patches_dir/patch-*
+		do
+			(cd $_prog; patch < ../$p)
+		done
+	fi
 done
 
 exit 0
