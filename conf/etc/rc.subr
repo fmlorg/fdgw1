@@ -1,5 +1,5 @@
 #
-# $FML$
+# $FML: rc.subr,v 1.4 2001/09/06 16:15:30 fukachan Exp $
 #
 
 #
@@ -45,12 +45,11 @@ load_file () {
 install_file () {
    local file=$1
 
-   if [ -f $file ]; then
+   if [ -f /conf/$file ]; then
 	echo install $file
 	cp /conf/$file $file
    else
-	echo Error: $file not found 2>&1
-	exit 1
+	echo Warn: $file not found 2>&1
    fi
 }
 
@@ -58,7 +57,7 @@ install_file () {
 copyright () {
    if [ -f /conf/etc/release_version ];then
 	echo    "NetBSD/${ARCH} one floppy NATBOX"
-	echo    "fdgw 
+	echo    "fdgw "
 	echo -n " `cat /conf/etc/release_version`"
 	echo    " (`cat conf/etc/release_date`)"
    else
