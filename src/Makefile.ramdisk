@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML$
+# $FML: Makefile.ramdisk,v 1.4 2001/09/29 08:15:41 fukachan Exp $
 #
 
 # .include "${TOP}/Makefile.inc"
@@ -32,9 +32,11 @@ RAMDISKSPC=	256
 RAMDISKCYLS=	16
 RAMDISKSIZE!=	expr ${RAMDISKSPC} \* ${RAMDISKCYLS}
 
-realall: ${IMAGE}
+all: ${IMAGE}
 
 ${IMAGE}: ${CBIN} ${AUXDEPENDS} ${MTREE} ${LISTS}
+
+install:
 	rm -f ${IMAGE}.tmp
 	dd if=/dev/zero of=${IMAGE}.tmp count=${RAMDISKSIZE}
 	vnconfig -v -c ${VND_CDEV} ${IMAGE}.tmp \

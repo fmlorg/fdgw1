@@ -5,11 +5,15 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.13 2001/09/29 03:55:27 fukachan Exp $
+# $FML: Makefile,v 1.14 2001/09/29 08:15:41 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
 LOCALBASE?=	/usr/pkg
+
+_BSDSRCDIR=	${PWD}/work/src
+
+SRC_DIRS?=	bin sbin usr.bin usr.sbin distrib dist
 
 ARCH?=		`uname -p`
 _TOP=		${BSDSRCDIR}/distrib/${ARCH}/floppies
@@ -26,28 +30,45 @@ _CBIN?=		model/${MODEL}/ramdiskbin
 
 ETC_DIR?=	conf/etc
 
-_ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} BSDSRCDIR=${BSDSRCDIR} \
+_ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} \
+		BSDSRCDIR=${_BSDSRCDIR} \
 		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL} ARCH=${ARCH} \
 		INO_BYTES=${INO_BYTES}
 
 all: ${IMAGE}
 
-${IMAGE}: _prepare
+${IMAGE}:  _lndir _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
 	(cd utils/resolver/; make ${_ARGS})
-	-make -f Makefile.ramdisk ${_ARGS}
+	-make -f Makefile.ramdisk ${_ARGS} all
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
 	@ echo ""
-	-make -f Makefile.kernel netbsd ${_ARGS}
+	-make -f Makefile.kernel ${_ARGS} all
+
+install:
 	@ echo ""
 	@ echo "3. make a bootable floppy and install netbsd to it"
 	@ echo ""
-	-make -f Makefile.bootfloppy ${_ARGS}
+	-make -f Makefile.bootfloppy ${_ARGS} install
 	@ echo ""
 	@ echo "done."
+
+_lndir:
+	@ test -d ${_BSDSRCDIR} || mkdir -p ${_BSDSRCDIR}
+	@ echo ""
+	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
+	@ echo ""
+	@ if [ ! -f work/.lndir_done ]; then \
+	  for dir in ${SRC_DIRS} ;\
+	  do \
+		test -d ${_BSDSRCDIR}/$$dir || mkdir -p ${_BSDSRCDIR}/$$dir ;\
+		lndir ${BSDSRCDIR}/$$dir ${_BSDSRCDIR}/$$dir; \
+	  done \
+	  fi
+	@ touch work/.lndir_done
 
 _prepare:
 	@ echo "0. prepations ... "
@@ -69,7 +90,7 @@ _prepare:
 		./configure --prefix=${LOCALBASE};\
 		make ;\
 	)
-	(cd ${BSDSRCDIR}/usr.sbin/dhcp;make)
+	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
 
 clean cleandir:
 	-make -f Makefile.ramdisk unconfig TOP=${_TOP}
