@@ -1,5 +1,6 @@
 		TAGS
 
+cleanup-base		clean up before building
 cui-base		CUI developement stats
 
 current-20020127	fdgw-20020127.tar.gz
@@ -9,4 +10,4 @@ fdgw-0-9-base		fdgw-0-9-maint start point
 fdgw-0-9-maint		branch
 
 
-$FML: TAGS,v 1.4 2002/01/27 13:33:14 fukachan Exp $
+$FML: TAGS,v 1.5 2002/02/23 04:06:15 fukachan Exp $
