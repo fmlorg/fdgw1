@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $FML: clean.sh,v 1.1 2002/02/21 11:03:20 fukachan Exp $
+#  $FML: clean.sh,v 1.2 2002/02/22 13:28:47 fukachan Exp $
 #
 
 prefix=/usr/pkg
@@ -16,7 +16,9 @@ cd ${logdir}/logs || exit 1
 
 while true
 do
-	df /var | sed 1d | logger -t squid/logdir
+   df /var | sed 1d | logger -t squid/logdir
+
+   if [ -s access.log ];then
 
 	eval /usr/pkg/sbin/squid -k rotate -f $configfile
 	if [ -f access.log.0 ];then
@@ -27,8 +29,9 @@ do
 	if [ "X$mode" = Xonce ];then
 		exit 0;
 	fi
+   fi
 
-	sleep 30
+   sleep 5
 done
 
 exit 0
