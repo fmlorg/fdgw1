@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.65 2003/01/17 11:36:13 fukachan Exp $
+# $FML: Makefile,v 1.66 2004/01/27 16:00:45 fukachan Exp $
 #
 
 
@@ -225,18 +225,24 @@ image:
 #
 # initialization rules
 #
-INIT_RULES =	_init_mesg _init_dir  _lndir \
-		_init_config \
+INIT_RULES =	_init_mesg     \
+		_init_dir      \
+		_lndir         \
+		_init_config   \
 		_init_model_pre_configure \
-		_init_dhcp \
+		_init_dhcp     \
 		_init_resolver
+
+.if ${NetBSD_VERSION} == 1.6
+INIT_RULES +=	_prepare_fixed_source
+.endif
 
 .if ${MODEL} == "adslrouter"
 INIT_RULES +=	_init_pppoe
 .endif
 
 .if ${MODEL} == "proxybox"
-INIT_RULES +=	_init_squid \
+INIT_RULES +=	_init_squid  \
 		_init_jftpgw \
 		_init_stone
 .endif
@@ -431,6 +437,22 @@ _init_racoon:
 	  fi
 	@ touch ${STATUS_DIR}/.racoon_done
 
+
+_prepare_fixed_source: _init_x_syslogd
+
+ _init_x_syslogd:
+	@ echo ""
+	@ echo "import and modify syslogd for our use"
+	@ echo "   disable INET6 and use of libwrap"
+	@ echo ""
+	test -d x_syslogd || mkdir x_syslogd
+	cp -pr ${BSDSRCDIR}/usr.sbin/syslogd/* x_syslogd
+	sed 	-e '/^CPPFLAGS/d'      \
+		-e '/DPADD.*LIBWRAP/d' \
+		-e '/LDADD.*-lwrap/d'  \
+		x_syslogd/Makefile > x_syslogd/Makefile.bak
+	mv x_syslogd/Makefile.bak x_syslogd/Makefile
+	(cd x_syslogd; make )
 
 #
 # cleaning
