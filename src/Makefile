@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.48 2002/04/18 04:10:03 fukachan Exp $
+# $FML: Makefile,v 1.49 2002/04/18 09:12:27 fukachan Exp $
 #
 
 
@@ -35,72 +35,77 @@ _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
 
 
 # individual directories to link to
-_DIRS=	etc
-_DIRS+=	bin/cat
-_DIRS+=	bin/cp
-_DIRS+=	bin/chmod
-_DIRS+=	bin/csh
-_DIRS+=	bin/date
-_DIRS+=	bin/df
-_DIRS+=	bin/echo
-_DIRS+=	bin/ed
-_DIRS+=	bin/expr
-_DIRS+=	bin/hostname
-_DIRS+=	bin/kill
-_DIRS+=	bin/ln
-_DIRS+=	bin/ls
-_DIRS+=	bin/mkdir
-_DIRS+=	bin/mv
-_DIRS+=	bin/ps
-_DIRS+=	bin/pwd
-_DIRS+=	bin/rm
-_DIRS+=	bin/sh
-_DIRS+=	bin/sleep
-_DIRS+=	bin/stty
-_DIRS+=	bin/sync
-_DIRS+=	bin/test
+_DIR1=	etc
+_DIR1+=	bin/cat
+_DIR1+=	bin/cp
+_DIR1+=	bin/chmod
+_DIR1+=	bin/csh
+_DIR1+=	bin/date
+_DIR1+=	bin/df
+_DIR1+=	bin/echo
+_DIR1+=	bin/ed
+_DIR1+=	bin/expr
+_DIR1+=	bin/hostname
+_DIR1+=	bin/kill
+_DIR1+=	bin/ln
+_DIR1+=	bin/ls
+_DIR1+=	bin/mkdir
+_DIR1+=	bin/mv
+_DIR1+=	bin/ps
+_DIR1+=	bin/pwd
+_DIR1+=	bin/rm
+_DIR1+=	bin/sh
+_DIR1+=	bin/sleep
+_DIR1+=	bin/stty
+_DIR1+=	bin/sync
+_DIR1+=	bin/test
+_DIR1+=	distrib/utils
+_DIR1+=	distrib/i386/floppies
+_DIR1+=	sbin/ifconfig
+_DIR1+=	sbin/init
+_DIR1+=	sbin/mount
+_DIR1+=	sbin/mount_ffs
+_DIR1+=	sbin/mount_kernfs
+_DIR1+=	sbin/mount_msdos
+_DIR1+=	sbin/umount
+_DIR1+=	sbin/ping
+_DIR1+=	sbin/route
+_DIR1+=	sbin/reboot
+.ifdef IPSEC
+_DIR1+=	sbin/setkey
+.endif
+_DIR1+=	sbin/shutdown
+_DIR1+=	sbin/sysctl
+_DIR1+=	usr.bin/basename
+_DIR1+=	usr.bin/id
+_DIR1+=	usr.bin/less
+_DIR1+=	usr.bin/logger
+_DIR1+=	usr.bin/sed
+_DIR1+=	usr.bin/tty
+_DIR1+=	usr.bin/uname
+_DIR1+=	usr.sbin/chown
+_DIR1+=	usr.sbin/chroot
+_DIR1+=	usr.sbin/dhcp
+_DIR1+=	usr.sbin/ipf
+_DIR1+=	usr.sbin/pppd
+_DIR1+=	usr.sbin/syslogd
+
+_DIR1+=	lib/libpcap
+.ifdef IPSEC
+_DIR1+=	lib/libipsec
+.endif
+
+_DIR1+=	sys/netinet
+.ifdef IPSEC
+_DIR1+=	sys/netkey
+.endif
+
+_DIR2=	dist/ipf
 .if exists (${BSDSRCDIR}/dist/dhcp/Makefile)
-_DIRS+=	dist/dhcp
+_DIR2+=	dist/dhcp
 .endif
-_DIRS+=	dist/ipf
-_DIRS+=	distrib/utils
-_DIRS+=	distrib/i386/floppies
-_DIRS+=	sbin/ifconfig
-_DIRS+=	sbin/init
-_DIRS+=	sbin/mount
-_DIRS+=	sbin/mount_ffs
-_DIRS+=	sbin/mount_kernfs
-_DIRS+=	sbin/mount_msdos
-_DIRS+=	sbin/umount
-_DIRS+=	sbin/ping
-_DIRS+=	sbin/route
-_DIRS+=	sbin/reboot
-_DIRS+=	sbin/sysctl
-.ifdef IPSEC
-_DIRS+=	sbin/setkey
-.endif
-_DIRS+=	sbin/shutdown
-_DIRS+=	usr.bin/basename
-_DIRS+=	usr.bin/id
-_DIRS+=	usr.bin/less
-_DIRS+=	usr.bin/logger
-_DIRS+=	usr.bin/sed
-_DIRS+=	usr.bin/tput
-_DIRS+=	usr.bin/tty
-_DIRS+=	usr.bin/uname
-_DIRS+=	usr.sbin/chown
-_DIRS+=	usr.sbin/chroot
-_DIRS+=	usr.sbin/dhcp
-_DIRS+=	usr.sbin/ipf
-_DIRS+=	usr.sbin/pppd
-_DIRS+=	usr.sbin/syslogd
-_DIRS+=	lib/libpcap
-.ifdef IPSEC
-_DIRS+=	lib/libipsec
-_DIRS+=	sys/netkey
-.endif
-_DIRS+=	sys/netinet
-_DIRS+=	sys/arch/i386/stand
+_DIR2+=	sys/conf
+_DIR2+=	sys/arch/i386/stand
 
 
 _FLOPPY_DIR=	${_BSDSRCDIR}/distrib/${ARCH}/floppies
@@ -225,12 +230,15 @@ _init_mesg:
 
 _lndir:
 	@ test -d ${_BSDSRCDIR} || mkdir -p ${_BSDSRCDIR}
-	for DIR in ${_DIRS} ; do \
+	for DIR in ${_DIR1} ${_DIR2}; do \
 	  test -d ${_BSDSRCDIR}/$$DIR || mkdir -p ${_BSDSRCDIR}/$$DIR; \
 	  lndir ${BSDSRCDIR}/$$DIR ${_BSDSRCDIR}/$$DIR; \
 	done
 	(cd ${_BSDSRCDIR}/distrib; ln -s -f ${BSDSRCDIR}/distrib/Makefile.inc)
 	(cd ${_BSDSRCDIR}; ln -s -f ${BSDSRCDIR}/Makefile.inc)
+	for DIR in ${_DIR1} ; do \
+	  (cd ${_BSDSRCDIR}/$$DIR; echo cleaning in $$DIR; make cleandir) \
+	done
 	@ touch ${_BSDSRCDIR}/.lndir_done
 
 _init_dir:
