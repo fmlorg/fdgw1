@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.2 2002/02/12 12:37:32 fukachan Exp $
+# $FML: list,v 1.3 2002/02/15 14:43:48 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -132,6 +132,10 @@ SPECIAL cp ${CURDIR}/gnu/squid/src/mime.conf ${CURDIR}/work/etc/squid
 SYMLINK /bin/cat	usr/pkg/sbin/jftpgw
 SPECIAL mkdir -p ${CURDIR}/work/etc/jftpgw
 SPECIAL cp ${CURDIR}/etc/jftpgw/jftpgw.conf ${CURDIR}/work/etc/jftpgw
+
+
+# install model specific rc.conf
+SPECIAL cp ${CURDIR}/model/proxybox/rc.conf ${CURDIR}/work/etc/
 
 
 # debug
