@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $FML$
+# $FML: convert.pl,v 1.1 2001/08/14 21:42:54 fukachan Exp $
 #
 
 use strict;
@@ -26,6 +26,7 @@ if (defined $fh) {
 		/ukbd./          ||	# USB HUB
 		/umass./         ||	# USB HUB
 		/isapnp./        ||
+		/pseudo-device\s*sl\s*/ || # SLIP
 		/file-system\s*(EXT2FS|MFS|NFS|NTFS|CD9660)/
 		) {
 		$_ = "\#". $_;
