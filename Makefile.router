@@ -39,7 +39,7 @@ MDEC=		${DESTDIR}/usr/mdec
 STRIP?=		strip
 
 LISTS=		${COMMONDIR}/list
-RAMDISK	!=cd $(.CURDIR)/../router/; \
+RAMDISK	!=cd $(.CURDIR)/../floppy_natbox/; \
         printf "xxx: .MAKE\n\t@echo \$${.OBJDIR}/ramdisk.fs\n" | \
 	${MAKE} -s -f-
 
