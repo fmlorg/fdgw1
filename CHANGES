@@ -6,6 +6,11 @@
    add riprouter6 model to handle both IPv4 and IPv6 :)
 	primary target is a IPv6 router, which needs RIPv2 only now.
 
+2002/04/22
+
+   apply patch-ae from pkgsrc/sysutils/fdgw (requested by wennmach@nebsd.org)
+	fix patch-ae bug (we should lndir /sys/conf too)
+
 2002/04/18
 
    add BGP router model based on zebra
@@ -183,4 +188,4 @@
 
 
 -----
-$FML: CHANGES,v 1.24 2002/04/18 09:14:42 fukachan Exp $
+$FML: CHANGES,v 1.25 2002/04/24 09:09:30 fukachan Exp $
