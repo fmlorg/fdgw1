@@ -22,6 +22,7 @@ LINK	ramdiskbin			bin/stty
 LINK	ramdiskbin			bin/sync
 LINK	ramdiskbin			bin/test
 LINK	ramdiskbin			bin/[
+LINK	ramdiskbin			bin/hostname
 LINK	ramdiskbin			sbin/cd9660
 LINK	ramdiskbin			sbin/disklabel
 LINK	ramdiskbin			sbin/fdisk
@@ -65,6 +66,7 @@ SYMLINK	/bin/cat		usr/bin/more
 SYMLINK	/bin/cat		usr/bin/sed
 SYMLINK	/bin/cat		usr/bin/tar
 SYMLINK	/bin/cat		usr/bin/tip
+SYMLINK	/bin/cat		usr/bin/netstat
 SYMLINK	/bin/cat		usr/mdec/installboot
 SYMLINK	/bin/cat		usr/sbin/bad144
 SYMLINK	/bin/cat		usr/sbin/chown
@@ -73,6 +75,7 @@ SYMLINK	/bin/cat		usr/sbin/mbrlabel
 SYMLINK	/bin/cat		usr/sbin/update
 SYMLINK	/bin/cat		usr/sbin/ipnat
 SYMLINK	/bin/cat		usr/sbin/ipfstat
+SYMLINK	/bin/cat		usr/sbin/syslogd
 SPECIAL	/bin/rm ramdiskbin
 
 # various files that we need in /etc for the install
