@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.1.1.1 2004/01/27 15:54:56 fukachan Exp $
+# $FML: list,v 1.1.1.1 2004/01/27 15:58:07 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -115,6 +115,8 @@ SPECIAL cp -pr   ${MOUNT_POINT}/etc ${CURDIR}/work
 # prepare /etc/ and /usr/pkg/
 SPECIAL mkdir -p ${MOUNT_POINT}/etc
 SPECIAL df -i    ${MOUNT_POINT}
+SPECIAL mkdir -p ${MOUNT_POINT}/etc/rc.d
+SPECIAL mkdir -p ${MOUNT_POINT}/etc/ppp
 SPECIAL mkdir -p ${MOUNT_POINT}/usr
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
