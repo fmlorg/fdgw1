@@ -2,7 +2,7 @@
 
 # copy the crunched binary, link to it, and kill it
 COPY	${OBJDIR}/ramdiskbin		ramdiskbin
-LINK	ramdiskbin			sysinst
+#LINK	ramdiskbin			sysinst
 LINK	ramdiskbin			bin/cat
 LINK	ramdiskbin			bin/chmod
 LINK	ramdiskbin			bin/cp
@@ -23,6 +23,8 @@ LINK	ramdiskbin			bin/sync
 LINK	ramdiskbin			bin/test
 LINK	ramdiskbin			bin/[
 LINK	ramdiskbin			bin/hostname
+LINK	ramdiskbin			bin/ps
+LINK	ramdiskbin			bin/kill
 LINK	ramdiskbin			sbin/cd9660
 LINK	ramdiskbin			sbin/disklabel
 LINK	ramdiskbin			sbin/fdisk
@@ -91,6 +93,7 @@ SPECIAL /bin/rm etc/pwd.db
 # copy the MAKEDEV script and make some devices
 COPY	${CURDIR}/../../../../etc/etc.i386/MAKEDEV	dev/MAKEDEV
 SPECIAL	cd dev; sh MAKEDEV ramdisk
+SPECIAL	cd dev; sh MAKEDEV std
 SPECIAL	cd dev; sh MAKEDEV ipl
 SPECIAL	/bin/rm dev/MAKEDEV
 
