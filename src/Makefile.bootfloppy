@@ -36,7 +36,7 @@ all:	netbsd
 	@echo ""
 	@echo "installing new bootblocks"
 	mkdir ${MOUNT_POINT}/etc
-	cp -p ${_ETC_DIR}/[a-z]* ${MOUNT_POINT}/etc
+	cp -pr ${_ETC_DIR}/[a-z]* ${MOUNT_POINT}/etc
 	if [ -f /usr/pkg/share/examples/rp-pppoe/pppoe.conf ];then \
 		mkdir -p ${MOUNT_POINT}/etc/ppp;\
 		cp -p /usr/pkg/share/examples/rp-pppoe/pppoe.conf \
