@@ -1,6 +1,12 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2004/02/09
+
+  conf/1.6/kernel.i386
+	clean up logic.
+	sync GENERIC file w/ 1.6.1.
+
 2004/02/07
 
   enable IPv6 multicast model by default.
@@ -324,4 +330,4 @@
 
 
 -----
-$FML: CHANGES,v 1.41 2004/02/07 04:48:24 fukachan Exp $
+$FML: CHANGES,v 1.42 2004/02/07 05:53:40 fukachan Exp $
