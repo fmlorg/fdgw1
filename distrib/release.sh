@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# $FML$
+# $FML: release.sh,v 1.2 2001/08/14 21:52:56 fukachan Exp $
 #
 
 VERSION=`date +%C%y%m%d`
-ID=floppy_natbox-$VERSION
+ID=fdgw-$VERSION
 DIR=/var/tmp/$ID
 
 test -d $DIR || mkdir -p $DIR
