@@ -58,7 +58,6 @@ LINK	ramdiskbin			sbin/slattach
 LINK	ramdiskbin			sbin/swapctl
 LINK	ramdiskbin			sbin/umount
 LINK	ramdiskbin			sbin/ipf
-LINK	ramdiskbin			sbin/dmesg
 SYMLINK	/bin/cat		usr/bin/chgrp
 SYMLINK	/bin/cat		usr/bin/ftp
 #SYMLINK	/bin/cat		usr/bin/gunzip
