@@ -1,5 +1,14 @@
 		CHANGES
 
+2002/02/22
+
+  minor bug fix for proxymodel
+	update squid to 2.4 stable 4.
+	tune up squid parameters
+	use /usr/pkg/etc/squid/ for squid configuration files.
+	install config files to /usr/pkg/etc/squid/ from /etc/squid/
+	in boot time.
+
 2002/02/21
 
   minor bug fixes proxymodel around squid
@@ -136,4 +145,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.14 2002/02/20 13:40:33 fukachan Exp $
+$FML: CHANGES,v 1.15 2002/02/21 11:07:31 fukachan Exp $
