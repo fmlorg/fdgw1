@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.18 2001/09/06 16:14:15 fukachan Exp $
+# $FML: rc.router,v 1.1.1.1 2001/09/08 15:48:05 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -36,6 +36,8 @@ done
 
 if [ -f /conf/etc/mygate ];then
    route add default `cat /conf/etc/mygate`
+else
+   echo 'warn: no default route by default';
 fi
 
 if checkyesno syslogd; then
@@ -71,6 +73,12 @@ if [ -f /conf/etc/ipf.conf ];then
 	ipmon $ipmon_flags &
    fi
 fi
+
+if checkyesno pppoe; then
+	echo 'starting ADSL (pppoe)';
+	/usr/pkg/sbin/adsl-start
+fi
+
 
 echo ""
 
