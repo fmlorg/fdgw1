@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.55 2002/06/18 12:29:08 fukachan Exp $
+# $FML: Makefile,v 1.56 2002/06/20 09:22:02 fukachan Exp $
 #
 
 
@@ -14,7 +14,8 @@
 #
 ARCH?=		`uname -p`
 
-NetBSD_VERSION?=	1.5
+__VERSION != uname -r
+NetBSD_VERSION?=	${__VERSION:C|^(...).*|\1|}
 
 _CONF_DIR=	conf/${NetBSD_VERSION}
 
