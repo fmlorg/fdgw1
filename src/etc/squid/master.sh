@@ -1,12 +1,12 @@
 #!/bin/sh
 #
-#  $FML: master.sh,v 1.1 2002/02/18 10:47:36 fukachan Exp $
+#  $FML: master.sh,v 1.2 2002/02/18 13:44:48 fukachan Exp $
 #
 
 prefix=/usr/pkg
 exec_prefix=${prefix}
 logdir=/var/squid
-PATH=${exec_prefix}/sbin:/bin:/usr/bin
+PATH=${exec_prefix}/sbin:/bin:/usr/bin:/sbin:/usr/sbin
 export PATH
 
 conf=""
@@ -20,9 +20,9 @@ mkdir -p ${logdir}
 mkdir -p ${logdir}/cache
 mkdir -p ${logdir}/logs
 mkdir -p ${logdir}/errors
-touch ${logdir}/logs/access.log
-touch ${logdir}/logs/cache.log
-touch ${logdir}/logs/store.log
+cp /dev/null ${logdir}/logs/access.log
+cp /dev/null ${logdir}/logs/cache.log
+cp /dev/null ${logdir}/logs/store.log
 chown -R nobody ${logdir}
 
 
@@ -32,6 +32,6 @@ while : ; do
 	echo "Startup: `date`" | logger -t squid
 	chown -R nobody ${logdir}
 	squid -z
-	squid -NY $conf | logger -t squid
+	squid -NsY $conf | logger -t squid
 	sleep 10
 done
