@@ -59,7 +59,7 @@ LINK	ramdiskbin			sbin/swapctl
 LINK	ramdiskbin			sbin/umount
 LINK	ramdiskbin			sbin/ipf
 SYMLINK	/bin/cat		usr/bin/chgrp
-SYMLINK	/bin/cat		usr/bin/ftp
+#SYMLINK	/bin/cat		usr/bin/ftp
 #SYMLINK	/bin/cat		usr/bin/gunzip
 #SYMLINK	/bin/cat		usr/bin/gzcat
 #SYMLINK	/bin/cat		usr/bin/gzip
