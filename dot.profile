@@ -74,7 +74,7 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	mount /dev/fd0a /conf
 	if [ -f /conf/etc/rc.router ]
 	then
-		sh -x /conf/etc/rc.router
+		sh /conf/etc/rc.router
 	else
 		echo "*** welcome to one floppy NetBSD nat box ***"
 		echo "no given configuration! please customize this by yourself"
