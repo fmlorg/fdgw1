@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.3 2002/02/15 14:43:48 fukachan Exp $
+# $FML: list,v 1.4 2002/02/18 13:40:00 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -83,7 +83,7 @@ COPY	${TOP}/../../../etc/services	etc/services
 
 SPECIAL	pwd_mkdb -p -d ./ etc/master.passwd
 #SPECIAL /bin/rm etc/spwd.db
-#SPECIAL /bin/rm etc/pwd.db
+SPECIAL /bin/rm etc/pwd.db
 
 # copy the MAKEDEV script and make some devices
 COPY	${TOP}/../../../etc/etc.${ARCH}/MAKEDEV	dev/MAKEDEV
@@ -108,24 +108,23 @@ SPECIAL mkdir -p ${MOUNT_POINT}/usr
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
-SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/libexec/squid
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/libexec
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/share/squid/icons
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/share/squid/errors
 SPECIAL touch    ${MOUNT_POINT}/var/db/dhcpd.leases
 
 # XXX parepare /etc on /dev/fd0a not /dev/vnd0a 
 SPECIAL cp -pr   ${MOUNT_POINT}/etc ${CURDIR}/work
 
-# squid
-SYMLINK /bin/cat	usr/pkg/sbin/squid
-SYMLINK /bin/cat	usr/pkg/libexec/squid/unlinkd
-#SPECIAL cp ${CURDIR}/gnu/squid/scripts/RunCache ${MOUNT_POINT}/usr/pkg/sbin/
-#SPECIAL cp ${CURDIR}/gnu/squid/scripts/RunAccel ${MOUNT_POINT}/usr/pkg/sbin/
-SPECIAL cp ${CURDIR}/etc/squid/master.sh ${MOUNT_POINT}/usr/pkg/sbin/squidmaster
-
 # squid (prepare directories under /etc/ on fd0a)
 SPECIAL mkdir -p ${CURDIR}/work/etc/squid
 SPECIAL mkdir -p ${CURDIR}/work/etc/squid/icons
+SYMLINK /bin/cat	usr/pkg/sbin/squid
+SYMLINK /bin/cat	usr/pkg/libexec/unlinkd
+SPECIAL cp ${CURDIR}/etc/squid/master.sh ${MOUNT_POINT}/usr/pkg/sbin/squidmaster
 SPECIAL cp ${CURDIR}/etc/squid/squid.conf    ${CURDIR}/work/etc/squid
 SPECIAL cp ${CURDIR}/gnu/squid/src/mime.conf ${CURDIR}/work/etc/squid
+SPECIAL cp -pr ${CURDIR}/gnu/squid/errors/English/* ${MOUNT_POINT}/usr/pkg/share/squid/errors
 
 
 # jftpgw
@@ -136,6 +135,7 @@ SPECIAL cp ${CURDIR}/etc/jftpgw/jftpgw.conf ${CURDIR}/work/etc/jftpgw
 
 # install model specific rc.conf
 SPECIAL cp ${CURDIR}/model/proxybox/rc.conf ${CURDIR}/work/etc/
+SPECIAL cp ${CURDIR}/model/proxybox/ipnat.conf ${CURDIR}/work/etc/
 
 
 # debug
