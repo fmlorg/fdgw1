@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.24 2003/01/10 04:02:26 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.25 2003/01/20 01:14:47 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -66,7 +66,7 @@ image:	netbsd
 	test -d ${MOUNT_POINT} || mkdir -p ${MOUNT_POINT}
 	mount ${VND_DEV} ${MOUNT_POINT}
 	TOPDIR=${TOP} CURDIR=${.CURDIR} OBJDIR=${.OBJDIR} \
-	    TARGDIR=${MOUNT_POINT} sh ${TOP}/runlist.sh ${LISTS}
+	    TARGDIR=${MOUNT_POINT} sh ${.CURDIR}/runlist.sh ${LISTS}
 	@echo ""
 	@df -i ${MOUNT_POINT}
 	@echo ""
