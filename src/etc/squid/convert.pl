@@ -1,7 +1,17 @@
 #!/usr/bin/env perl
 #
-# $FML: convert.pl,v 1.1 2002/02/18 23:22:34 fukachan Exp $
+# $FML: convert.pl,v 1.2 2002/02/18 23:28:58 fukachan Exp $
 #
+
+my $allow = q{
+http_access allow manager localhost
+http_access allow local
+http_access allow localhost
+};
+
+my $localnet = q{
+acl local src 10.0.0.0/255.0.0.0 172.16.0.0/255.248.0.0 192.168.0.0/255.255.0.0
+};
 
 while (<>) {
 
@@ -17,6 +27,9 @@ while (<>) {
 	s!^\# maximum_object_size.*!maximum_object_size 1 KB!;
 	s!^\# icon_directory.*!icon_directory /usr/pkg/share/squid/icons!;
 	s!^\# error_directory.*!error_directory /usr/pkg/share/squid/errors!;
+	s!^(acl localhost.*)!$1\n$localnet!;
+	s!^acl local src.*!$localnet!;
+	s!^http_access allow manager localhost!$allow!;
 
 	print $_;
 }
