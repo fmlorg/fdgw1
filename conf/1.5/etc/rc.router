@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.3 2002/08/05 15:20:08 fukachan Exp $
+# $FML: rc.router,v 1.4 2002/08/05 15:21:45 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -51,13 +51,13 @@ fi
 
 
 if checkyesno ip4forwarding; then
-	if [ -x /sbin/sysctl ];then
+	if check_prog_exist /sbin/sysctl ;then
 		echo "enable IPv4 router"
 		/sbin/sysctl -w net.inet.ip.forwarding=1
 		/sbin/sysctl -w net.inet.ip.forwsrcrt=0
 	fi
 else
-	if [ -x /sbin/sysctl ];then
+	if check_prog_exist /sbin/sysctl ;then
 		echo "disable IPv4 router"
 		/sbin/sysctl -w net.inet.ip.forwarding=0
 	fi
@@ -65,12 +65,12 @@ fi
 
 
 if checkyesno ip6forwarding; then
-	if [ -x /sbin/sysctl ];then
+	if check_prog_exist /sbin/sysctl ;then
 		echo "enable IPv6 router"
 		/sbin/sysctl -w net.inet6.ip6.forwarding=1
 	fi
 else 
-	if [ -x /sbin/sysctl ];then
+	if check_prog_exist /sbin/sysctl ;then
 		echo "disable IPv6 router"
 		/sbin/sysctl -w net.inet6.ip6.forwarding=0
 	fi
@@ -101,6 +101,8 @@ if checkyesno syslogd; then
 	echo "starting syslogd"
 	cp /dev/null var/run/utmp
 	syslogd $syslogd_flags
+   else
+	echo "Error: no /etc/syslog.conf"
    fi
 fi
 
@@ -109,6 +111,8 @@ if checkyesno dhcpd; then
    if [ -f /etc/dhcpd.conf ];then
 	echo "starting dhcpd"
 	/usr/sbin/dhcpd $dhcpd_flags >/dev/null 2>&1
+   else
+	echo "Error: no /etc/dhcpd.conf"
    fi
 fi
 
@@ -119,6 +123,8 @@ if checkyesno ipfilter; then
       /sbin/ipf -E -f /etc/ipf.conf
       /usr/sbin/ipfstat -i
       /usr/sbin/ipfstat -o
+   else
+	echo "Error: no /etc/ipf.conf"
    fi
 
    if checkyesno ipnat; then
@@ -126,6 +132,8 @@ if checkyesno ipfilter; then
    	echo "enable NAT by IP Filter"
    	/usr/sbin/ipnat -f /etc/ipnat.conf
    	/usr/sbin/ipnat -l
+      else
+	echo "Error: no /etc/ipnat.conf"
       fi
    fi
 
@@ -137,43 +145,48 @@ fi
 
 
 if checkyesno pppoe; then
+   if check_prog_exist /usr/pkg/sbin/adsl-start ;then
 	echo 'starting ADSL (pppoe)';
 	/usr/pkg/sbin/adsl-start
+   fi
 fi
 
 
-
 if checkyesno rtsold; then
+   if check_prog_exist /usr/sbin/rtsold ;then
 	echo "starting rtsold";
 	/usr/sbin/rtsold $rtsold_flags
+   fi
 fi
 
 
 if checkyesno rtadvd; then
+   if check_prog_exist /usr/sbin/rtadvd ;then
 	echo "starting rtadvd";
 	/usr/sbin/rtadvd $rtadvd_flags
+   fi
 fi
 
 
 if checkyesno route6d; then
+   if check_prog_exist /usr/sbin/route6d ;then
 	echo "starting route6d";
 	/usr/sbin/route6d $route6d_flags
+   fi
 fi
 
 
 if checkyesno pim6sd; then
-   if [ -x /usr/sbin/pim6sd ];then
+   if check_prog_exist /usr/sbin/pim6sd ;then
 	echo "starting pim6sd";
 	/usr/sbin/pim6sd $pim6sd_flags
-   else
-	echo "	warn: /usr/sbin/pim6sd not found";
    fi
 fi
 
 
 if checkyesno http_proxy; then
-    echo -n 'starting http proxy: ';
-    if [ -x /usr/pkg/sbin/squid ];then
+   echo -n 'starting http proxy: ';
+   if check_prog_exist /usr/pkg/sbin/squid ;then
 	echo -n 'squid ';
 	/usr/pkg/sbin/squidmaster &
    fi
@@ -185,7 +198,7 @@ fi
 if checkyesno ftp_proxy; then
    echo 'starting ftp proxy';
 
-   if [ -x /usr/pkg/sbin/jftpgw ];then
+   if check_prog_exist /usr/pkg/sbin/jftpgw ;then
 	/usr/pkg/sbin/jftpgw -f /etc/jftpgw/jftpgw.conf
    fi
 fi
@@ -194,7 +207,7 @@ fi
 if checkyesno ssh_proxy; then
    echo 'starting ssh proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N ssh-proxy -l -T localhost:0 localhost:10022 &
    fi
 fi
@@ -203,7 +216,7 @@ fi
 if checkyesno smtp_proxy; then
    echo 'starting smtp proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N smtp-proxy -l -T localhost:0 localhost:10025 &
    fi
 fi
@@ -212,7 +225,7 @@ fi
 if checkyesno pop_proxy; then
    echo 'starting pop proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N pop-proxy -l -T localhost:0 localhost:10110 &
    fi
 fi
@@ -221,7 +234,7 @@ fi
 if checkyesno https_proxy; then
    echo 'starting https proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N https-proxy -l -T localhost:0 localhost:10443 &
    fi
 fi
@@ -230,7 +243,7 @@ fi
 if checkyesno anoncvs_proxy; then
    echo 'starting anoncvs proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N anoncvs-proxy -l -T localhost:0 localhost:12401 &
    fi
 fi
@@ -239,13 +252,19 @@ fi
 if checkyesno irc_proxy; then
    echo 'starting irc proxy';
 
-   if [ -x /usr/pkg/sbin/stone ];then
+   if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N irc-proxy -l -T localhost:0 localhost:16667 &
    fi
 fi
 
 
-# run post hook before rc.router main stats
+# run local hook after rc.router main stats
+if [ -f /etc/rc.router.local ]; then
+	. /etc/rc.router.local
+fi
+
+
+# run post hook after rc.router main stats
 if [ -f /etc/rc.router.post ]; then
 	. /etc/rc.router.post
 fi
