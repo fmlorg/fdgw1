@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# $FML$
+# $FML: uni.sh,v 1.1.1.1 2002/04/17 03:04:18 fukachan Exp $
 #
 
 wrapper="echo"
 
 tmp=/tmp/uni.$$
 
-trap "rm -f $tmp" 0 1 3 15
+trap "eval $wrapper umount /conf; rm -f $tmp" 0 1 3 15
 
 
 ######################################################################
@@ -198,6 +198,8 @@ menu_editor () {
 menu_top
 
 cmd_q="exit 0"
+
+eval $wrapper mount /dev/fd0a /conf
 
 while true
 do
