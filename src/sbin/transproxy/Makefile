@@ -38,13 +38,13 @@ OPTIONS += -DDNS_LOOKUPS
 #OPTIONS += -DUSELESS_DNS_LOOKUPS
 
 # Error and request logging.
-#OPTIONS += -DLOG_TO_SYSLOG
+OPTIONS += -DLOG_TO_SYSLOG
 OPTIONS += -DLOG_FAULTS_TO_SYSLOG
 OPTIONS += -DLOG_TO_FILE
 OPTIONS += -DLOG_TO_FILE_LINEBUFF
 
 # BSD IPFILTER mechanism for fetching intended destination address.
-#OPTIONS += -DIPFILTER
+OPTIONS += -DIPFILTER
 
 # linux-2.4 iptables mechanism for fetching intended destination address.
 #OPTIONS += -DIPTABLES
@@ -61,17 +61,17 @@ OPTIONS += -DLOG_TO_FILE_LINEBUFF
 #OPTIONS += -DHAVE_GETOPT_H
 
 # You may need to touch PREFIX, CC and CFLAGS.
-PREFIX = /usr/local
-INSTALL_PROGRAM = install -c -m 555 -o bin -g bin
-INSTALL_MAN = install -c -m 444 -o bin -g bin
+#PREFIX = /usr/local
+#INSTALL_PROGRAM = install -c -m 555 -o bin -g bin
+#INSTALL_MAN = install -c -m 444 -o bin -g bin
 
 # Some make's don't define this.
-RM      = rm -f
+#RM      = rm -f
 
 # Should be OK for GNU gcc.
-CC      = gcc
-CFLAGS  = -O2 -Wall
-LDFLAGS = -s
+#CC      = gcc
+#CFLAGS  = -O2 -Wall
+#LDFLAGS = -s
 
 # For using BIND resolver instead of system resolver.
 #LIBS    += -lresolv	# Really old Linux has this.
@@ -100,7 +100,7 @@ clobber dist-clean:	clean
 	$(RM) tproxy
 
 install:	tproxy
-	$(INSTALL_PROGRAM) tproxy $(PREFIX)/sbin
-	$(INSTALL_PROGRAM) tproxyrun $(PREFIX)/sbin
-	$(INSTALL_PROGRAM) tproxywatch $(PREFIX)/sbin
-	$(INSTALL_MAN) tproxy.8 $(PREFIX)/man/man8
+	$(BSD_INSTALL_PROGRAM) tproxy $(PREFIX)/sbin
+	$(BSD_INSTALL_PROGRAM) tproxyrun $(PREFIX)/sbin
+	$(BSD_INSTALL_PROGRAM) tproxywatch $(PREFIX)/sbin
+	$(BSD_INSTALL_MAN) tproxy.8 $(PREFIX)/man/man8
