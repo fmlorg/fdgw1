@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML
+# $FML$
 #
 
 workdir=`dirname $0`/..
