@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.8 2001/09/08 09:43:56 fukachan Exp $
+# $FML: Makefile,v 1.9 2001/09/08 09:50:01 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -17,7 +17,7 @@ _CBIN?=		model/${MODEL}/ramdiskbin
 ETC_DIR?=	conf/etc
 
 _ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} BSDSRCDIR=${BSDSRCDIR} \
-		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL}
+		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL} ARCH=${ARCH}
 
 all: ${IMAGE}
 
@@ -49,7 +49,7 @@ _prepare:
 	cp ${_TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
 	cp ${_TOP}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
-	ln -s ${_CBIN}.conf ramdiskbin.conf
+	sed "s/__ARCH__/${ARCH}/g" ${_CBIN}.conf > ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
 	if [ -x model/${MODEL}/configure ]; then model/${MODEL}/configure ; fi
