@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.10 2002/02/23 08:00:58 fukachan Exp $
+# $FML: list,v 1.11 2002/04/17 10:32:53 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -147,6 +147,7 @@ SYMLINK /bin/cat	usr/pkg/sbin/stone
 
 # install model specific rc.conf
 SPECIAL cp ${CURDIR}/model/proxybox/rc.conf ${CURDIR}/work/etc/
+SPECIAL cp ${CURDIR}/model/proxybox/rc.router.pre ${CURDIR}/work/etc/
 SPECIAL cp ${CURDIR}/model/proxybox/ipnat.conf ${CURDIR}/work/etc/
 
 
