@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.47 2002/04/17 22:59:49 fukachan Exp $
+# $FML: Makefile,v 1.48 2002/04/18 04:10:03 fukachan Exp $
 #
 
 
@@ -31,6 +31,7 @@ _BSDSRCDIR=	${PWD}/NetBSD
 # src/gnu/ master sources to fetch before we start to build fdgw.
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
+_ZEBRA_SOURCE=	zebra-0.92a.tar.gz
 
 
 # individual directories to link to
@@ -204,6 +205,10 @@ INIT_RULES +=	_init_squid \
 		_init_stone
 .endif
 
+.if ${MODEL} == "bgprouter"
+INIT_RULES +=	_init_zebra
+.endif
+
 INIT_RULES +=	_init_model_post_configure
 
 
@@ -305,6 +310,19 @@ _init_jftpgw:
 	  );\
 	  fi
 	@ touch gnu/.jftpgw_done
+
+_init_zebra:
+	@ echo "";
+	@ echo "make zebra for proxyfw model";
+	@ echo "";
+	@ sh extract.sh ${_ZEBRA_SOURCE}
+	@ if [ ! -f gnu/.zebra_done ];then \
+	  ( cd gnu/zebra;\
+		./configure --prefix=${LOCALBASE} --sysconf=/etc/zebra ;\
+		make ;\
+	  );\
+	  fi
+	@ touch gnu/.zebra_done
 
 _init_transproxy:
 	@ echo "";

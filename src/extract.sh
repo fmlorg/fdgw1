@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: extract.sh,v 1.2 2002/04/18 01:54:06 fukachan Exp $
+# $FML: extract.sh,v 1.3 2002/04/18 04:10:04 fukachan Exp $
 #
 
 tmpdir=./trash/$$
@@ -42,6 +42,11 @@ do
 	if expr $name : jftpgw
 	then
 		mv jftpgw* jftpgw || exit 1
+	fi
+
+	if expr $name : zebra
+	then
+		mv zebra* zebra || exit 1
 	fi
 
 	touch .extract_${name}_done
