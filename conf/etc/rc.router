@@ -1,13 +1,9 @@
 #!/bin/sh
+#
+# $FML$
+#
 
-if [ -f /conf/etc/release_version ]
-then
-	echo ""
-	echo -n "     Welcome to NetBSD/i386 one floppy NATBOX"
-	echo -n " `cat /conf/etc/release_version`"
-	echo    " (`cat conf/etc/release_date`)"
-	echo ""
-fi
+ARCH=`uname -p`
 
 if [ -f /conf/etc/rc.subr ]
 then
@@ -19,6 +15,7 @@ fi
 
 if [ -f /conf/etc/rc.conf ]
 then
+	echo load /conf/etc/rc.conf
 	. /conf/etc/rc.conf
 else
 	echo Error: /conf/etc/rc.conf not found 2>&1
@@ -30,11 +27,13 @@ ln -s /conf/netbsd /netbsd
 
 if [ -f /conf/etc/hosts ]
 then
+	echo install /etc/hosts
 	cp /conf/etc/hosts /etc/hosts
 fi
 
 if [ -f /conf/etc/resolv.conf ]
 then
+	echo install /etc/resolv.conf
 	cp /conf/etc/resolv.conf /etc/resolv.conf
 fi
 
@@ -43,9 +42,6 @@ then
 	hostname `cat /conf/etc/myname`
 	echo "hostname: `hostname`"
 fi
-
-echo ""; echo "--- Configuring networking:";
-
 
 for if in `ifconfig -l`
 do
@@ -63,20 +59,21 @@ fi
 
 if [ -f /conf/etc/syslog.conf ]
 then
+	echo starting syslogd
 	cp /dev/null var/run/utmp
 	syslogd -f /conf/etc/syslog.conf
 fi
 
 if [ -f /conf/etc/ipf.conf ]
 then
-   echo ""; echo "--- enable IPFilter"
+   echo "enable IP Filter"
    /sbin/ipf -E -f /conf/etc/ipf.conf
    /usr/sbin/ipfstat -i
    /usr/sbin/ipfstat -o
 
    if [ -f /conf/etc/ipnat.conf ]
    then
-	echo ""; echo "--- enable NAT Box"
+	echo "enable NAT by IP Filter"
 	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
 	/usr/sbin/ipnat -l
    fi
@@ -86,6 +83,17 @@ then
 	ipmon $ipmon_flags &
    fi
 fi
+
+echo ""
+
+if [ -f /conf/etc/release_version ]
+then
+	echo -n "NetBSD/${ARCH} one floppy NATBOX"
+	echo -n " `cat /conf/etc/release_version`"
+	echo    " (`cat conf/etc/release_date`)"
+fi
+
+date
 
 echo ""
 
