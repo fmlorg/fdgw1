@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.32 2002/01/30 14:02:45 fukachan Exp $
+# $FML: Makefile,v 1.33 2002/02/09 06:34:51 fukachan Exp $
 #
 
 
@@ -172,9 +172,10 @@ image:
 # initialize process before main build process
 #
 _prepare_build_system:	_init_mesg _init_dir  _lndir \
-			_init_config _init_model \
+			_init_config _init_model_pre_configure \
 			_init_pppoe _init_squid \
-			_init_dhcp _init_resolver
+			_init_dhcp _init_resolver \
+			 _init_model_post_configure
 
 _init_mesg:
 	@ echo "
@@ -210,9 +211,14 @@ _init_config:
 	-rm -f list
 	ln -s ${_LISTS} list
 
-_init_model:
-	if [ -x model/${MODEL}/configure ]; then \
-		model/${MODEL}/configure ;\
+_init_model_pre_configure:
+	if [ -x model/${MODEL}/pre_configure ]; then \
+		model/${MODEL}/pre_configure ;\
+	fi
+
+_init_model_post_configure:
+	if [ -x model/${MODEL}/post_configure ]; then \
+		model/${MODEL}/post_configure ;\
 	fi
 
 _init_pppoe:
