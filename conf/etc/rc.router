@@ -1,85 +1,62 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.15 2001/09/06 05:40:54 fukachan Exp $
+# $FML: rc.router,v 1.16 2001/09/06 12:59:22 fukachan Exp $
 #
 
 ARCH=`uname -p`
 
-if [ -f /conf/etc/rc.subr ]
-then
-	. /conf/etc/rc.subr
+if [ -f /conf/etc/rc.subr ]; then
+   . /conf/etc/rc.subr
 else
-	echo Error: /conf/etc/rc.subr not found 2>&1
-	exit 1
+   echo Error: /conf/etc/rc.subr not found 2>&1
+   exit 1
 fi
 
-if [ -f /conf/etc/rc.conf ]
-then
-	echo load /conf/etc/rc.conf
-	. /conf/etc/rc.conf
-else
-	echo Error: /conf/etc/rc.conf not found 2>&1
-	exit 1
-fi
+# /etc/
+load_file     /conf/etc/rc.conf
+install_file  /etc/hosts
+install_file  /etc/resolv.conf
 
 # link for /bin/ps
 ln -s /conf/netbsd /netbsd
 
-if [ -f /conf/etc/hosts ]
-then
-	echo install /etc/hosts
-	cp /conf/etc/hosts /etc/hosts
-fi
 
-if [ -f /conf/etc/resolv.conf ]
-then
-	echo install /etc/resolv.conf
-	cp /conf/etc/resolv.conf /etc/resolv.conf
-fi
-
-if [ -f /conf/etc/myname ]
-then
-	hostname `cat /conf/etc/myname`
-	echo "hostname: `hostname`"
+if [ -f /conf/etc/myname ];then
+   hostname `cat /conf/etc/myname`
+   echo "hostname: `hostname`"
 fi
 
 for if in `ifconfig -l`
 do
-	if [ -f /conf/etc/ifconfig.$if ]
-	then
-		echo "ifconfig $if `cat /conf/etc/ifconfig.$if`"
-		ifconfig $if `cat /conf/etc/ifconfig.$if`
-	fi
+   if [ -f /conf/etc/ifconfig.$if ];then
+	echo "ifconfig $if `cat /conf/etc/ifconfig.$if`"
+	ifconfig $if `cat /conf/etc/ifconfig.$if`
+   fi
 done
 
-if [ -f /conf/etc/mygate ]
-then
-	route add default `cat /conf/etc/mygate`
+if [ -f /conf/etc/mygate ];then
+   route add default `cat /conf/etc/mygate`
 fi
 
-if [ -f /conf/etc/syslog.conf ]
-then
-	echo starting syslogd
-	cp /dev/null var/run/utmp
-	syslogd -f /conf/etc/syslog.conf
+if [ -f /conf/etc/syslog.conf ];then
+   echo starting syslogd
+   cp /dev/null var/run/utmp
+   syslogd -f /conf/etc/syslog.conf
 fi
 
-if [ -f /conf/etc/dhcpd.conf ]
-then
-	echo starting dhcpd
-	/usr/sbin/dhcpd
+if [ -f /conf/etc/dhcpd.conf ];then
+   echo starting dhcpd
+   /usr/sbin/dhcpd
 fi
 
 
-if [ -f /conf/etc/ipf.conf ]
-then
+if [ -f /conf/etc/ipf.conf ];then
    echo "enable IP Filter"
    /sbin/ipf -E -f /conf/etc/ipf.conf
    /usr/sbin/ipfstat -i
    /usr/sbin/ipfstat -o
 
-   if [ -f /conf/etc/ipnat.conf ]
-   then
+   if [ -f /conf/etc/ipnat.conf ];then
 	echo "enable NAT by IP Filter"
 	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
 	/usr/sbin/ipnat -l
@@ -93,11 +70,10 @@ fi
 
 echo ""
 
-if [ -f /conf/etc/release_version ]
-then
-	echo -n "NetBSD/${ARCH} one floppy NATBOX"
-	echo -n " `cat /conf/etc/release_version`"
-	echo    " (`cat conf/etc/release_date`)"
+if [ -f /conf/etc/release_version ];then
+   echo -n "NetBSD/${ARCH} one floppy NATBOX"
+   echo -n " `cat /conf/etc/release_version`"
+   echo    " (`cat conf/etc/release_date`)"
 fi
 
 date
