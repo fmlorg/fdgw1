@@ -39,7 +39,7 @@ LINK	ramdiskbin			sbin/mknod
 LINK	ramdiskbin			sbin/mount
 #LINK	ramdiskbin			sbin/mount_cd9660
 #LINK	ramdiskbin			sbin/mount_ext2fs
-#LINK	ramdiskbin			sbin/mount_ffs
+LINK	ramdiskbin			sbin/mount_ffs
 LINK	ramdiskbin			sbin/mount_kernfs
 LINK	ramdiskbin			sbin/mount_msdos
 LINK	ramdiskbin			sbin/mount_nfs
