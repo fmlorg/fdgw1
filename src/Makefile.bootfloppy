@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.9 2001/09/29 08:15:41 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.10 2001/12/15 12:31:47 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -32,7 +32,7 @@ INO_BYTES?=	204800
 build:
 	@ echo nothing to do
 
-install:	netbsd
+image:	netbsd
 	dd if=/dev/zero of=${IMAGE} count=${DISKSIZE}
 	vnconfig -t ${DISKTYPE} -v -c ${VND_CDEV} ${IMAGE}
 	disklabel -rw ${VND_CDEV} ${DISKTYPE}

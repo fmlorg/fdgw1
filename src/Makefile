@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.17 2001/12/15 12:31:47 fukachan Exp $
+# $FML: Makefile,v 1.18 2001/12/15 12:34:22 fukachan Exp $
 #
 
 
@@ -79,7 +79,7 @@ build: _prepare_build_system
 	@ echo ""
 	-make -f Makefile.kernel ${_ARGS} build
 
-install:
+image:
 	@ echo "1. make ramdisk-small.fs"
 	@ echo ""
 	-make -f Makefile.ramdisk ${_ARGS} install

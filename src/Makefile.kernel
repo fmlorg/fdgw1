@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.kernel,v 1.8 2001/12/15 11:12:38 fukachan Exp $
+# $FML: Makefile.kernel,v 1.9 2001/12/15 12:31:47 fukachan Exp $
 #
 
 ARCH?= i386
@@ -28,7 +28,7 @@ _KERNEL_CONF =	conf/kernel.${ARCH}/${KERNEL_CONF}
 build: ${KERN}
 
 
-install: netbsd
+image: netbsd
 
 
 # make kernel
