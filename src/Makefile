@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.53 2002/04/26 00:39:30 fukachan Exp $
+# $FML: Makefile,v 1.54 2002/04/26 13:29:41 fukachan Exp $
 #
 
 
@@ -29,7 +29,7 @@ BSDSRCDIR?=	/usr/src
 _BSDSRCDIR=	${PWD}/NetBSD
 
 # src/gnu/ master sources to fetch before we start to build fdgw.
-_FETCH_PROGRAM=	sh fetch.sh
+_FETCH_PROGRAM=	sh utils/fetch.sh
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
@@ -262,7 +262,7 @@ _init_config:
 	cp distrib/${ARCH}/floppies/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
 	sed "s/__ARCH__/${ARCH}/g" ${_CBIN}.conf |\
-	sh fix_ramdiskbin.conf.sh > ramdiskbin.conf.new
+	sh utils/fix_ramdiskbin.conf.sh > ramdiskbin.conf.new
 	mv ramdiskbin.conf.new ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
@@ -294,7 +294,7 @@ _init_squid:
 	@ echo "make squid for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_SQUID_SOURCE}
-	@ sh extract.sh ${_SQUID_SOURCE}
+	@ sh utils/extract.sh ${_SQUID_SOURCE}
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
 		./configure --prefix=${LOCALBASE} \
@@ -310,7 +310,7 @@ _init_jftpgw:
 	@ echo "make jftpgw for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_JFTPGW_SOURCE}
-	@ sh extract.sh ${_JFTPGW_SOURCE}
+	@ sh utils/extract.sh ${_JFTPGW_SOURCE}
 	@ if [ ! -f gnu/.jftpgw_done ];then \
 	  ( cd gnu/jftpgw/support;\
 		rm -f ipfilter.? ;\
@@ -329,7 +329,7 @@ _init_zebra:
 	@ echo "make zebra for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_ZEBRA_SOURCE}
-	@ sh extract.sh ${_ZEBRA_SOURCE}
+	@ sh utils/extract.sh ${_ZEBRA_SOURCE}
 	@ if [ ! -f gnu/.zebra_done ];then \
 	  ( cd gnu/zebra;\
 		./configure --prefix=${LOCALBASE} --sysconf=/etc/zebra ;\

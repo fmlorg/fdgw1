@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: extract.sh,v 1.3 2002/04/18 04:10:04 fukachan Exp $
+# $FML: extract.sh,v 1.4 2002/04/18 09:11:30 fukachan Exp $
 #
 
 tmpdir=./trash/$$

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML$
+# $FML: stat.sh,v 1.1 2002/02/23 08:38:16 fukachan Exp $
 #
 
 echo "[ramdisk image]";

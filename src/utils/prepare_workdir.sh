@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: prepare_workdir.sh,v 1.3 2001/12/16 06:15:53 fukachan Exp $
+# $FML: prepare_workdir.sh,v 1.4 2002/02/21 11:01:12 fukachan Exp $
 #
 
 # alloc netbsd source area, which is shared among src.$model

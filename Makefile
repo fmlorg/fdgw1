@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.44 2002/04/24 09:42:51 fukachan Exp $
+# $FML: Makefile,v 1.45 2002/04/25 05:03:16 fukachan Exp $
 #
 
 #
@@ -37,7 +37,7 @@ dist-image:
 	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 image
 
 build:
-	${SH} ./src/prepare_workdir.sh ${ARCH}.${MODEL}
+	${SH} ./src/utils/prepare_workdir.sh ${ARCH}.${MODEL}
 	(cd src.${ARCH}.${MODEL};\
 	   ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} build;\
 	)
@@ -88,7 +88,7 @@ allclean: clean
 	- (cd src/gnu ; make clean )
 
 stat:	src.*.*/log.*
-	@ ${SH} src/stat.sh	
+	@ ${SH} src/utils/stat.sh	
 
 #
 # utilities for debug
