@@ -15,6 +15,7 @@ do
 	for site in	\
 		ftp://ftp.netbsd.org/pub/NetBSD/packages/distfiles/ \
 		ftp://ftp.iij.ad.jp/pub/NetBSD/packages/distfiles/ \
+		ftp://ftp.freebsd.org/pub/FreeBSD/ports/distfiles/ \
 		ftp://ftp.fml.org/pub/fdgw/source/
 	do
 		echo ftp ${site}${file}
