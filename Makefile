@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.11 2001/09/06 00:23:00 fukachan Exp $
+# $FML: Makefile,v 1.12 2001/09/06 02:50:24 fukachan Exp $
 #
 
 MODEL?=         natbox
@@ -11,6 +11,9 @@ build:
 
 clean cleandir:
 	(cd src; make clean )
+
+allclean: clean
+	-rm -fr image
 
 mount:
 	vnconfig -v -c /dev/vnd0d src/ramdisk-small.fs
