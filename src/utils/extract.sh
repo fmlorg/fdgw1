@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: extract.sh,v 1.1 2002/06/18 12:29:10 fukachan Exp $
+# $FML: extract.sh,v 1.2 2002/06/20 08:43:28 fukachan Exp $
 #
 
 tmpdir=./trash/$$
@@ -34,6 +34,8 @@ do
 		exit 1		
 	fi
 
+	pwd
+	ls -l $f
 	echo tar zxf $f
 	eval tar zxf $f
 
