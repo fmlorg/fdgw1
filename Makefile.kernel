@@ -1,7 +1,5 @@
 ARCH?= i386
 
-KERN?=	${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER/netbsd
-
 RAMDISK_S=	ramdisk-small.fs
 
 netbsd: netbsd.gz
@@ -10,12 +8,16 @@ netbsd: netbsd.gz
 
 netbsd.gz: ${KERN}
 
+.WORKDIR=	${.CURDIR}/compile
+KERN=		${.WORKDIR}/netbsd
+
 # make kernel
 ${KERN}: conf/ROUTER
-	cp conf/ROUTER ${.CURDIR}/../../../../sys/arch/${ARCH}/conf
-	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/conf; config ROUTER)
-	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER; \
-		make depend ; \
+	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
+	cp conf/ROUTER ${.WORKDIR}/CONFIG
+	(cd ${.WORKDIR}; \
+		config -s ${.CURDIR}/../../../../sys ;\
+		make depend;\
 		make -j 4 \
 	)
 
