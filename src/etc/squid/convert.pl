@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $FML: convert.pl,v 1.3 2002/02/19 14:16:05 fukachan Exp $
+# $FML: convert.pl,v 1.4 2002/02/20 10:57:28 fukachan Exp $
 #
 
 my $allow = q{
@@ -15,7 +15,8 @@ acl local src 10.0.0.0/255.0.0.0 172.16.0.0/255.248.0.0 192.168.0.0/255.255.0.0
 
 while (<>) {
 
-	s!^\# cache_dir.*!cache_dir ufs /var/squid/cache 1 4 4!;
+	s!^\# mime_table.*!mime_table /usr/pkg/etc/squid/mime.conf!;
+	s!^\# cache_dir.*!cache_dir ufs /var/squid/cache 1 2 2!;
 	s!^\# cache_mem.*!cache_mem 1 MB!;
 	s!^\# cache_swap_high.*!cache_swap_high 50!;
 	s!^\# cache_swap_low.*!cache_swap_low  30!;
