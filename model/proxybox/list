@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.1.1.1 2002/02/12 08:54:06 fukachan Exp $
+# $FML: list,v 1.2 2002/02/12 12:37:32 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -34,6 +34,7 @@ LINK    ramdiskbin                      bin/ps
 LINK    ramdiskbin                      bin/kill
 LINK    ramdiskbin                      bin/echo
 LINK    ramdiskbin                      bin/date
+LINK    ramdiskbin                      bin/sleep
 
 LINK	ramdiskbin			sbin/halt
 LINK	ramdiskbin			sbin/ifconfig
@@ -107,28 +108,32 @@ SPECIAL mkdir -p ${MOUNT_POINT}/usr
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/libexec/squid
 SPECIAL touch    ${MOUNT_POINT}/var/db/dhcpd.leases
 
 # XXX parepare /etc on /dev/fd0a not /dev/vnd0a 
 SPECIAL cp -pr   ${MOUNT_POINT}/etc ${CURDIR}/work
 
 # squid
-SYMLINK /bin/cat	usr/pkg/bin/squid
-SPECIAL cp -p ${CURDIR}/gnu/squid/scripts/RunCache ${MOUNT_POINT}/usr/pkg/sbin/
-SPECIAL cp -p ${CURDIR}/gnu/squid/scripts/RunAccel ${MOUNT_POINT}/usr/pkg/sbin/
+SYMLINK /bin/cat	usr/pkg/sbin/squid
+SYMLINK /bin/cat	usr/pkg/libexec/squid/unlinkd
+#SPECIAL cp ${CURDIR}/gnu/squid/scripts/RunCache ${MOUNT_POINT}/usr/pkg/sbin/
+#SPECIAL cp ${CURDIR}/gnu/squid/scripts/RunAccel ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp ${CURDIR}/etc/squid/master.sh ${MOUNT_POINT}/usr/pkg/sbin/squidmaster
 
-# /etc/ on fd0a
+# squid (prepare directories under /etc/ on fd0a)
 SPECIAL mkdir -p ${CURDIR}/work/etc/squid
-SPECIAL cp ${CURDIR}/etc/squid/squid.conf ${CURDIR}/work/etc/squid
+SPECIAL mkdir -p ${CURDIR}/work/etc/squid/icons
+SPECIAL cp ${CURDIR}/etc/squid/squid.conf    ${CURDIR}/work/etc/squid
+SPECIAL cp ${CURDIR}/gnu/squid/src/mime.conf ${CURDIR}/work/etc/squid
+
 
 # jftpgw
-SYMLINK /bin/cat	usr/pkg/bin/jftpgw
+SYMLINK /bin/cat	usr/pkg/sbin/jftpgw
 SPECIAL mkdir -p ${CURDIR}/work/etc/jftpgw
 SPECIAL cp ${CURDIR}/etc/jftpgw/jftpgw.conf ${CURDIR}/work/etc/jftpgw
 
-# transproxy
-SYMLINK /bin/cat	usr/pkg/bin/tproxy
 
 # debug
 SPECIAL ls -lR ${MOUNT_POINT}/etc
-SPECIAL ls -lR ${CURDIR}/work/etc/jftpgw
+SPECIAL ls -lR ${CURDIR}/work/etc
