@@ -3,7 +3,7 @@
 # $FML
 #
 
-workdir=`dirname $0`
+workdir=`dirname $0`/..
 cd $workdir || exit 1
 
 test -d distfiles || mkdir -p distfiles

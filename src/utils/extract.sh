@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: extract.sh,v 1.4 2002/04/18 09:11:30 fukachan Exp $
+# $FML: extract.sh,v 1.1 2002/06/18 12:29:10 fukachan Exp $
 #
 
 tmpdir=./trash/$$
@@ -28,6 +28,9 @@ do
 		echo "Checksum ok"
 	else
 		echo "Error: wrong checksum"
+		echo -n "	"; pwd
+		echo "	$checksum0 $tgz"
+		echo "	$checksum1 $f"
 		exit 1		
 	fi
 
