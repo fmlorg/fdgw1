@@ -32,6 +32,9 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
+#
+# $FML$
+#
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
 export PATH
@@ -66,13 +69,8 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	mount -t kernfs /kern /kern
 
 	# pull in the functions that people will use from the shell prompt.
-	# . /.commonutils
-	# . /.instutils
 	dmesg() cat /kern/msgbuf
 	grep() sed -n "/$1/p"
-
-	# run the installation or upgrade script.
-	#sysinst
 
 	# read configuration from /dev/fd0a (ffs)
 	test -d conf || mkdir conf 
