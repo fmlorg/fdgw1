@@ -1,5 +1,5 @@
 #
-# $FML: rc.subr,v 1.4 2001/09/06 16:15:30 fukachan Exp $
+# $FML: rc.subr,v 1.5 2001/09/07 12:48:08 fukachan Exp $
 #
 
 #
@@ -46,10 +46,10 @@ install_file () {
    local file=$1
 
    if [ -f /conf/$file ]; then
-	echo install $file
+	echo "install $file (copied from /conf/$file)"
 	cp /conf/$file $file
    else
-	echo Warn: $file not found 2>&1
+	echo Warning: /conf/$file not found 2>&1
    fi
 }
 
