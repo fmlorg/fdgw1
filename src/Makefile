@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.16 2001/12/15 11:12:38 fukachan Exp $
+# $FML: Makefile,v 1.17 2001/12/15 12:31:47 fukachan Exp $
 #
 
 
@@ -165,6 +165,7 @@ _init_resolver:
 # cleaning
 #
 clean cleandir:
+	-make -f Makefile.ramdisk cleandir TOP=${_FLOPPY_DIR}
 	-rm -f disktab.preinstall termcap.mini conf model
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
@@ -173,4 +174,3 @@ clean cleandir:
 
 allclean: clean
 	-make -f Makefile.ramdisk unconfig TOP=${_FLOPPY_DIR}
-	-make -f Makefile.ramdisk cleandir TOP=${_FLOPPY_DIR}
