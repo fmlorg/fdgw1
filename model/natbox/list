@@ -96,6 +96,7 @@ COPY	${TOP}/../../../etc/etc.i386/MAKEDEV	dev/MAKEDEV
 SPECIAL	cd dev; sh MAKEDEV ramdisk
 SPECIAL	cd dev; sh MAKEDEV std
 SPECIAL	cd dev; sh MAKEDEV ipl
+SPECIAL	cd dev; sh MAKEDEV bpf0
 SPECIAL	/bin/rm dev/MAKEDEV
 
 # we need the boot block in /usr/mdec + the MBR copy
