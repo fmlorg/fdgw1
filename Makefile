@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.56 2003/07/01 04:58:59 fukachan Exp $
+# $FML: Makefile,v 1.57 2004/02/05 10:13:51 fukachan Exp $
 #
 
 # programs and directories
@@ -54,26 +54,27 @@ dist: dist-build dist-image
 allmodels: allmodels-build allmodels-image
 
 dist-build:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW   build
-	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6  build
-	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6  build
+	${MAKE} MODEL=adslrouter   KERNEL_CONF=FDGW   build
+	${MAKE} MODEL=natbox       KERNEL_CONF=FDGW6  build
+	${MAKE} MODEL=riprouter    KERNEL_CONF=FDGW6  build
+	${MAKE} MODEL=mcastrouter6 KERNEL_CONF=FDGW6  build
 .if ${NetBSD_VERSION} == 1.6
-	${MAKE} MODEL=bridge     KERNEL_CONF=BRIDGE build
+	${MAKE} MODEL=bridge       KERNEL_CONF=BRIDGE build
 .endif
 
 dist-image:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW   image
-	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6  image
-	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6  image
+	${MAKE} MODEL=adslrouter   KERNEL_CONF=FDGW   image
+	${MAKE} MODEL=natbox       KERNEL_CONF=FDGW6  image
+	${MAKE} MODEL=riprouter    KERNEL_CONF=FDGW6  image
+	${MAKE} MODEL=mcastrouter6 KERNEL_CONF=FDGW6  image
 .if ${NetBSD_VERSION} == 1.6
-	${MAKE} MODEL=bridge     KERNEL_CONF=BRIDGE image
+	${MAKE} MODEL=bridge       KERNEL_CONF=BRIDGE image
 .endif
 
 allmodels-build:
 	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  build
 	${MAKE} MODEL=proxybox   KERNEL_CONF=FDGW  build
 	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build
-	${MAKE} MODEL=mcastrouter6 KERNEL_CONF=FDGW6 build
 	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 build
 	${MAKE} MODEL=vpn-racoon KERNEL_CONF=IPSEC build
 

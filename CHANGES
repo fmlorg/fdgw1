@@ -3,6 +3,8 @@
 
 2004/02/07
 
+  enable IPv6 multicast model by default.
+
   remove model/[a-z]* (old directories)
 	now we use model/$version/$model
 
@@ -322,4 +324,4 @@
 
 
 -----
-$FML: CHANGES,v 1.40 2004/02/06 04:42:50 fukachan Exp $
+$FML: CHANGES,v 1.41 2004/02/07 04:48:24 fukachan Exp $
