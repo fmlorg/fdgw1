@@ -33,7 +33,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML$
+# $FML: dot.profile,v 1.2 2001/09/08 00:59:22 fukachan Exp $
 #
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
@@ -80,12 +80,9 @@ if [ "X${DONEPROFILE}" = "X" ]; then
         then
                 sh /conf/etc/rc.router
         else
-                echo "*** welcome to one floppy NetBSD nat box ***"
-                echo "no configuration!";
-		echo "please customize /etc/rc.router by yourself"
-		echo ""
-                echo "Enjoy Internetworking!"
-		echo ""
-                echo "-- fukachan@fml.org"
+                echo "*** welcome to fdgw (one floppy NetBSD natbox) ***"
+                echo "error: no /conf (/dev/fd0a)";
+                echo "       no configuration!";
+		exit 1
         fi
 fi
