@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.11 2001/09/20 08:47:21 fukachan Exp $
+# $FML: Makefile,v 1.12 2001/09/20 08:54:51 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -63,7 +63,7 @@ _prepare:
 		./configure --prefix=${LOCALBASE};\
 		make ;\
 	)
-
+	(cd ${BSDSRCDIR}/usr.sbin/dhcp;make)
 
 clean cleandir:
 	-make -f Makefile.ramdisk unconfig TOP=${_TOP}
