@@ -54,7 +54,7 @@ III. How to make it by yourself
 
    conf/
 
-	conf/ROUTER	(kernel configuration file)
+	conf/kernel/ROUTER	(kernel configuration file)
 
    conf/etc/		router configuration
 			(corresponding to a subset of usual etc/).
@@ -80,5 +80,5 @@ IV. TODO
 We should compile it under other than /usr/src ;-).
 
 
-$FML: README,v 1.4 2001/08/14 21:42:52 fukachan Exp $
+$FML: README,v 1.5 2001/08/14 21:49:48 fukachan Exp $
 Copyright (C) 1999,2001 Ken'ichi Fukamachi <fukachan@fml.org>

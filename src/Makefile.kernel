@@ -12,9 +12,9 @@ netbsd.gz: ${KERN}
 KERN=		${.WORKDIR}/netbsd
 
 # make kernel
-${KERN}: conf/ROUTER
+${KERN}: conf/kernel/ROUTER
 	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
-	cp conf/ROUTER ${.WORKDIR}/CONFIG
+	cp conf/kernel/ROUTER ${.WORKDIR}/CONFIG
 	(cd ${.WORKDIR}; \
 		config -s ${TOP}/../../../sys ;\
 		make depend;\
