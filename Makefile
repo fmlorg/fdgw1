@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.54 2003/01/20 01:14:23 fukachan Exp $
+# $FML: Makefile,v 1.55 2003/04/01 02:01:11 fukachan Exp $
 #
 
 # programs and directories
@@ -60,6 +60,7 @@ allmodels-build:
 	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  build
 	${MAKE} MODEL=proxybox   KERNEL_CONF=FDGW  build
 	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build
+	${MAKE} MODEL=mcastrouter6 KERNEL_CONF=FDGW6 build
 	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 build
 	${MAKE} MODEL=vpn-racoon KERNEL_CONF=IPSEC build
 
@@ -67,6 +68,7 @@ allmodels-image:
 	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  image
 	${MAKE} MODEL=proxybox   KERNEL_CONF=FDGW  image
 	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 image
+	${MAKE} MODEL=mcastrouter6 KERNEL_CONF=FDGW6 image
 	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 image
 	${MAKE} MODEL=vpn-racoon KERNEL_CONF=IPSEC image
 
