@@ -2,9 +2,12 @@
 
 2002/02/18
 
+   clarify model dependence / indepentdence
+	o install model specific rc.conf from model/$model/
+	o model specific rc.conf precedes default one
+
    prepare proxy initialization codes in src/etc/$proxy/
 	for example, src/etc/squid/master.sh
-
 
 2002/02/15
 
@@ -94,4 +97,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.10 2002/02/13 14:37:17 fukachan Exp $
+$FML: CHANGES,v 1.11 2002/02/18 10:50:01 fukachan Exp $
