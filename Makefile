@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.57 2004/02/05 10:13:51 fukachan Exp $
+# $FML: Makefile,v 1.58 2004/02/07 05:53:49 fukachan Exp $
 #
 
 # programs and directories
@@ -13,6 +13,7 @@ SH?=		/bin/sh
 
 PKG_DIR?=	src/pkg
 GNU_DIR?=	src/gnu
+PDS_DIR?=	src/pds
 TOOL_DIR?=	src/utils
 STATUS_DIR?=	${PKG_DIR}
 
@@ -37,8 +38,10 @@ SU_CMD?=	su - root -c
 MAKE_PARAMS = 	MODEL=${MODEL} \
 		KERNEL_CONF=${KERNEL_CONF} \
 		BIOSBOOT=${BIOSBOOT} \
+		OPSYS=NetBSD \
 		SH=${SH}	\
 		GNU_DIR=${GNU_DIR:S|^src/||} \
+		PDS_DIR=${PDS_DIR:S|^src/||} \
 		PKG_DIR=${PKG_DIR:S|^src/||} \
 		STATUS_DIR=${STATUS_DIR:S|^src/||} \
 		TOOL_DIR=${TOOL_DIR:S|^src/||}
