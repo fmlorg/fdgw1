@@ -1,7 +1,7 @@
 image.i386
-src.i386.adslrouter
-src.i386.natbox
-src.i386.proxybox
-src.i386.vpn-ipsec
-src.i386.riprouter6
-src.i386.riprouter
+obj.i386.adslrouter
+obj.i386.natbox
+obj.i386.proxybox
+obj.i386.vpn-ipsec
+obj.i386.riprouter6
+obj.i386.riprouter

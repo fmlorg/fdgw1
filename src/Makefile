@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.54 2002/04/26 13:29:41 fukachan Exp $
+# $FML: Makefile,v 1.55 2002/06/18 12:29:08 fukachan Exp $
 #
 
 
@@ -14,6 +14,9 @@
 #
 ARCH?=		`uname -p`
 
+NetBSD_VERSION?=	1.5
+
+_CONF_DIR=	conf/${NetBSD_VERSION}
 
 #
 # directories for targets and sources
@@ -253,10 +256,10 @@ _init_dir:
 
 _init_config:
 	-rm -f dot.profile mtree.conf conf model
-	ln ../conf/dot.profile .
-	ln ../conf/mtree.conf  .
+	ln ../${_CONF_DIR}/dot.profile .
+	ln ../${_CONF_DIR}/mtree.conf  .
 	-rm -f disktab.preinstall termcap.mini
-	ln -s ../conf  conf
+	ln -s ../${_CONF_DIR} conf
 	ln -s ../model model
 	cp distrib/${ARCH}/floppies/disktab.preinstall disktab.preinstall
 	cp distrib/${ARCH}/floppies/termcap.mini       termcap.mini

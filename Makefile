@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.45 2002/04/25 05:03:16 fukachan Exp $
+# $FML: Makefile,v 1.46 2002/06/18 12:29:52 fukachan Exp $
 #
 
 #
@@ -38,7 +38,7 @@ dist-image:
 
 build:
 	${SH} ./src/utils/prepare_workdir.sh ${ARCH}.${MODEL}
-	(cd src.${ARCH}.${MODEL};\
+	(cd obj.${ARCH}.${MODEL};\
 	   ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} build;\
 	)
 		
@@ -46,7 +46,7 @@ image:
 	@ echo ""	
 	@ echo "\"make image\" needs root privilege"
 	@ echo ""	
-	(cd src.${ARCH}.${MODEL};\
+	(cd obj.${ARCH}.${MODEL};\
 	   ${SU_CMD} \
 	   "cd `pwd`; ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} image";\
 	)
@@ -73,7 +73,7 @@ clean cleandir:
 	@ echo "===> clearing transproxy";
 	- (cd src/sbin/transproxy ; make clean RM="rm -f")
 	- rm -f src/sbin/.transproxy_done
-	@ for dir in src.* ; do \
+	@ for dir in obj.* ; do \
 		if [ -d $$dir ];then\
 		(\
 		  	echo "===> clearing $$dir" ;\
@@ -84,18 +84,18 @@ clean cleandir:
 	  done
 
 allclean: clean
-	-rm -fr src.* image.*
+	-rm -fr obj.* image.*
 	- (cd src/gnu ; make clean )
 
-stat:	src.*.*/log.*
+stat:	obj.*.*/log.*
 	@ ${SH} src/utils/stat.sh	
 
 #
 # utilities for debug
 #
 mount-ramdisk:
-	if [ -f src.${ARCH}.${MODEL}/ramdisk-small.fs ];then \
-	  vnconfig -v -c /dev/vnd0d src.${ARCH}.${MODEL}/ramdisk-small.fs;\
+	if [ -f obj.${ARCH}.${MODEL}/ramdisk-small.fs ];then \
+	  vnconfig -v -c /dev/vnd0d obj.${ARCH}.${MODEL}/ramdisk-small.fs;\
 	  mount /dev/vnd0a /mnt;\
 	fi
 
