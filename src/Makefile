@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.40 2002/02/20 13:44:28 fukachan Exp $
+# $FML: Makefile,v 1.41 2002/02/21 11:02:32 fukachan Exp $
 #
 
 
@@ -29,7 +29,7 @@ BSDSRCDIR?=	/usr/src
 _BSDSRCDIR=	${PWD}/NetBSD
 
 # src/gnu/ master sources to fetch before we start to build fdgw.
-_GNU_SOURCES= squid-2.4.STABLE3-src.tar.gz
+_GNU_SOURCES= squid-2.4.STABLE4-src.tar.gz
 _GNU_SOURCES+= jftpgw-0.13.beta.j.tar.gz
 
 # individual directories to link to
@@ -273,7 +273,6 @@ _init_squid:
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
 		./configure --prefix=${LOCALBASE} \
-				--sysconf=/etc/squid \
 		                --localstatedir=/var/squid \
 		                ${SQUID_CONFIGURE_ARGS} ;\
 		make ;\
