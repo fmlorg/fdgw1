@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $FML: clean.sh,v 1.2 2002/02/22 13:28:47 fukachan Exp $
+#  $FML: clean.sh,v 1.3 2002/02/25 11:55:39 fukachan Exp $
 #
 
 prefix=/usr/pkg
@@ -16,7 +16,7 @@ cd ${logdir}/logs || exit 1
 
 while true
 do
-   df /var | sed 1d | logger -t squid/logdir
+   df . | sed 1d | logger -t squid/logdir
 
    if [ -s access.log ];then
 
