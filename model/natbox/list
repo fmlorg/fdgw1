@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.14 2002/02/12 12:37:32 fukachan Exp $
+# $FML: list,v 1.15 2002/02/23 04:27:11 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -34,6 +34,7 @@ LINK    ramdiskbin                      bin/ps
 LINK    ramdiskbin                      bin/kill
 LINK    ramdiskbin                      bin/echo
 LINK    ramdiskbin                      bin/date
+LINK    ramdiskbin                      bin/expr
 
 LINK	ramdiskbin			sbin/halt
 LINK	ramdiskbin			sbin/ifconfig
