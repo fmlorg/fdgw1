@@ -8,5 +8,8 @@ bridge model on 1.6.
 
 clean up src/Makefile.* more.
 
+model/
+	cvs remove [a-z]* if 1.5/ and 1.6/ works well.
+
 --------------------------------------------------------
-$FML$
+$FML: TODO,v 1.1 2004/01/27 04:27:27 fukachan Exp $
