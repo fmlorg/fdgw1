@@ -18,8 +18,10 @@ do
 		ftp://ftp.freebsd.org/pub/FreeBSD/ports/distfiles/ \
 		ftp://ftp.fml.org/pub/fdgw/source/
 	do
-		echo ftp ${site}${file}
-		eval ftp ${site}${file}
+		if [ ! -f $file ];then
+			echo ftp ${site}${file}
+			eval ftp ${site}${file}
+		fi
 	done
    fi
 done
