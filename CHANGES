@@ -3,6 +3,9 @@
 
 2004/01/28
 
+  update pim6sd
+	sync w/ pkgsrc pim6sd-20031021a
+
   compilable on NetBSD 1.6.1/i386
 
 	fix kernel options in conf/1.6/FDGW{,6}.
@@ -293,4 +296,4 @@
 
 
 -----
-$FML: CHANGES,v 1.35 2003/07/01 04:56:19 fukachan Exp $
+$FML: CHANGES,v 1.36 2004/01/28 09:16:25 fukachan Exp $
