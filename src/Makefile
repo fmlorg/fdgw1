@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.35 2002/02/12 10:11:52 fukachan Exp $
+# $FML: Makefile,v 1.36 2002/02/12 10:39:16 fukachan Exp $
 #
 
 
@@ -69,6 +69,9 @@ _DIRS+=	sbin/umount
 _DIRS+=	sbin/ping
 _DIRS+=	sbin/route
 _DIRS+=	sbin/reboot
+.ifdef IPSEC
+_DIRS+=	sbin/setkey
+.endif
 _DIRS+=	sbin/shutdown
 _DIRS+=	usr.bin/basename
 _DIRS+=	usr.bin/id
@@ -84,6 +87,10 @@ _DIRS+=	usr.sbin/ipf
 _DIRS+=	usr.sbin/pppd
 _DIRS+=	usr.sbin/syslogd
 _DIRS+=	lib/libpcap
+.ifdef IPSEC
+_DIRS+=	lib/libipsec
+_DIRS+=	sys/netkey
+.endif
 _DIRS+=	sys/netinet
 _DIRS+=	sys/arch/i386/stand
 
