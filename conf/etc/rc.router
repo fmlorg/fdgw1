@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.26 2002/02/18 10:47:35 fukachan Exp $
+# $FML: rc.router,v 1.27 2002/02/20 13:35:41 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -17,6 +17,12 @@ load_file     /etc/rc.conf
 
 # link for /bin/ps
 ln -s /conf/netbsd /netbsd
+
+
+# run pre hook before rc.router main stats
+if [ -f /etc/rc.router.pre ]; then
+	. /etc/rc.router.pre
+fi
 
 
 if [ -f /etc/myname ];then
@@ -149,6 +155,12 @@ if checkyesno irc_proxy; then
    if [ -x /usr/pkg/sbin/stone ];then
 	/usr/pkg/sbin/stone -N irc-proxy -l -T localhost:0 localhost:16667 &
    fi
+fi
+
+
+# run post hook before rc.router main stats
+if [ -f /etc/rc.router.post ]; then
+	. /etc/rc.router.post
 fi
 
 
