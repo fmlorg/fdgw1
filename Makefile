@@ -1,9 +1,11 @@
 #
-# $FML: Makefile,v 1.7 2001/08/15 10:03:35 fukachan Exp $
+# $FML: Makefile,v 1.8 2001/08/15 10:31:41 fukachan Exp $
 #
 
+BSDSRCDIR?=	/usr/src
+
 ARCH?=		`uname -p`
-_TOP=		/usr/src/distrib/${ARCH}/floppies
+_TOP=		${BSDSRCDIR}/distrib/${ARCH}/floppies
 WARNS=1
 
 IMAGE=		boot.fs
