@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.47 2002/06/20 09:22:01 fukachan Exp $
+# $FML: Makefile,v 1.48 2002/07/31 07:49:30 fukachan Exp $
 #
 
 #
@@ -81,6 +81,9 @@ clean cleandir:
 	@ echo "===> clearing transproxy";
 	- (cd src/sbin/transproxy ; make clean RM="rm -f")
 	- rm -f src/sbin/.transproxy_done
+	@ echo "===> clearing pim6sd";
+	- (cd src/usr.sbin/pim6sd/pim6sd ; make clean RM="rm -f")
+	- rm -f src/usr.sbin/.pim6sd_done
 	@ for dir in obj.* ; do \
 		if [ -d $$dir ];then\
 		(\
