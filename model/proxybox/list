@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.5 2002/02/19 14:47:06 fukachan Exp $
+# $FML: list,v 1.6 2002/02/20 13:36:22 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -82,8 +82,8 @@ COPY	${TOP}/../../../etc/netconfig	etc/netconfig
 COPY	${TOP}/../../../etc/services	etc/services
 
 SPECIAL	pwd_mkdb -p -d ./ etc/master.passwd
-#SPECIAL /bin/rm etc/spwd.db
-SPECIAL /bin/rm etc/pwd.db
+SPECIAL /bin/rm etc/spwd.db
+#SPECIAL /bin/rm etc/pwd.db
 
 # copy the MAKEDEV script and make some devices
 COPY	${TOP}/../../../etc/etc.${ARCH}/MAKEDEV	dev/MAKEDEV
@@ -122,9 +122,13 @@ SPECIAL mkdir -p ${CURDIR}/work/etc/squid/icons
 SYMLINK /bin/cat	usr/pkg/sbin/squid
 SYMLINK /bin/cat	usr/pkg/libexec/unlinkd
 SPECIAL cp ${CURDIR}/etc/squid/master.sh ${MOUNT_POINT}/usr/pkg/sbin/squidmaster
+SPECIAL cp ${CURDIR}/etc/squid/clean.sh  ${MOUNT_POINT}/usr/pkg/sbin/squidclean
 SPECIAL cp ${CURDIR}/etc/squid/squid.conf    ${CURDIR}/work/etc/squid
 SPECIAL cp ${CURDIR}/gnu/squid/src/mime.conf ${CURDIR}/work/etc/squid
-SPECIAL cp -pr ${CURDIR}/gnu/squid/errors/English/* ${MOUNT_POINT}/usr/pkg/share/squid/errors
+SPECIAL cp -r ${CURDIR}/gnu/squid/errors/English/* ${MOUNT_POINT}/usr/pkg/share/squid/errors
+SPECIAL cp -r ${CURDIR}/gnu/squid/icons/* ${MOUNT_POINT}/usr/pkg/share/squid/icons
+SPECIAL chown -R root ${MOUNT_POINT}/usr/pkg/share/squid
+SPECIAL chmod -R a+r  ${MOUNT_POINT}/usr/pkg/share/squid
 
 
 # jftpgw
