@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.ramdisk,v 1.7 2001/12/15 12:46:01 fukachan Exp $
+# $FML: Makefile.ramdisk,v 1.8 2001/12/16 06:07:46 fukachan Exp $
 #
 
 #
@@ -20,7 +20,7 @@ AUXDEPENDS= 	dot.profile disktab.preinstall termcap.mini
 # working directories
 #
 
-MOUNT_POINT?=	/mnt
+MOUNT_POINT?=	${.CURDIR}/mnt
 
 # DEV/RDEV file system device, CDEV/RDEV vnconfig device
 VND?=		vnd0
@@ -60,6 +60,7 @@ image:
 	-disklabel ${VND_CDEV} >tmplabel
 	disklabel -r -R ${VND_CDEV} tmplabel
 	newfs -B le -m 0 -o space -i 1800 -c 80 ${VND_RDEV} 
+	test -d ${MOUNT_POINT} || mkdir -p ${MOUNT_POINT}
 	mount ${VND_DEV} ${MOUNT_POINT}
 	mtree -def ${.CURDIR}/${MTREE} -p ${MOUNT_POINT}/ -U
 	TOPDIR=${TOP} CURDIR=${.CURDIR} OBJDIR=${.OBJDIR} \
