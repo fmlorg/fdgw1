@@ -59,6 +59,8 @@ SYMLINK	/bin/cat		usr/bin/more
 SYMLINK	/bin/cat		usr/bin/sed
 SYMLINK	/bin/cat		usr/bin/tar
 SYMLINK	/bin/cat		usr/bin/tip
+SYMLINK /bin/cat                usr/bin/logger
+SYMLINK /bin/cat                usr/bin/id
 #SYMLINK /bin/cat		usr/mdec/installboot
 #SYMLINK /bin/cat		usr/sbin/bad144
 SYMLINK	/bin/cat		usr/sbin/chown
