@@ -1,4 +1,4 @@
-# $FML: dot.profile,v 1.7 2002/04/17 02:04:16 fukachan Exp $
+# $FML: dot.profile,v 1.8 2002/04/17 02:05:36 fukachan Exp $
 # $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
 # Copyright (c) 1997 Perry E. Metzger
@@ -34,7 +34,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.7 2002/04/17 02:04:16 fukachan Exp $
+# $FML: dot.profile,v 1.8 2002/04/17 02:05:36 fukachan Exp $
 #
 # Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
 #
@@ -88,7 +88,8 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	mv /etc /etc.orig
 	cp -pr /conf/etc /etc
 
-	umount /conf
+	# XXX not umount since ipnat needs /netbsd for kmem reading ;)
+	# umount /conf
 
 	# pwd.db for ps et.al.
 	ln /etc.orig/pwd.db /etc/pwd.db
