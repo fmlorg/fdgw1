@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.19 2001/12/15 12:46:01 fukachan Exp $
+# $FML: Makefile,v 1.20 2001/12/15 14:31:51 fukachan Exp $
 #
 
 
@@ -22,16 +22,19 @@ ARCH?=		`uname -p`
 # destination to install
 LOCALBASE?=	/usr/pkg
 
-# NetBSD source
-BSDSRCDIR?=	/usr/src
-_FLOPPY_DIR=	${BSDSRCDIR}/distrib/${ARCH}/floppies
-_SYS_DIR=	${BSDSRCDIR}/sys
-
 # targets for lndir
 SRC_DIRS?=	bin sbin usr.bin usr.sbin distrib dist
 
+# NetBSD source
+BSDSRCDIR?=	/usr/src
+
 # dir to lndir
 _BSDSRCDIR=	${PWD}/work/src
+
+_FLOPPY_DIR=	${_BSDSRCDIR}/distrib/${ARCH}/floppies
+
+_SYS_DIR=	${BSDSRCDIR}/sys
+
 
 
 #
