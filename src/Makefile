@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.52 2002/04/25 23:58:59 fukachan Exp $
+# $FML: Makefile,v 1.53 2002/04/26 00:39:30 fukachan Exp $
 #
 
 
@@ -29,7 +29,7 @@ BSDSRCDIR?=	/usr/src
 _BSDSRCDIR=	${PWD}/NetBSD
 
 # src/gnu/ master sources to fetch before we start to build fdgw.
-_FETCH_PROGRAM=	${SH} fetch.sh
+_FETCH_PROGRAM=	sh fetch.sh
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
