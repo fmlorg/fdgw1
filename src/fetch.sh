@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# $FML
+#
+
+workdir=`dirname $0`
+cd $workdir || exit 1
+
+test -d distfiles || mkdir -p distfiles
+cd distfiles || exit 1
+
+for file in $*
+do
+   if [ ! -f $file ];then
+	for site in	\
+		ftp://ftp.netbsd.org/pub/NetBSD/packages/distfiles/ \
+		ftp://ftp.iij.ad.jp/pub/NetBSD/packages/distfiles/ \
+		ftp://ftp.fml.org/pub/fdgw/source/
+	do
+		echo ftp ${site}${file}
+		eval ftp ${site}${file}
+	done
+   fi
+done
+
+exit 0
