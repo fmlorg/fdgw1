@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.23 2001/09/21 09:22:05 fukachan Exp $
+# $FML: rc.router,v 1.24 2001/10/13 15:01:45 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -75,6 +75,53 @@ fi
 if checkyesno pppoe; then
 	echo 'starting ADSL (pppoe)';
 	/usr/pkg/sbin/adsl-start
+fi
+
+
+if checkyesno http_proxy; then
+    echo -n 'starting http proxy: ';
+    if [ -x /usr/pkg/sbin/squid ];then
+	echo -n 'squid ';
+	mkdir -p /var/squid
+	mkdir -p /var/squid/cache
+	mkdir -p /var/squid/logs
+	mkdir -p /var/squid/errors
+	chown -R nobody /var/squid
+	ln -s /var/squid/logs/access.log /dev/null
+	ln -s /var/squid/logs/cache.log /dev/null
+	ln -s /var/squid/logs/store.log /dev/null
+	/usr/pkg/sbin/squid -z
+	/usr/pkg/sbin/squidmaster &
+   fi
+
+   echo '.';
+fi
+
+
+if checkyesno ftp_proxy; then
+   echo 'starting ftp proxy';
+
+   if [ -x /usr/pkg/sbin/jftpgw ];then
+	/usr/pkg/sbin/jftpgw -f /etc/jftpgw/jftpgw.conf
+   fi
+fi
+
+
+if checkyesno ssh_proxy; then
+   echo 'starting ssh proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N ssh-proxy -l -T localhost 10022 &
+   fi
+fi
+
+
+if checkyesno pop_proxy; then
+   echo 'starting pop proxy';
+
+   if [ -x /usr/pkg/sbin/stone ];then
+	/usr/pkg/sbin/stone -N pop-proxy -l -T localhost 10110 &
+   fi
 fi
 
 
