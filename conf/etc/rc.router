@@ -1,13 +1,14 @@
 #!/bin/sh
+#
+# $FML$
+#
 
-if [ -f /conf/etc/release_version ]
-then
-	echo ""
-	echo -n "     Welcome to NetBSD/i386 one floppy NATBOX"
-	echo -n " `cat /conf/etc/release_version`"
-	echo    " (`cat conf/etc/release_date`)"
-	echo ""
-fi
+FLOPPY_ROUTER_VERSION=0.9
+
+echo ""
+echo "     Welcome to NetBSD/i386 one floppy NATBOX $FLOPPY_ROUTER_VERSION"
+echo ""
+
 
 if [ -f /conf/etc/rc.subr ]
 then
