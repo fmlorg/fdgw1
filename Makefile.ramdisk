@@ -1,0 +1,5 @@
+#
+# $FML$
+#
+
+.include "../ramdisk-small/Makefile"
