@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.13 2001/09/08 09:48:58 fukachan Exp $
+# $FML: Makefile,v 1.14 2001/09/20 08:32:18 fukachan Exp $
 #
 
 MODEL?=         natbox
@@ -16,6 +16,7 @@ build:
 
 clean cleandir:
 	(cd src; make clean )
+	(cd src/gnu/rp-pppoe/src/;make distclean)
 
 allclean: clean
 	-rm -fr image src/work src/compile
