@@ -1,5 +1,20 @@
 #!/bin/sh
 
+# link for /bin/ps
+ln -s /conf/netbsd /netbsd
+
+if [ -f /conf/etc/hosts ]
+then
+	echo cp /conf/etc/hosts /etc/hosts
+	cp /conf/etc/hosts /etc/hosts
+fi
+
+if [ -f /conf/etc/resolv.conf ]
+then
+	echo cp /conf/etc/resolv.conf /etc/resolv.conf
+	cp /conf/etc/resolv.conf /etc/resolv.conf
+fi
+
 for if in `ifconfig -l`
 do
 	if [ -f /conf/etc/ifconfig.$if ]
@@ -12,7 +27,7 @@ done
 if [ -f /conf/etc/myname ]
 then
 	hostname `cat /conf/etc/myname`
-	hostname
+	echo "hostname: `hostname`"
 fi
 
 
@@ -23,6 +38,7 @@ fi
 
 if [ -f /conf/etc/syslog.conf ]
 then
+	cp /dev/null var/run/utmp
 	syslogd -f /conf/etc/syslog.conf
 fi
 
