@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.16 2002/02/13 14:16:53 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.17 2002/02/18 13:43:20 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -71,7 +71,10 @@ image:	netbsd
 	if [ -d ${CURDIR}/work/etc ];then \
 	   cp -pr ${CURDIR}/work/etc/[a-z]* ${MOUNT_POINT}/etc;\
 	   chown -R root ${MOUNT_POINT}/etc;\
-	fi 
+	fi
+	if [ -d ${CURDIR}/../rc.${MODEL} ];then \
+	   cp -pr ${CURDIR}/../rc.${MODEL}/[a-z]*  ${MOUNT_POINT}/etc;\
+	fi
 	@ ( echo "===> floppy"; df -i ${MOUNT_POINT} )| tee -a log.df
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
