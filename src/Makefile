@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.34 2002/02/10 11:25:14 fukachan Exp $
+# $FML: Makefile,v 1.35 2002/02/12 10:11:52 fukachan Exp $
 #
 
 
@@ -267,12 +267,12 @@ _init_transproxy:
 	@ echo "";
 	@ echo "make transproxy for proxyfw model";
 	@ echo "";
-	@ if [ ! -f gnu/.transproxy_done ];then \
+	@ if [ ! -f sbin/.transproxy_done ];then \
 	  ( cd sbin/transproxy;\
 		make ;\
 	  );\
 	  fi
-	@ touch gnu/.transproxy_done
+	@ touch sbin/.transproxy_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
