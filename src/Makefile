@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.28 2001/12/16 15:31:01 fukachan Exp $
+# $FML: Makefile,v 1.29 2002/01/27 03:47:03 fukachan Exp $
 #
 
 
@@ -53,7 +53,7 @@ _DIRS+=	bin/sleep
 _DIRS+=	bin/stty
 _DIRS+=	bin/sync
 _DIRS+=	bin/test
-.if exists (${BSDSRCDIR}/dist/dhcp)
+.if exists (${BSDSRCDIR}/dist/dhcp/Makefile)
 _DIRS+=	dist/dhcp
 .endif
 _DIRS+=	dist/ipf
