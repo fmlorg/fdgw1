@@ -1,6 +1,12 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2004/02/05
+
+  clean up conf/1.6/kernel.i386
+	re-create kernel config file from 1.6 source.
+	add BRIDGE for bridge model.
+
 2004/01/28
 
   update pim6sd
@@ -296,4 +302,4 @@
 
 
 -----
-$FML: CHANGES,v 1.36 2004/01/28 09:16:25 fukachan Exp $
+$FML: CHANGES,v 1.37 2004/01/28 12:33:46 fukachan Exp $
