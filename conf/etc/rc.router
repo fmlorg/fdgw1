@@ -70,4 +70,11 @@ then
    fi
 fi
 
+if [ -f /conf/etc/release_version ]
+then
+	echo ""
+	echo "     NetBSD one floppy NATBOX `cat /conf/etc/release_version`"
+	echo ""
+fi
+
 exit 0;
