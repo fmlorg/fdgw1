@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.60 2002/08/05 23:27:10 fukachan Exp $
+# $FML: Makefile,v 1.61 2003/01/10 00:20:12 fukachan Exp $
 #
 
 
@@ -136,6 +136,7 @@ MOUNT_POINT=	${.CURDIR}/mnt
 MODEL?=         natbox
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
+_RC_CONF?=	model/${MODEL}/rc.conf
 
 RAMDISK_S?=	ramdisk-small.fs
 BIOSBOOT?=	biosboot.sym
@@ -152,6 +153,7 @@ ETC_DIR?=	conf/etc
 _ARGS?=		MOUNT_POINT=${MOUNT_POINT} \
 		TOP=${_FLOPPY_DIR} \
 		_SYS_DIR=${_SYS_DIR} \
+		_CONF_DIR=${_CONF_DIR} \
 		BSDSRCDIR=${_BSDSRCDIR} \
 		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} \
 		MODEL=${MODEL} ARCH=${ARCH} \
@@ -279,6 +281,7 @@ _init_config:
 	mv ramdiskbin.conf.new ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
+	ln -s ${_RC_CONF} rc.conf
 
 _init_model_pre_configure:
 	if [ -x model/${MODEL}/pre_configure ]; then \
@@ -397,7 +400,7 @@ _init_pim6sd:
 clean cleandir:
 	-make -f Makefile.ramdisk cleandir TOP=${_FLOPPY_DIR}
 	-rm -f disktab.preinstall termcap.mini conf model
-	-rm -f ramdiskbin.conf list
+	-rm -f ramdiskbin.conf list rc.conf
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
 	-rm -f dot.profile mtree.conf
 
