@@ -25,8 +25,8 @@ maxusers	32		# estimated number of users
 # CPU support.  At least one is REQUIRED.
 options 	I386_CPU
 options 	I486_CPU
-options 	I586_CPU
-options 	I686_CPU
+#options 	I586_CPU
+#options 	I686_CPU
 
 # CPU-related options.
 options 	MATH_EMULATE	# floating point emulation
@@ -51,7 +51,7 @@ options 	MATH_EMULATE	# floating point emulation
 #options 	REALEXTMEM=...	# size of extended memory
 
 # Avoid irq 5 and 7, the most likely cause of problems on modern laptops.
-options		PCIC_ISA_INTR_ALLOC_MASK=0xff5f
+# options		PCIC_ISA_INTR_ALLOC_MASK=0xff5f
 
 # Standard system options
 
@@ -98,6 +98,7 @@ options 	COMPAT_386BSD_MBRPART # recognize old partition ID
 
 # Executable format options
 options 	EXEC_ELF32	# 32-bit ELF executables (SVR4, Linux)
+# options		EXEC_AOUT # already defined
 
 # File systems
 file-system 	FFS		# UFS
@@ -177,8 +178,8 @@ ppb*	at pci? dev ? function ?	# PCI-PCI bridges
 puc*	at pci? dev ? function ?	# PCI "universal" comm. cards
 
 # EISA bus support
-eisa*	at mainbus?
-eisa*	at pceb?
+# eisa*	at mainbus?
+# eisa*	at pceb?
 
 # ISA bus support
 isa*	at mainbus?
@@ -198,10 +199,10 @@ tcic0	at isa? port 0x240 iomem 0xd0000 iosiz 0x4000
 pcic0	at pci? dev? function ?
 
 # ISA Plug-and-Play bus support
-isapnp0	at isa?
+# isapnp0	at isa?
 
 # ISA Plug-and-Play PCMCIA controllers
-pcic*	at isapnp?
+# pcic*	at isapnp?
 
 # Coprocessor Support
 
@@ -247,7 +248,7 @@ com*	at puc? port ?			# 16x450s on "universal" comm boards
 #cy*	at pci? dev ? function ?	# Cyclades Cyclom-Y serial boards
 
 # ISA Plug-and-Play serial interfaces
-com*	at isapnp?			# Modems and serial boards
+# com*	at isapnp?			# Modems and serial boards
 
 # PCMCIA serial interfaces
 com*	at pcmcia? function ?		# Modems and serial cards
@@ -356,7 +357,7 @@ com2	at isa? port 0x3e8 irq 5
 pciide* at pci ? dev ? function ? flags 0x0000
 
 # ISA Plug-and-Play IDE controllers
-wdc*	at isapnp?
+# wdc*	at isapnp?
 
 # PCMCIA IDE controllers
 wdc*    at pcmcia? function ?   
@@ -430,13 +431,13 @@ vr*	at pci? dev ? function ?	# VIA Rhine Fast Ethernet
 lmc*	at pci? dev ? function ?	# Lan Media Corp SSI/HSSI/DS3
 
 # EISA network interfaces
-ep*	at eisa? slot ?			# 3Com 3c579 Ethernet
-fea*	at eisa? slot ?			# DEC DEFEA FDDI
+# ep*	at eisa? slot ?			# 3Com 3c579 Ethernet
+# fea*	at eisa? slot ?			# DEC DEFEA FDDI
 
 # ISA Plug-and-Play network interfaces
-ep*	at isapnp?			# 3Com 3c509 Ethernet
-ne*	at isapnp?			# NE2000-compatible Ethernet
-tr*	at isapnp?			# IBM/3COM TROPIC Token-Ring
+# ep*	at isapnp?			# 3Com 3c509 Ethernet
+# ne*	at isapnp?			# NE2000-compatible Ethernet
+# tr*	at isapnp?			# IBM/3COM TROPIC Token-Ring
 
 # PCMCIA network interfaces
 ep*	at pcmcia? function ?		# 3Com 3c589 and 3c562 Ethernet
