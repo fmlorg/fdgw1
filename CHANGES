@@ -1,5 +1,10 @@
 		CHANGES
 
+2002/02/11
+
+   rename proxyfw -> proxybox model.
+   clean up
+
 2002/02/10
 
    import stone, jftpgw, transproxy
@@ -50,4 +55,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.7 2002/02/10 11:23:41 fukachan Exp $
+$FML: CHANGES,v 1.8 2002/02/12 08:34:02 fukachan Exp $
