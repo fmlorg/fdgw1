@@ -1,5 +1,5 @@
 #
-# $FML: ROUTER,v 1.2 2001/09/07 12:49:03 fukachan Exp $
+# $FML: ROUTER,v 1.3 2001/09/07 13:27:10 fukachan Exp $
 #
 # This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.
 #
@@ -128,7 +128,7 @@ file-system 	KERNFS		# /kern
 # Networking options
 options 	GATEWAY		# packet forwarding
 options 	INET		# IP + ICMP + TCP + UDP
-options 	INET6		# IPv6
+#options 	INET6		# IPv6
 #options 	MROUTING	# IP multicast routing
 #options 	NS		# XNS
 #options 	NSIP		# XNS tunneling over IP
@@ -180,7 +180,7 @@ options 	PCIBIOS_ADDR_FIXUP      # fixup PCI I/O addresses
 options 	PCIBIOS_BUS_FIXUP       # fixup PCI bus numbering
 options 	PCIBIOS_INTR_FIXUP      # fixup PCI interrupt routing
 #options        PCIBIOS_IRQS_HINT=0x0a00 # PCI interrupts hint. IRQ 9 or 11
-options        PCIBIOS_INTR_GUESS      # see pcibios(4)
+options         PCIBIOS_INTR_GUESS      # see pcibios(4)
 #options        PCIINTR_DEBUG           # super-verbose PCI interrupt fixup
 
 # PCI bridges
@@ -265,13 +265,13 @@ pc0	at isa? port 0x60 irq 1		# pccons generic PC console driver
 #com*	at isapnp?			# Modems and serial boards
 
 # PCMCIA serial interfaces
-com*	at pcmcia? function ?		# Modems and serial cards
+# com*	at pcmcia? function ?		# Modems and serial cards
 
-pcmcom*	at pcmcia? function ?		# PCMCIA multi-port serial cards
-com*	at pcmcom? slave ?		# ...and the slave devices
+# pcmcom*	at pcmcia? function ?		# PCMCIA multi-port serial cards
+# com*	at pcmcom? slave ?		# ...and the slave devices
 
 # CardBus serial interfaces
-com* 	at cardbus? dev ? function ?	# Modems and serial cards
+# com* 	at cardbus? dev ? function ?	# Modems and serial cards
 
 # ISA serial interfaces
 #options 	COM_HAYESP		# adds Hayes ESP serial board support
@@ -374,22 +374,21 @@ fd*	at fdc? drive ?			# the drives themselves
 # Network Interfaces
 
 # PCI network interfaces
-# PCI network interfaces
 de*	at pci? dev ? function ?	# DEC 21x4x-based Ethernet
-en*	at pci? dev ? function ?	# ENI/Adaptec ATM
+#en*	at pci? dev ? function ?	# ENI/Adaptec ATM
 ep*	at pci? dev ? function ?	# 3Com 3c59x
 ex*	at pci? dev ? function ?	# 3Com 90x[B]
 epic*	at pci? dev ? function ?	# SMC EPIC/100 Ethernet
-esh*	at pci? dev ? function ?	# Essential HIPPI card
-fpa*	at pci? dev ? function ?	# DEC DEFPA FDDI
+#esh*	at pci? dev ? function ?	# Essential HIPPI card
+#fpa*	at pci? dev ? function ?	# DEC DEFPA FDDI
 fxp*	at pci? dev ? function ?	# Intel EtherExpress PRO 10+/100B
 le*	at pci? dev ? function ?	# PCnet-PCI Ethernet
-lmc*	at pci? dev ? function ?	# Lan Media Corp SSI/HSSI/DS3
+#lmc*	at pci? dev ? function ?	# Lan Media Corp SSI/HSSI/DS3
 ne*	at pci? dev ? function ?	# NE2000-compatible Ethernet
-ntwoc*	at pci? dev ? function ?	# Riscom/N2 PCI Sync Serial
+#ntwoc*	at pci? dev ? function ?	# Riscom/N2 PCI Sync Serial
 rtk*	at pci? dev ? function ?	# Realtek 8129/8139
 sip*	at pci? dev ? function ?	# SiS 900 Ethernet
-ti*	at pci? dev ? function ?	# Alteon ACEnic gigabit Ethernet
+#ti*	at pci? dev ? function ?	# Alteon ACEnic gigabit Ethernet
 tl*	at pci? dev ? function ?	# ThunderLAN-based Ethernet
 tlp*	at pci? dev ? function ?	# DECchip 21x4x (and clones) Ethernet
 #options 	TLP_MATCH_21040
@@ -399,15 +398,15 @@ tlp*	at pci? dev ? function ?	# DECchip 21x4x (and clones) Ethernet
 vr*	at pci? dev ? function ?	# VIA Rhine Fast Ethernet
 
 # PCMCIA network interfaces
-an*	at pcmcia? function ?		# Aironet PC4500/PC4800 (802.11)
-awi*	at pcmcia? function ?		# BayStack 650 (802.11FH)
-cnw*	at pcmcia? function ?		# Xircom/Netwave AirSurfer
+#an*	at pcmcia? function ?		# Aironet PC4500/PC4800 (802.11)
+#awi*	at pcmcia? function ?		# BayStack 650 (802.11FH)
+#cnw*	at pcmcia? function ?		# Xircom/Netwave AirSurfer
 ep*	at pcmcia? function ?		# 3Com 3c589 and 3c562 Ethernet
 mbe*	at pcmcia? function ?		# MB8696x based Ethernet
 ne*	at pcmcia? function ?		# NE2000-compatible Ethernet
-ray* 	at pcmcia? function ?           # Raytheon Raylink (802.11)
+#ray* 	at pcmcia? function ?           # Raytheon Raylink (802.11)
 sm*	at pcmcia? function ?		# Megahertz Ethernet
-wi*	at pcmcia? function ?		# Lucent WaveLan IEEE (802.11)
+#wi*	at pcmcia? function ?		# Lucent WaveLan IEEE (802.11)
 xi*	at pcmcia? function ?		# Xircom CreditCard Ethernet
 
 mhzc*	at pcmcia? function ?		# Megahertz Ethernet/Modem combo cards
@@ -432,14 +431,14 @@ lc0	at isa? port 0x320 iomem ? irq ?	# DEC EtherWORKS III (LEMAC)
 nele0	at isa? port 0x320 irq 9 drq 7		# NE2100
 le*	at nele?
 #ntwoc0	at isa? port 0x300 irq 5 iomem 0xc8000 flags 1	# Riscom/N2 sync serial
-bicc0	at isa? port 0x320 irq 10 drq 7		# BICC IsoLan
-le*	at bicc?
+#bicc0	at isa? port 0x320 irq 10 drq 7		# BICC IsoLan
+#le*	at bicc?
 ne0	at isa? port 0x280 irq 9		# NE[12]000 ethernet cards
 ne1	at isa? port 0x300 irq 10
 sm0	at isa? port 0x300 irq 10		# SMC91C9x Ethernet
-tr0	at isa? port 0xa20 iomem 0xd8000 irq ?  # IBM TROPIC based Token-Ring
-tr1	at isa? port 0xa24 iomem 0xd0000 irq ?  # IBM TROPIC based Token-Ring
-tr*	at isa? port ? irq ?			# 3COM TROPIC based Token-Ring
+#tr0	at isa? port 0xa20 iomem 0xd8000 irq ?  # IBM TROPIC based Token-Ring
+#tr1	at isa? port 0xa24 iomem 0xd0000 irq ?  # IBM TROPIC based Token-Ring
+#tr*	at isa? port ? irq ?			# 3COM TROPIC based Token-Ring
 we0	at isa? port 0x280 iomem 0xd0000 irq 9	# WD/SMC Ethernet
 we1	at isa? port 0x300 iomem 0xcc000 irq 10
 
