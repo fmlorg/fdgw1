@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.58 2002/07/31 07:49:30 fukachan Exp $
+# $FML: Makefile,v 1.59 2002/08/05 15:26:19 fukachan Exp $
 #
 
 
@@ -227,7 +227,7 @@ INIT_RULES +=	_init_squid \
 INIT_RULES +=	_init_zebra
 .endif
 
-.if ${MODEL} == "multicast6"
+.if ${MODEL} == "mcastrouter6"
 INIT_RULES +=	_init_pim6sd
 .endif
 
