@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.49 2003/01/09 06:14:05 fukachan Exp $
+# $FML: Makefile,v 1.50 2003/01/10 00:21:58 fukachan Exp $
 #
 
 #
@@ -97,6 +97,7 @@ clean cleandir:
 allclean: clean
 	-rm -fr obj.* image.*
 	- (cd src/gnu ; make clean )
+	- (cd src/gnu ; rm -fr squid* jftpgw* )
 
 stat:	obj.*.*/log.*
 	@ ${SH} src/utils/stat.sh	
