@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.20 2001/12/15 14:31:51 fukachan Exp $
+# $FML: Makefile,v 1.21 2001/12/15 14:47:57 fukachan Exp $
 #
 
 
@@ -23,7 +23,7 @@ ARCH?=		`uname -p`
 LOCALBASE?=	/usr/pkg
 
 # targets for lndir
-SRC_DIRS?=	bin sbin usr.bin usr.sbin distrib dist
+SRC_DIRS?=	bin sbin usr.bin usr.sbin distrib dist etc include lib gnu sys
 
 # NetBSD source
 BSDSRCDIR?=	/usr/src
@@ -114,6 +114,12 @@ _init_mesg:
 
 _lndir:
 	@ test -d ${_BSDSRCDIR} || mkdir -p ${_BSDSRCDIR}
+	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
+	@ if [ ! -f work/.lndir_done ]; then \
+		lndir ${BSDSRCDIR} ${_BSDSRCDIR};\
+	  fi
+
+__lndir:
 	@ echo ""
 	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
 	@ echo ""
