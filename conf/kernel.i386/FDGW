@@ -1,5 +1,10 @@
 #
-# $FML: FDGW,v 1.1 2001/09/09 05:35:19 fukachan Exp $
+# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+#
+# All rights reserved. This program is free software; you can
+# redistribute it and/or modify it under the same terms as NetBSD itself.
+#
+# $FML: FDGW,v 1.2 2001/09/20 01:28:16 fukachan Exp $
 #
 # This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.
 #

@@ -1,6 +1,12 @@
 #!/usr/bin/env perl
+#-*- perl -*-
 #
-# $FML: convert.pl,v 1.1.1.1 2001/09/06 03:30:25 fukachan Exp $
+# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+#
+# All rights reserved. This program is free software; you can
+# redistribute it and/or modify it under the same terms as NetBSD itself.
+#
+# $FML: convert.pl,v 1.1.1.1 2001/09/08 16:17:31 fukachan Exp $
 #
 
 use strict;

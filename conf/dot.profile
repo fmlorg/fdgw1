@@ -33,8 +33,15 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.3 2001/09/20 08:30:16 fukachan Exp $
+# $FML: dot.profile,v 1.4 2001/09/20 12:22:28 fukachan Exp $
 #
+# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+#
+# All rights reserved. This program is free software; you can
+# redistribute it and/or modify it under the same terms as NetBSD itself.
+#
+
+
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
 export PATH

@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+ *
+ * All rights reserved. This program is free software; you can
+ * redistribute it and/or modify it under the same terms as NetBSD itself.
+ *
+ * $FML$
+ *
+ */
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <netinet/in.h>
