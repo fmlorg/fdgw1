@@ -1,0 +1,36 @@
+ARCH?= i386
+
+RAMDISK_S=	ramdisk-small.fs
+
+netbsd: netbsd.gz
+	rm -f netbsd
+	ln netbsd.gz netbsd
+
+netbsd.gz: ${KERN}
+
+.WORKDIR=	${.CURDIR}/compile
+KERN=		${.WORKDIR}/netbsd
+
+# make kernel
+${KERN}: conf/ROUTER
+	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
+	cp conf/ROUTER ${.WORKDIR}/CONFIG
+	(cd ${.WORKDIR}; \
+		config -s ${TOP}/../../../sys ;\
+		make depend;\
+		make -j 4 \
+	)
+
+netbsd.gz: .NOTMAIN ${KERN} ${RAMDISK_S}
+	cp ${KERN} netbsd.tmp
+	${DESTDIR}/usr/sbin/mdsetimage -v netbsd.tmp ${RAMDISK_S}
+	nm netbsd.tmp > netbsd.symbols
+	${STRIP} netbsd.tmp
+	gzip -9 netbsd.tmp
+	mv netbsd.tmp.gz ${.TARGET}
+
+
+.include <bsd.own.mk>
+.include <bsd.obj.mk>
+.include <bsd.subdir.mk>
+.include <bsd.sys.mk>
