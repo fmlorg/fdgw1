@@ -73,18 +73,18 @@ SPECIAL	/bin/rm ramdiskbin
 
 
 # various files that we need in /etc for the install
-COPY	${CURDIR}/../../../../etc/group		etc/group
-COPY	${CURDIR}/../../../../etc/master.passwd	etc/master.passwd
-COPY	${CURDIR}/../../../../etc/protocols	etc/protocols
-COPY	${CURDIR}/../../../../etc/netconfig	etc/netconfig
-COPY	${CURDIR}/../../../../etc/services	etc/services
+COPY	${TOP}/../../../etc/group		etc/group
+COPY	${TOP}/../../../etc/master.passwd	etc/master.passwd
+COPY	${TOP}/../../../etc/protocols	etc/protocols
+COPY	${TOP}/../../../etc/netconfig	etc/netconfig
+COPY	${TOP}/../../../etc/services	etc/services
 
 SPECIAL	pwd_mkdb -p -d ./ etc/master.passwd
 SPECIAL /bin/rm etc/spwd.db
 SPECIAL /bin/rm etc/pwd.db
 
 # copy the MAKEDEV script and make some devices
-COPY	${CURDIR}/../../../../etc/etc.i386/MAKEDEV	dev/MAKEDEV
+COPY	${TOP}/../../../etc/etc.i386/MAKEDEV	dev/MAKEDEV
 SPECIAL	cd dev; sh MAKEDEV ramdisk
 SPECIAL	cd dev; sh MAKEDEV std
 SPECIAL	cd dev; sh MAKEDEV ipl
@@ -100,7 +100,7 @@ COPY	${CURDIR}/termcap.mini		usr/share/misc/termcap
 
 
 #the lists of obsolete files used by sysinst
-# SPECIAL	sh ${CURDIR}/../../../../distrib/sets/makeobsolete -b -s ${CURDIR}/../../../../distrib/sets -t ./dist 
+# SPECIAL	sh ${TOP}/../../../distrib/sets/makeobsolete -b -s ${TOP}/../../../distrib/sets -t ./dist 
 
 # and the installation tools
 COPY	${CURDIR}/dot.profile		.profile
