@@ -1,6 +1,7 @@
 #!/bin/sh
-
-set -x
+#
+# $FML$
+#
 
 test -d work || mkdir -p work
 cd work
