@@ -1,0 +1,26 @@
+#
+# checkyesno
+#       Test $1 variable, and warn if not set to YES or NO.
+#       return 0 if it's "yes" (et al), nonzero otherwise
+#
+checkyesno() {
+        eval value=\$${1}
+        case $value in
+
+                #       "yes", "true", "on", or "1"
+        [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1)
+                return 0
+                ;;
+
+                #       "no", "false", "off", or "0"
+        [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0)
+                return 1
+                ;;
+
+        *)
+	 	echo "WARNING: \$${1} is not set properly." 1>&2
+                # logger -s "WARNING: \$${1} is not set properly."
+                return 1
+                ;;
+        esac
+}
