@@ -1,3 +1,4 @@
+# $FML$
 # $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
 # Copyright (c) 1997 Perry E. Metzger
@@ -33,7 +34,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.5 2001/09/29 08:15:40 fukachan Exp $
+# $FML: dot.profile,v 1.6 2002/02/25 10:20:02 fukachan Exp $
 #
 # Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
 #
@@ -85,7 +86,9 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 
 	# symlink(2) for /etc
 	mv /etc /etc.orig
-	ln -s /conf/etc /etc
+	cp -pr /conf/etc /etc
+
+	umount /conf
 
 	# pwd.db for ps et.al.
 	ln -s /etc.orig/pwd.db /etc/pwd.db

@@ -1,5 +1,11 @@
 		CHANGES
 
+2002/04/16
+
+   change /etc directory
+	copy /etc on /dev/fd0a to /etc/ on md0a and use it as /etc not
+	/conf/etc
+
 2002/02/22
 
   minor bug fix for proxymodel
@@ -145,4 +151,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.15 2002/02/21 11:07:31 fukachan Exp $
+$FML: CHANGES,v 1.16 2002/02/22 13:30:24 fukachan Exp $
