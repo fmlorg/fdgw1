@@ -78,6 +78,7 @@ all:	netbsd.ram.gz
 	cp -pr ${CONFIG_FILES} ${MOUNT_POINT}/etc
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
+	ln ${IMAGE} ${IMAGE}.`date +%C%y%m%d`
 
 unconfig:
 	-umount -f ${MOUNT_POINT}
