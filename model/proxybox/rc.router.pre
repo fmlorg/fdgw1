@@ -1,3 +1,0 @@
-# disable ip forwarding
-/sbin/sysctl -w net.inet.ip.forwarding=0
-
