@@ -1,5 +1,9 @@
 		CHANGES
 
+2002/04/18
+
+   verify checksum
+
 2002/04/17
 
    updated squid from 2.4 stable 4 to stable 6.
@@ -170,4 +174,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.20 2002/04/17 11:56:00 fukachan Exp $
+$FML: CHANGES,v 1.21 2002/04/17 23:00:21 fukachan Exp $
