@@ -4,14 +4,14 @@ TOP=		${.CURDIR}/..
 
 .include "${TOP}/Makefile.inc"
 
-.include "config/mk.conf"
+.include "conf/mk.conf"
 
 IMAGE=		boot.fs
 KERN?=	${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER/netbsd
 
 # make kernel
-${KERN}: config/ROUTER
-	cp config/ROUTER ${.CURDIR}/../../../../sys/arch/${ARCH}/conf
+${KERN}: conf/ROUTER
+	cp conf/ROUTER ${.CURDIR}/../../../../sys/arch/${ARCH}/conf
 	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/conf; config ROUTER)
 	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER; \
 		make depend ; \

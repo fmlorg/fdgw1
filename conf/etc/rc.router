@@ -2,21 +2,21 @@
 
 for if in `ifconfig -l`
 do
-	if [ -f /config/etc/ifconfig.$if ]
+	if [ -f /conf/etc/ifconfig.$if ]
 	then
-		echo ifconfig $if `cat /config/etc/ifconfig.$if`
-		ifconfig $if `cat /config/etc/ifconfig.$if`
+		echo ifconfig $if `cat /conf/etc/ifconfig.$if`
+		ifconfig $if `cat /conf/etc/ifconfig.$if`
 	fi
 done
 
-if [ -f /config/etc/ipf.conf ]
+if [ -f /conf/etc/ipf.conf ]
 then
-   /sbin/ipf -E -f /config/etc/ipf.conf
+   /sbin/ipf -E -f /conf/etc/ipf.conf
 
-   if [ -f /config/etc/ipnat.conf ]
+   if [ -f /conf/etc/ipnat.conf ]
    then
 	echo enable NAT Box
-	/usr/sbin/ipnat -f /config/etc/ipnat.conf
+	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
 	/usr/sbin/ipnat -l
    fi
 fi

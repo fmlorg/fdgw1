@@ -70,11 +70,11 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# sysinst
 
 	# router or nat box
-	test -d config || mkdir config 
-	mount /dev/fd0a /config
-	if [ -f /config/etc/rc.router ]
+	test -d conf || mkdir conf 
+	mount /dev/fd0a /conf
+	if [ -f /conf/etc/rc.router ]
 	then
-		. /config/etc/rc.router
+		sh -x /conf/etc/rc.router
 	else
 		echo "*** welcome to one floppy NetBSD nat box ***"
 		echo "no given configuration! please customize this by yourself"
