@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.51 2002/04/24 09:02:06 fukachan Exp $
+# $FML: Makefile,v 1.52 2002/04/25 23:58:59 fukachan Exp $
 #
 
 
@@ -29,6 +29,7 @@ BSDSRCDIR?=	/usr/src
 _BSDSRCDIR=	${PWD}/NetBSD
 
 # src/gnu/ master sources to fetch before we start to build fdgw.
+_FETCH_PROGRAM=	${SH} fetch.sh
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
@@ -199,7 +200,6 @@ image:
 # initialization rules
 #
 INIT_RULES =	_init_mesg _init_dir  _lndir \
-		_init_download \
 		_init_config \
 		_init_model_pre_configure \
 		_init_dhcp \
@@ -277,9 +277,6 @@ _init_model_post_configure:
 		model/${MODEL}/post_configure ;\
 	fi
 
-_init_download:
-	sh fetch.sh ${_GNU_SOURCES};
-
 _init_pppoe:
 	@ echo "";
 	@ echo "make rp-pppoe for ADSL router";
@@ -296,6 +293,7 @@ _init_squid:
 	@ echo "";
 	@ echo "make squid for proxyfw model";
 	@ echo "";
+	@ ${_FETCH_PROGRAM} ${_SQUID_SOURCE}
 	@ sh extract.sh ${_SQUID_SOURCE}
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
@@ -311,6 +309,7 @@ _init_jftpgw:
 	@ echo "";
 	@ echo "make jftpgw for proxyfw model";
 	@ echo "";
+	@ ${_FETCH_PROGRAM} ${_JFTPGW_SOURCE}
 	@ sh extract.sh ${_JFTPGW_SOURCE}
 	@ if [ ! -f gnu/.jftpgw_done ];then \
 	  ( cd gnu/jftpgw/support;\
@@ -329,6 +328,7 @@ _init_zebra:
 	@ echo "";
 	@ echo "make zebra for proxyfw model";
 	@ echo "";
+	@ ${_FETCH_PROGRAM} ${_ZEBRA_SOURCE}
 	@ sh extract.sh ${_ZEBRA_SOURCE}
 	@ if [ ! -f gnu/.zebra_done ];then \
 	  ( cd gnu/zebra;\
