@@ -22,15 +22,24 @@ all:
 	@ echo "make build   (need NOT priviledge)"
 	@ echo "make install (need root priviledge)"
 
-dist:
-	-${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW build image
-	-${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build image
+dist: dist-build dist-image
+
+dist-build:
+	-${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW build
+	-${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build
+
+dist-image:
+	-${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW image
+	-${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 image
 
 build:
 	${SH} ./src/prepare_workdir.sh ${ARCH}.${MODEL}
 	(cd src.${ARCH}.${MODEL}; ${MAKE} MODEL=${MODEL} build )
 		
 image:
+	@ echo ""	
+	@ echo "\"make image\" needs root privilege"
+	@ echo ""	
 	(cd src.${ARCH}.${MODEL}; \
 		${SU_CMD} "cd `pwd`; ${MAKE} MODEL=${MODEL} image" )
 
