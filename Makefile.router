@@ -75,7 +75,7 @@ all:	netbsd.ram.gz
 	@echo "installing new bootblocks"
 	# -rm -f ${MOUNT_POINT}/boot
 	mkdir ${MOUNT_POINT}/etc
-	cp -pr config/if* config/*conf ${MOUNT_POINT}/etc
+	cp -pr ${CONFIG_FILES} ${MOUNT_POINT}/etc
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
 
