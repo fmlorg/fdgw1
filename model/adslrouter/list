@@ -117,3 +117,4 @@ SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-setup ${MOUNT_POINT}/usr/pkg/s
 SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-start ${MOUNT_POINT}/usr/pkg/sbin/
 SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-status ${MOUNT_POINT}/usr/pkg/sbin/
 SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-stop ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL chmod +x ${MOUNT_POINT}/usr/pkg/sbin/adsl-*
