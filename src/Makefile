@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.39 2002/02/18 13:40:53 fukachan Exp $
+# $FML: Makefile,v 1.40 2002/02/20 13:44:28 fukachan Exp $
 #
 
 
@@ -27,6 +27,10 @@ BSDSRCDIR?=	/usr/src
 
 # dir to lndir
 _BSDSRCDIR=	${PWD}/NetBSD
+
+# src/gnu/ master sources to fetch before we start to build fdgw.
+_GNU_SOURCES= squid-2.4.STABLE3-src.tar.gz
+_GNU_SOURCES+= jftpgw-0.13.beta.j.tar.gz
 
 # individual directories to link to
 _DIRS=	etc
@@ -183,6 +187,8 @@ image:
 # initialize process before main build process
 #
 _prepare_build_system:	_init_mesg _init_dir  _lndir \
+			_init_download \
+			_init_extract \
 			_init_config \
 			_init_model_pre_configure \
 			_init_pppoe \
@@ -237,6 +243,16 @@ _init_model_post_configure:
 	if [ -x model/${MODEL}/post_configure ]; then \
 		model/${MODEL}/post_configure ;\
 	fi
+
+_init_download:
+	sh fetch.sh ${_GNU_SOURCES};
+
+
+_init_extract:
+	@ if [ ! -f gnu/.extract_done ];then \
+		sh extract.sh ${_GNU_SOURCES};\
+	fi
+	@ touch gnu/.extract_done
 
 _init_pppoe:
 	@ echo "";
