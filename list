@@ -54,6 +54,7 @@ LINK	ramdiskbin			sbin/shutdown
 LINK	ramdiskbin			sbin/slattach
 LINK	ramdiskbin			sbin/swapctl
 LINK	ramdiskbin			sbin/umount
+LINK	ramdiskbin			sbin/ipf
 SYMLINK	/bin/cat		usr/bin/chgrp
 SYMLINK	/bin/cat		usr/bin/ftp
 SYMLINK	/bin/cat		usr/bin/gunzip
@@ -71,6 +72,7 @@ SYMLINK	/bin/cat		usr/sbin/chroot
 SYMLINK	/bin/cat		usr/sbin/mbrlabel
 SYMLINK	/bin/cat		usr/sbin/update
 SYMLINK	/bin/cat		usr/sbin/ipnat
+SYMLINK	/bin/cat		usr/sbin/ipfstat
 SPECIAL	/bin/rm ramdiskbin
 
 # various files that we need in /etc for the install
@@ -114,15 +116,3 @@ COPY	${CURDIR}/dot.hdprofile		tmp/.hdprofile
 # SPECIAL	chmod 755 install
 # SPECIAL	chmod 755 upgrade
 # SPECIAL	chmod 755 start
-
-# ipfilter
-# SPECIAL	cd ${CURDIR}/../../../../usr.sbin/ipf/ipnat/ ; make clean;make LDFLAGS+=-static
-# SPECIAL gzip -9 ${CURDIR}/../../../../usr.sbin/ipf/ipnat/ipnat
-# SPECIAL cp ${CURDIR}/../../../../usr.sbin/ipf/ipnat/ipnat.gz usr/sbin/ipnat.gz
-# SPECIAL rm -f ${CURDIR}/../../../../usr.sbin/ipf/ipnat/ipnat.gz
-# SPECIAL	cd ${CURDIR}/../../../../usr.sbin/ipf/ipf/ ; make clean;make LDFLAGS+=-static
-# SPECIAL gzip -9 ${CURDIR}/../../../../usr.sbin/ipf/ipf/ipf
-# SPECIAL cp ${CURDIR}/../../../../usr.sbin/ipf/ipf/ipf.gz sbin/ipf.gz
-# SPECIAL rm -f ${CURDIR}/../../../../usr.sbin/ipf/ipf/ipf.gz
-SPECIAL	cd ${CURDIR}/../../../../usr.sbin/ipf/ipf/ ; make clean;make LDFLAGS+=-static
-SPECIAL cp ${CURDIR}/../../../../usr.sbin/ipf/ipf/ipf sbin/ipf
