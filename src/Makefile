@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.37 2002/02/13 14:11:02 fukachan Exp $
+# $FML: Makefile,v 1.38 2002/02/15 14:27:06 fukachan Exp $
 #
 
 
@@ -209,6 +209,7 @@ _lndir:
 
 _init_dir:
 	@ test -d work || mkdir -p work
+	@ test -d work/etc || mkdir -p work/etc
 
 _init_config:
 	-rm -f dot.profile mtree.conf conf model
