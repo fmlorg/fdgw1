@@ -1,4 +1,4 @@
-# $FML: dot.profile,v 1.9 2002/04/17 09:40:34 fukachan Exp $
+# $FML: dot.profile,v 1.1.1.1 2002/06/20 09:19:30 fukachan Exp $
 # $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
 # Copyright (c) 1997 Perry E. Metzger
@@ -34,7 +34,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.9 2002/04/17 09:40:34 fukachan Exp $
+# $FML: dot.profile,v 1.1.1.1 2002/06/20 09:19:30 fukachan Exp $
 #
 # Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
 #
@@ -44,7 +44,7 @@
 
 
 
-PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
+PATH=/sbin:/bin:/usr/bin:/usr/sbin:/:/usr/pkg/sbin:/usr/pkg/bin
 export PATH
 TERM=pc3
 export TERM
