@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.15 2001/09/20 11:21:26 fukachan Exp $
+# $FML: Makefile,v 1.16 2001/09/21 14:46:35 fukachan Exp $
 #
 
 MODEL?=         natbox
@@ -24,6 +24,14 @@ allclean: clean
 
 mount:
 	vnconfig -v -c /dev/vnd0d src/ramdisk-small.fs
+	mount /dev/vnd0a /mnt
+
+mount-adslrouter:
+	vnconfig -v -c /dev/vnd0d image/adslrouter.img
+	mount /dev/vnd0a /mnt
+
+mount-natbox:
+	vnconfig -v -c /dev/vnd0d image/natbox.img
 	mount /dev/vnd0a /mnt
 
 umount:
