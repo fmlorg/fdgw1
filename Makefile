@@ -1,8 +1,8 @@
 #
-# $FML: Makefile,v 1.9 2001/08/15 10:34:21 fukachan Exp $
+# $FML: Makefile,v 1.10 2001/09/05 23:52:31 fukachan Exp $
 #
 
-MODEL?=         natbox.basic
+MODEL?=         natbox
 
 all:	build
 
