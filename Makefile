@@ -1,10 +1,15 @@
 #
-# $FML: Makefile,v 1.12 2001/09/06 02:50:24 fukachan Exp $
+# $FML: Makefile,v 1.13 2001/09/08 09:48:58 fukachan Exp $
 #
 
 MODEL?=         natbox
+KERNEL_CONF?=	FDGW
 
-all:	build
+all: build
+
+dist:
+	make MODEL=adslrouter KERNEL_CONF=FDGW
+	make MODEL=natbox     KERNEL_CONF=FDGW6
 
 build:
 	(cd src;make MODEL=${MODEL} )
@@ -13,7 +18,7 @@ clean cleandir:
 	(cd src; make clean )
 
 allclean: clean
-	-rm -fr image
+	-rm -fr image src/work src/compile
 
 mount:
 	vnconfig -v -c /dev/vnd0d src/ramdisk-small.fs
