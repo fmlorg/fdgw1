@@ -17,7 +17,7 @@ MDEC=		${DESTDIR}/usr/mdec
 STRIP?=		strip
 
 # XXX install netbsd boot.fs
-LISTS=		../bootfloppy-common/list
+LISTS=		${TOP}/bootfloppy-common/list
 
 DISKTYPE?=	floppy3
 DISKSIZE?=	2880

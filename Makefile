@@ -1,12 +1,9 @@
 #
-# $FML: Makefile,v 1.5 2001/08/15 08:17:49 fukachan Exp $
+# $FML: Makefile,v 1.6 2001/08/15 09:11:28 fukachan Exp $
 #
 
 TOP=		${.CURDIR}/..
 WARNS=1
-
-.include "${TOP}/Makefile.inc"
-
 
 IMAGE=		boot.fs
 MOUNT_POINT=	/mnt
@@ -35,8 +32,8 @@ ${IMAGE}: _prepare
 _prepare:
 	@ echo "0. prepations ... "
 	-rm -f disktab.preinstall termcap.mini
-	ln ../ramdisk-small/disktab.preinstall disktab.preinstall
-	ln ../ramdisk-small/termcap.mini       termcap.mini
+	cp ${TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
+	cp ${TOP}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
 	ln -s ${_CBIN}.conf ramdiskbin.conf
 	-rm -f list
@@ -44,8 +41,8 @@ _prepare:
 	if [ -x conf/${MODEL}/configure ]; then conf/${MODEL}/configure ; fi
 
 clean cleandir:
-	-make -f ../ramdisk-small/Makefile unconfig
-	-make -f ../ramdisk-small/Makefile cleandir
+	-make -f ${TOP}/ramdisk-small/Makefile unconfig
+	-make -f ${TOP}/ramdisk-small/Makefile cleandir
 	-rm -f disktab.preinstall termcap.mini
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~

@@ -16,7 +16,7 @@ ${KERN}: conf/ROUTER
 	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
 	cp conf/ROUTER ${.WORKDIR}/CONFIG
 	(cd ${.WORKDIR}; \
-		config -s ${.CURDIR}/../../../../sys ;\
+		config -s ${TOP}/../../../sys ;\
 		make depend;\
 		make -j 4 \
 	)
