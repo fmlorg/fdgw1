@@ -9,6 +9,23 @@ do
 	fi
 done
 
+if [ -f /conf/etc/myname ]
+then
+	hostname `cat /conf/etc/myname`
+	hostname
+fi
+
+
+if [ -f /conf/etc/mygate ]
+then
+	route add default `cat /conf/etc/mygate`
+fi
+
+if [ -f /conf/etc/syslog.conf ]
+then
+	syslogd -f /conf/etc/syslog.conf
+fi
+
 if [ -f /conf/etc/ipf.conf ]
 then
    echo enable IPFilter
