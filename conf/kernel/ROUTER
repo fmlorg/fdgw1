@@ -1,5 +1,5 @@
 #
-# $FML: ROUTER,v 1.5 2001/08/14 22:28:15 fukachan Exp $
+# $FML: ROUTER,v 1.1.1.1 2001/09/06 03:30:25 fukachan Exp $
 #
 # This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.
 #
@@ -301,18 +301,18 @@ com2	at isa? port 0x3e8 irq 5
 # SCSI Controllers and Devices
 
 # PCMCIA SCSI controllers
-aic*	at pcmcia? function ?		# Adaptec APA-1460 SCSI
+#aic*	at pcmcia? function ?		# Adaptec APA-1460 SCSI
 
-ahc* 	at cardbus? dev ? function ?	# Adaptec ADP-1480
+#ahc* 	at cardbus? dev ? function ?	# Adaptec ADP-1480
 
 # SCSI bus support
-scsibus* at ahc?
-scsibus* at aic?
+#scsibus* at ahc?
+#scsibus* at aic?
 
 # SCSI devices
-sd*	at scsibus? target ? lun ?	# SCSI disk drives
-st*	at scsibus? target ? lun ?	# SCSI tape drives
-cd*	at scsibus? target ? lun ?	# SCSI CD-ROM drives
+#sd*	at scsibus? target ? lun ?	# SCSI disk drives
+#st*	at scsibus? target ? lun ?	# SCSI tape drives
+#cd*	at scsibus? target ? lun ?	# SCSI CD-ROM drives
 #ch*	at scsibus? target ? lun ?	# SCSI autochangers
 #ss*	at scsibus? target ? lun ?	# SCSI scanners
 #uk*	at scsibus? target ? lun ?	# SCSI unknown
@@ -322,20 +322,20 @@ cd*	at scsibus? target ? lun ?	# SCSI CD-ROM drives
 # The 0x0001 flag force the driver to use DMA, even if the driver doesn't know
 # how to set up DMA modes for this chip. This may work, or may cause
 # a machine hang with some controllers.
-pciide* at pci ? dev ? function ? flags 0x0000
+#pciide* at pci ? dev ? function ? flags 0x0000
 
 # ISA Plug-and-Play IDE controllers
 #wdc*	at isapnp?
 
 # PCMCIA IDE controllers
-wdc*    at pcmcia? function ?   
+#wdc*    at pcmcia? function ?   
 
 # ISA ST506, ESDI, and IDE controllers
 # Use flags 0x01 if you want to try to use 32bits data I/O (the driver will
 # fall back to 16bits I/O if 32bits I/O are not functional).
 # Some controllers pass the initial 32bit test, but will fail later.
-wdc0	at isa? port 0x1f0 irq 14 flags 0x00
-wdc1	at isa? port 0x170 irq 15 flags 0x00
+#wdc0	at isa? port 0x1f0 irq 14 flags 0x00
+#wdc1	at isa? port 0x170 irq 15 flags 0x00
 
 # IDE drives
 # Flags are used only with controllers that support DMA operations
@@ -348,8 +348,8 @@ wdc1	at isa? port 0x170 irq 15 flags 0x00
 # 0x0fac means 'use PIO mode 4, DMA mode 2, disable UltraDMA'.
 # (0xc=1100, 0xa=1010, 0xf=1111)
 # 0x0000 means "use whatever the drive claims to support".
-wd*	at wdc? channel ? drive ? flags 0x0000
-wd*	at pciide? channel ? drive ? flags 0x0000
+#wd*	at wdc? channel ? drive ? flags 0x0000
+#wd*	at pciide? channel ? drive ? flags 0x0000
 
 # ATAPI bus support
 #atapibus* at wdc? channel ?
@@ -399,6 +399,35 @@ xi*	at pcmcia? function ?		# Xircom CreditCard Ethernet
 mhzc*	at pcmcia? function ?		# Megahertz Ethernet/Modem combo cards
 com*	at mhzc?
 sm*	at mhzc?
+
+# ISA network interfaces
+ate0	at isa? port 0x2a0 irq ?		# AT1700
+cs0	at isa? port 0x300 iomem ? irq ? drq ?	# CS8900 Ethernet
+ec0	at isa? port 0x250 iomem 0xd8000 irq 9	# 3Com 3c503 Ethernet
+eg0	at isa? port 0x280 irq 9		# 3C505 ethernet cards
+el0	at isa? port 0x300 irq 9		# 3C501 ethernet cards
+ep*	at isa? port ? irq ?			# 3C509 ethernet cards
+ef0	at isa? port 0x360 iomem 0xd0000 irq 7	# 3C507
+ai0	at isa? port 0x360 iomem 0xd0000 irq 7	# StarLAN
+fmv0	at isa? port 0x2a0 irq ?		# FMV-180 series
+ix0	at isa? port 0x300 irq 10		# EtherExpress/16
+iy0	at isa? port 0x360 irq ?		# EtherExpress PRO 10 ISA
+lc0	at isa? port 0x320 iomem ? irq ?	# DEC EtherWORKS III (LEMAC)
+#depca0	at isa? port 0x300 iomem 0xc8000 iosiz 0x8000 irq 5	# DEPCA
+#le*	at depca?
+nele0	at isa? port 0x320 irq 9 drq 7		# NE2100
+le*	at nele?
+#ntwoc0	at isa? port 0x300 irq 5 iomem 0xc8000 flags 1	# Riscom/N2 sync serial
+bicc0	at isa? port 0x320 irq 10 drq 7		# BICC IsoLan
+le*	at bicc?
+ne0	at isa? port 0x280 irq 9		# NE[12]000 ethernet cards
+ne1	at isa? port 0x300 irq 10
+sm0	at isa? port 0x300 irq 10		# SMC91C9x Ethernet
+tr0	at isa? port 0xa20 iomem 0xd8000 irq ?  # IBM TROPIC based Token-Ring
+tr1	at isa? port 0xa24 iomem 0xd0000 irq ?  # IBM TROPIC based Token-Ring
+tr*	at isa? port ? irq ?			# 3COM TROPIC based Token-Ring
+we0	at isa? port 0x280 iomem 0xd0000 irq 9	# WD/SMC Ethernet
+we1	at isa? port 0x300 iomem 0xcc000 irq 10
 
 # CardBus network cards
 ex* 	at cardbus? dev ? function ?	# 3Com 3C575TX
