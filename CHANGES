@@ -1,5 +1,13 @@
 		CHANGES
 
+2001/12/14
+
+   add TAGS
+
+   define fdgw-0-9-base and branch fdgw-0-9-maint
+	separete stable branch for further restruturing for NetBSD
+	pkgsrc
+
 2001/10/13
 
    conf/etc/rc.router
@@ -9,4 +17,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.1 2001/10/13 15:00:06 fukachan Exp $
+$FML: CHANGES,v 1.2 2001/10/13 15:02:25 fukachan Exp $
