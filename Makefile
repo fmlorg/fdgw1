@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.29 2002/01/27 03:15:09 fukachan Exp $
+# $FML: Makefile,v 1.30 2002/01/30 12:33:21 fukachan Exp $
 #
 
 #
@@ -25,11 +25,11 @@ all:
 dist: dist-build dist-image
 
 dist-build:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW build
+	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  build
 	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build
 
 dist-image:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW image
+	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  image
 	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 image
 
 build:
