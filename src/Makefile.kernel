@@ -1,3 +1,7 @@
+#
+# $FML$
+#
+
 ARCH?= i386
 
 RAMDISK_S=	ramdisk-small.fs
@@ -8,7 +12,7 @@ netbsd: netbsd.gz
 
 netbsd.gz: ${KERN}
 
-KERNEL_CONF?=	ROUTER
+KERNEL_CONF?=	FDGW
 .WORKDIR=	${.CURDIR}/compile/${KERNEL_CONF}
 KERN=		${.WORKDIR}/netbsd
 
