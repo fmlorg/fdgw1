@@ -1,6 +1,11 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2002/12/09
+
+   /.profile
+	PATH=/sbin:/bin:/usr/bin:/usr/sbin:/:/usr/pkg/sbin:/usr/pkg/bin
+
 2002/08/05
 
    conf/1.5/etc/
@@ -223,4 +228,4 @@
 
 
 -----
-$FML: CHANGES,v 1.29 2002/07/31 07:49:29 fukachan Exp $
+$FML: CHANGES,v 1.30 2002/08/05 23:29:38 fukachan Exp $
