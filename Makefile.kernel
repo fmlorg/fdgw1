@@ -2,9 +2,7 @@ ARCH?= i386
 
 KERN?=	${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER/netbsd
 
-RAMDISK_S!=	cd ${.CURDIR}/../ramdisk-small/; \
-		printf "xxx: .MAKE\n\t@echo \$${.OBJDIR}/ramdisk-small.fs\n" | \
-		${MAKE} -s -f-
+RAMDISK_S=	ramdisk-small.fs
 
 netbsd: netbsd.gz
 	rm -f netbsd
