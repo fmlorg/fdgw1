@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.36 2002/02/12 10:11:06 fukachan Exp $
+# $FML: Makefile,v 1.37 2002/02/12 10:39:46 fukachan Exp $
 #
 
 #
@@ -84,20 +84,18 @@ allclean: clean
 #
 # utilities for debug
 #
-mount:
+mount-ramdisk:
 	if [ -f src.${ARCH}.${MODEL}/ramdisk-small.fs ];then \
 	  vnconfig -v -c /dev/vnd0d src.${ARCH}.${MODEL}/ramdisk-small.fs;\
 	  mount /dev/vnd0a /mnt;\
 	fi
 
-mount-adslrouter:
-	vnconfig -v -c /dev/vnd0d image.${ARCH}/adslrouter.img
+mount-img:
+	vnconfig -v -c /dev/vnd0d image.${ARCH}/${MODEL}.img
 	mount /dev/vnd0a /mnt
 
-mount-natbox:
-	vnconfig -v -c /dev/vnd0d image.${ARCH}/natbox.img
-	mount /dev/vnd0a /mnt
-
+umount-img: umount
+umount-ramdisk: umount
 umount:
 	umount /mnt
 	vnconfig -u /dev/vnd0d
