@@ -7,9 +7,13 @@
 	IPSec VPN by IKE.
 	we use racoon as IKE daemon.
 
-   clean up the usage of directories.
+   clean up the usage of files and directories.
 	not use src/gnu/ as a work dir in compilation
 	use src/pkg/ for external packages.
+	renamed: src/distinfo -> src/gnu/distinfo
+	create src/patches/
+		This dir holds patches for packages, 
+		imported from pkgsrc mainly.
 
 2003/01/10
 
@@ -266,4 +270,4 @@
 
 
 -----
-$FML: CHANGES,v 1.32 2003/01/10 04:05:35 fukachan Exp $
+$FML: CHANGES,v 1.33 2003/01/20 01:16:47 fukachan Exp $
