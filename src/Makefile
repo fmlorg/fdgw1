@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.36 2002/02/12 10:39:16 fukachan Exp $
+# $FML: Makefile,v 1.37 2002/02/13 14:11:02 fukachan Exp $
 #
 
 
@@ -131,6 +131,10 @@ _ARGS?=		MOUNT_POINT=${MOUNT_POINT} \
 		INO_BYTES=${INO_BYTES} \
 		RAMDISK_S=${RAMDISK_S}
 
+# import from pkgsrc/www/squid/Makefile
+SQUID_CONFIGURE_ARGS?=  --enable-ipf-transparent \
+                        --enable-underscores
+
 
 #
 # MAIN RULE
@@ -185,7 +189,6 @@ _prepare_build_system:	_init_mesg _init_dir  _lndir \
 			_init_squid \
 			_init_jftpgw \
 			_init_dhcp \
-			_init_transproxy \
 			_init_resolver \
 			_init_model_post_configure
 
@@ -251,7 +254,10 @@ _init_squid:
 	@ echo "";
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
-		./configure --prefix=${LOCALBASE} --sysconf=/etc/squid ;\
+		./configure --prefix=${LOCALBASE} \
+				--sysconf=/etc/squid \
+		                --localstatedir=/var/squid \
+		                ${SQUID_CONFIGURE_ARGS} ;\
 		make ;\
 	  );\
 	  fi
