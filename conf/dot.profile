@@ -33,7 +33,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.2 2001/09/08 00:59:22 fukachan Exp $
+# $FML: dot.profile,v 1.3 2001/09/08 01:02:34 fukachan Exp $
 #
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
