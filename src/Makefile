@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.24 2001/12/16 06:07:46 fukachan Exp $
+# $FML: Makefile,v 1.25 2001/12/16 09:14:51 fukachan Exp $
 #
 
 
@@ -84,8 +84,6 @@ build: _prepare_build_system
 	-make -f Makefile.kernel ${_ARGS} build
 	@ echo ""
 	@ echo "build stage done."
-	@ echo ""	
-	@ echo "Next step: run \"make image\" under root privilege"
 	@ echo ""	
 
 image:
