@@ -59,7 +59,6 @@ SYMLINK	/bin/cat			usr/bin/logger
 SYMLINK	/bin/cat			usr/bin/id
 SYMLINK /bin/cat			usr/bin/basename
 SYMLINK /bin/cat			usr/bin/uname
-SYMLINK /bin/cat			usr/bin/netstat
 
 SYMLINK	/bin/cat			usr/sbin/chown
 SYMLINK	/bin/cat			usr/sbin/chroot
