@@ -74,10 +74,13 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# run the installation or upgrade script.
 	#sysinst
 
-        # router or nat box
-        if [ -f /etc/rc.router ]
+	# read configuration from /dev/fd0a (ffs)
+	test -d conf || mkdir conf 
+	mount /dev/fd0a /conf
+
+        if [ -f /conf/etc/rc.router ]
         then
-                sh /etc/rc.router
+                sh /conf/etc/rc.router
         else
                 echo "*** welcome to one floppy NetBSD nat box ***"
                 echo "no configuration!";

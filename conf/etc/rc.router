@@ -1,47 +1,46 @@
 #!/bin/sh
-#
-# $FML: rc.router,v 1.11 2001/08/14 21:58:51 fukachan Exp $
-#
 
-FLOPPY_ROUTER_VERSION=0.9
-
-echo ""
-echo "     Welcome to NetBSD/i386 one floppy NATBOX $FLOPPY_ROUTER_VERSION"
-echo ""
-
-
-if [ -f /etc/rc.subr ]
+if [ -f /conf/etc/release_version ]
 then
-	. /etc/rc.subr
+	echo ""
+	echo -n "     Welcome to NetBSD/i386 one floppy NATBOX"
+	echo -n " `cat /conf/etc/release_version`"
+	echo    " (`cat conf/etc/release_date`)"
+	echo ""
+fi
+
+if [ -f /conf/etc/rc.subr ]
+then
+	. /conf/etc/rc.subr
 else
-	echo Error: /etc/rc.subr not found 2>&1
+	echo Error: /conf/etc/rc.subr not found 2>&1
 	exit 1
 fi
 
-if [ -f /etc/rc.conf ]
+if [ -f /conf/etc/rc.conf ]
 then
-	. /etc/rc.conf
+	. /conf/etc/rc.conf
 else
-	echo Error: /etc/rc.conf not found 2>&1
+	echo Error: /conf/etc/rc.conf not found 2>&1
 	exit 1
 fi
 
 # link for /bin/ps
-ln -s /netbsd /netbsd
+ln -s /conf/netbsd /netbsd
 
-if [ -f /etc/hosts ]
+if [ -f /conf/etc/hosts ]
 then
-	cp /etc/hosts /etc/hosts
+	cp /conf/etc/hosts /etc/hosts
 fi
 
-if [ -f /etc/resolv.conf ]
+if [ -f /conf/etc/resolv.conf ]
 then
-	cp /etc/resolv.conf /etc/resolv.conf
+	cp /conf/etc/resolv.conf /etc/resolv.conf
 fi
 
-if [ -f /etc/myname ]
+if [ -f /conf/etc/myname ]
 then
-	hostname `cat /etc/myname`
+	hostname `cat /conf/etc/myname`
 	echo "hostname: `hostname`"
 fi
 
@@ -50,37 +49,37 @@ echo ""; echo "--- Configuring networking:";
 
 for if in `ifconfig -l`
 do
-	if [ -f /etc/ifconfig.$if ]
+	if [ -f /conf/etc/ifconfig.$if ]
 	then
-		echo "ifconfig $if `cat /etc/ifconfig.$if`"
-		ifconfig $if `cat /etc/ifconfig.$if`
+		echo "ifconfig $if `cat /conf/etc/ifconfig.$if`"
+		ifconfig $if `cat /conf/etc/ifconfig.$if`
 	fi
 done
 
-if [ -f /etc/mygate ]
+if [ -f /conf/etc/mygate ]
 then
-	route add default `cat /etc/mygate`
+	route add default `cat /conf/etc/mygate`
 fi
 
 if checkyesno syslogd; then
-   if [ -f /etc/syslog.conf ]
+   if [ -f /conf/etc/syslog.conf ]
    then
 	cp /dev/null var/run/utmp
-	syslogd -f /etc/syslog.conf
+	syslogd -f /conf/etc/syslog.conf
    fi
 fi
 
-if [ -f /etc/ipf.conf ]
+if [ -f /conf/etc/ipf.conf ]
 then
    echo ""; echo "--- enable IPFilter"
-   /sbin/ipf -E -f /etc/ipf.conf
+   /sbin/ipf -E -f /conf/etc/ipf.conf
    /usr/sbin/ipfstat -i
    /usr/sbin/ipfstat -o
 
-   if [ -f /etc/ipnat.conf ]
+   if [ -f /conf/etc/ipnat.conf ]
    then
 	echo ""; echo "--- enable NAT Box"
-	/usr/sbin/ipnat -f /etc/ipnat.conf
+	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
 	/usr/sbin/ipnat -l
    fi
 
