@@ -3,6 +3,8 @@
 
 2002/04/18
 
+   add BGP router model based on zebra
+
    verify checksum
 
 2002/04/17
@@ -176,4 +178,4 @@
 
 
 -----
-$FML: CHANGES,v 1.22 2002/04/18 01:54:35 fukachan Exp $
+$FML: CHANGES,v 1.23 2002/04/18 01:55:26 fukachan Exp $
