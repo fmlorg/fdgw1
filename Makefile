@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.19 2001/12/15 12:47:49 fukachan Exp $
+# $FML: Makefile,v 1.20 2001/12/15 14:31:51 fukachan Exp $
 #
 
 
@@ -20,14 +20,14 @@ all: build image
 
 dist:
 	-make MODEL=adslrouter KERNEL_CONF=FDGW
-	-${SU_CMD} "cd `pwd`; make clean"
 	-make MODEL=natbox     KERNEL_CONF=FDGW6
 
 build:
-	(cd src; make MODEL=${MODEL} build )
+	${SH} ./src/prepare_workdir.sh ${MODEL}
+	(cd src.${MODEL}; make MODEL=${MODEL} build )
 
 image:
-	(cd src; ${SU_CMD} "cd `pwd`; make MODEL=${MODEL} image" )
+	(cd src.${MODEL}; ${SU_CMD} "cd `pwd`; make MODEL=${MODEL} image" )
 
 clean cleandir:
 	(cd src; make clean )
