@@ -4,23 +4,36 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.ramdisk,v 1.6 2001/12/15 12:31:47 fukachan Exp $
+# $FML: Makefile.ramdisk,v 1.7 2001/12/15 12:46:01 fukachan Exp $
 #
 
-# .include "${TOP}/Makefile.inc"
-IMAGE=		ramdisk-small.fs
+#
+# specify target
+#
 
+IMAGE=		ramdisk-small.fs
+CBIN=		ramdiskbin
 AUXDEPENDS= 	dot.profile disktab.preinstall termcap.mini
 
-CBIN=		ramdiskbin
+
+#
+# working directories
+#
 
 MOUNT_POINT?=	/mnt
+
 # DEV/RDEV file system device, CDEV/RDEV vnconfig device
 VND?=		vnd0
 VND_DEV=	/dev/${VND}a
 VND_RDEV=	/dev/r${VND}a
 VND_CDEV=	/dev/${VND}d
 VND_CRDEV=	/dev/r${VND}d
+
+
+#
+# image parameters
+#
+
 IMAGE?=		xxx.fs
 MDEC=		${DESTDIR}/usr/mdec
 
@@ -32,9 +45,12 @@ RAMDISKSPC=	256
 RAMDISKCYLS=	16
 RAMDISKSIZE!=	expr ${RAMDISKSPC} \* ${RAMDISKCYLS}
 
+
+
 build: ${IMAGE}
 
 ${IMAGE}: ${CBIN} ${AUXDEPENDS} ${MTREE} ${LISTS}
+
 
 image:
 	rm -f ${IMAGE}.tmp

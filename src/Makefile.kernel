@@ -4,31 +4,23 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.kernel,v 1.9 2001/12/15 12:31:47 fukachan Exp $
+# $FML: Makefile.kernel,v 1.10 2001/12/15 12:46:01 fukachan Exp $
 #
 
-ARCH?= i386
-
-RAMDISK_S=	ramdisk-small.fs
-
-netbsd: netbsd.gz
-	rm -f netbsd
-	ln netbsd.gz netbsd
-
-netbsd.gz: ${KERN}
-
+RAMDISK_S?=	ramdisk-small.fs
 KERNEL_CONF?=	FDGW
 .WORKDIR=	${.CURDIR}/compile/${KERNEL_CONF}
 KERN=		${.WORKDIR}/netbsd
-
 _KERNEL_CONF =	conf/kernel.${ARCH}/${KERNEL_CONF}
-
 
 
 build: ${KERN}
 
-
 image: netbsd
+
+netbsd: netbsd.gz
+	rm -f netbsd
+	ln netbsd.gz netbsd
 
 
 # make kernel

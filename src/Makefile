@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.22 2001/12/15 16:03:36 fukachan Exp $
+# $FML: Makefile,v 1.23 2001/12/16 04:04:45 fukachan Exp $
 #
 
 
@@ -45,6 +45,8 @@ MODEL?=         natbox
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
 
+RAMDISK_S?=	ramdisk-small.fs
+
 
 #
 # compiler pragma / attributes / options
@@ -57,8 +59,10 @@ _ARGS?=		MOUNT_POINT=${MOUNT_POINT} \
 		TOP=${_FLOPPY_DIR} \
 		_SYS_DIR=${_SYS_DIR} \
 		BSDSRCDIR=${_BSDSRCDIR} \
-		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL} ARCH=${ARCH} \
-		INO_BYTES=${INO_BYTES}
+		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} \
+		MODEL=${MODEL} ARCH=${ARCH} \
+		INO_BYTES=${INO_BYTES} \
+		RAMDISK_S=${RAMDISK_S}
 
 
 #
@@ -71,28 +75,35 @@ all:
 
 build: _prepare_build_system
 	@ echo ""
-	@ echo "1. make ramdiskbin"
+	@ echo "build stage 1. make ramdiskbin"
 	@ echo ""
 	-make -f Makefile.ramdisk ${_ARGS} build
 	@ echo ""
-	@ echo "2. make netbsd kernel"
+	@ echo "build stage 2. make netbsd kernel"
 	@ echo ""
 	-make -f Makefile.kernel ${_ARGS} build
+	@ echo ""
+	@ echo "build stage done."
+	@ echo ""	
+	@ echo "Next step: run \"make image\" under root privilege"
+	@ echo ""	
 
 image:
-	@ echo "1. make ramdisk-small.fs"
+	@ echo ""
+	@ echo "image 1. make ramdisk-small.fs"
 	@ echo ""
 	-make -f Makefile.ramdisk ${_ARGS} image
 	@ echo ""
-	@ echo "2. inject mdsetimage into NetBSD Kernel"
+	@ echo "image 2. inject mdsetimage into NetBSD Kernel"
 	@ echo ""
 	-make -f Makefile.kernel ${_ARGS} image
 	@ echo ""
-	@ echo "3. make a bootable floppy and inject netbsd into it"
+	@ echo "image 3. make a bootable floppy and inject netbsd into it"
 	@ echo ""
 	-make -f Makefile.bootfloppy ${_ARGS} image
 	@ echo ""
-	@ echo "done."
+	@ echo "building image stage done."
+	@ echo ""	
 
 
 
