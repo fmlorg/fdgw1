@@ -1,5 +1,5 @@
 #
-# $FML: rc.subr,v 1.5 2001/09/07 12:48:08 fukachan Exp $
+# $FML: rc.subr,v 1.6 2001/09/08 09:29:14 fukachan Exp $
 #
 
 #
@@ -55,10 +55,10 @@ install_file () {
 
 
 copyright () {
-   if [ -f /conf/etc/release_version ];then
+   if [ -f /etc/release_version ];then
 	echo    "NetBSD/${ARCH} one floppy NATBOX"
 	echo    "fdgw "
-	echo -n " `cat /conf/etc/release_version`"
+	echo -n " `cat /etc/release_version`"
 	echo    " (`cat conf/etc/release_date`)"
    else
 	echo    "fdgw (NetBSD/${ARCH} one floppy NATBOX)"

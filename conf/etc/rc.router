@@ -1,19 +1,19 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.1.1.1 2001/09/08 15:48:05 fukachan Exp $
+# $FML: rc.router,v 1.20 2001/09/20 08:34:33 fukachan Exp $
 #
 
 ARCH=`uname -p`
 
-if [ -f /conf/etc/rc.subr ]; then
-   . /conf/etc/rc.subr
+if [ -f /etc/rc.subr ]; then
+   . /etc/rc.subr
 else
-   echo Error: /conf/etc/rc.subr not found 2>&1
+   echo Error: /etc/rc.subr not found 2>&1
    exit 1
 fi
 
 # /etc/
-load_file     /conf/etc/rc.conf
+load_file     /etc/rc.conf
 install_file  /etc/hosts
 install_file  /etc/resolv.conf
 
@@ -21,50 +21,50 @@ install_file  /etc/resolv.conf
 ln -s /conf/netbsd /netbsd
 
 
-if [ -f /conf/etc/myname ];then
-   hostname `cat /conf/etc/myname`
+if [ -f /etc/myname ];then
+   hostname `cat /etc/myname`
    echo "hostname: `hostname`"
 fi
 
 for if in `ifconfig -l`
 do
-   if [ -f /conf/etc/ifconfig.$if ];then
-	echo "ifconfig $if `cat /conf/etc/ifconfig.$if`"
-	ifconfig $if `cat /conf/etc/ifconfig.$if`
+   if [ -f /etc/ifconfig.$if ];then
+	echo "ifconfig $if `cat /etc/ifconfig.$if`"
+	ifconfig $if `cat /etc/ifconfig.$if`
    fi
 done
 
-if [ -f /conf/etc/mygate ];then
-   route add default `cat /conf/etc/mygate`
+if [ -f /etc/mygate ];then
+   route add default `cat /etc/mygate`
 else
    echo 'warn: no default route by default';
 fi
 
 if checkyesno syslogd; then
-   if [ -f /conf/etc/syslog.conf ];then
-	echo "starting syslogd (syslogd -f /conf/etc/syslog.conf)"
+   if [ -f /etc/syslog.conf ];then
+	echo "starting syslogd"
 	cp /dev/null var/run/utmp
-	syslogd -f /conf/etc/syslog.conf
+	syslogd
    fi
 fi
 
 
 if checkyesno dhcpd; then
-   if [ -f /conf/etc/dhcpd.conf ];then
-	echo "starting dhcpd (dhcpd -cf /conf/etc/dhcpd.conf $dhcpd_flags)"
-	/usr/sbin/dhcpd -cf /conf/etc/dhcpd.conf $dhcpd_flags >/dev/null 2>&1
+   if [ -f /etc/dhcpd.conf ];then
+	echo "starting dhcpd"
+	/usr/sbin/dhcpd $dhcpd_flags >/dev/null 2>&1
    fi
 fi
 
-if [ -f /conf/etc/ipf.conf ];then
+if [ -f /etc/ipf.conf ];then
    echo "enable IP Filter"
-   /sbin/ipf -E -f /conf/etc/ipf.conf
+   /sbin/ipf -E -f /etc/ipf.conf
    /usr/sbin/ipfstat -i
    /usr/sbin/ipfstat -o
 
-   if [ -f /conf/etc/ipnat.conf ];then
+   if [ -f /etc/ipnat.conf ];then
 	echo "enable NAT by IP Filter"
-	/usr/sbin/ipnat -f /conf/etc/ipnat.conf
+	/usr/sbin/ipnat -f /etc/ipnat.conf
 	/usr/sbin/ipnat -l
    fi
 

@@ -33,7 +33,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.2 2001/09/10 07:37:39 fukachan Exp $
+# $FML: dot.profile,v 1.3 2001/09/20 08:30:16 fukachan Exp $
 #
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
@@ -80,12 +80,12 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	mv /etc /etc.orig
 	ln -s /conf/etc /etc
 
-        if [ -f /conf/etc/rc.router ]
+        if [ -f /etc/rc.router ]
         then
-                sh /conf/etc/rc.router
+                sh /etc/rc.router
         else
                 echo "*** welcome to fdgw (one floppy NetBSD natbox) ***"
-                echo "error: no /conf (/dev/fd0a)";
+                echo "error: no /etc (/dev/fd0a)";
                 echo "       no configuration!";
 		sh
         fi
