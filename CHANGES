@@ -1,5 +1,11 @@
 		CHANGES
 
+2002/01/30
+
+   clean up Makefile. we should check error more. 
+	use ${.CURDIR}/mnt as mount point
+	run "make unconfig" if sub make process fails
+
 2002/01/27
 
    fix Makefile help	
@@ -32,4 +38,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.4 2002/01/19 06:03:13 fukachan Exp $
+$FML: CHANGES,v 1.5 2002/01/27 04:43:13 fukachan Exp $
