@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.44 2002/04/17 04:26:38 fukachan Exp $
+# $FML: Makefile,v 1.45 2002/04/17 10:34:48 fukachan Exp $
 #
 
 
@@ -287,6 +287,10 @@ _init_jftpgw:
 	@ echo "make jftpgw for proxyfw model";
 	@ echo "";
 	@ if [ ! -f gnu/.jftpgw_done ];then \
+	  ( cd gnu/jftpgw/support;\
+		rm -f ipfilter.? ;\
+		ln -s ../../../lib/libtransparent/ipfilter.? . ;\
+	  );\
 	  ( cd gnu/jftpgw;\
 		./configure --prefix=${LOCALBASE} --sysconf=/etc/jftpgw \
 			--disable-libwrap ;\
