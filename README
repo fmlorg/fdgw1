@@ -1,84 +1,12 @@
-		NetBSD/i386 One Floppy NAT Box
-		Release 0.9 :-)
+	fdgw
+	-- tool kit to build one floppy version of NetBSD -- 
 
 
-I. What is this?
+See
 
-NetBSD/i386 one floppy bootable version. You can use it as a router or
-a natbox on cheap IBM-PC box, for example, PC-110! 
+	http://www.fml.org/software/fdgw/
 
+for more details.
 
-II. Easy installation
+Author: Ken'ichi Fukamachi <fukachan@fml.org>
 
-You can use boot.fs.YYYYMMDD, which is bootable floppy.
-
-Firstly insert floppy to your drive
-
-# dd if=boot.fs.YYYYMMDD of=/dev/rfd0a bs=18k
-# mount /dev/fd0a /mnt
-# cd /mnt/conf/etc/
-
-  Please edit the following files to fit your environment
-
-	myname
-	mygate
-	ipf.conf
-	ipnat.conf
-	rc.conf
-
-  and make your network interface files, for example,
-
-	ifconfig.ne0
-	ifconfig.ep0
-
-# sync
-# umount /mnt
-
-
-2. boot!
-
-
-III. How to make it by yourself
-
-1. extract this package, for example, "floppy_natbox-19991126.tar.gz".
-
-2. move it to under /usr/src/distrib/i386/floppies/floppy_natbox
-   (here we assume it as "/usr/src/distrib/i386/floppies/floppy_natbox").
-
-	% tar zxvf floppy_natbox-19991126.tar.gz
-	% mv floppy_natbox-19991126 /usr/src/distrib/i386/floppies/floppy_natbox
-
-3. cd /usr/src/distrib/i386/floppies/floppy_natbox
-
-4. check configuration file
-
-   conf/
-
-	conf/kernel/ROUTER	(kernel configuration file)
-
-   conf/etc/		router configuration
-			(corresponding to a subset of usual etc/).
-
-	conf/etc/ipf.conf
-	conf/etc/ipnat.conf
-	conf/etc/ifconfig.$YOUR_ETHER_INTERFACE (e.g. ifconfig.ne0, ifconfig.ep0)
-	conf/etc/rc.conf
-
-5. make
-
-6. insert the floppy to your machine Floppy Drive.
-
-7. ./INSTALL.sh. 
-
-   Congraturations! You've got NetBSD NAT Box boot floppy! 
-
-8. reboot by the boot floppy
-
-
-IV. TODO
-
-We should compile it under other than /usr/src ;-).
-
-
-$FML: README,v 1.5 2001/08/14 21:49:48 fukachan Exp $
-Copyright (C) 1999,2001 Ken'ichi Fukamachi <fukachan@fml.org>
