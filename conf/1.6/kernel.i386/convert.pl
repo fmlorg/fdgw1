@@ -6,7 +6,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: convert.pl,v 1.3 2004/02/05 04:57:55 fukachan Exp $
+# $FML: convert.pl,v 1.4 2004/02/09 11:48:01 fukachan Exp $
 #
 
 use strict;
@@ -28,7 +28,7 @@ if (defined $fh) {
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: convert.pl,v 1.3 2004/02/05 04:57:55 fukachan Exp $
+# __FML__
 #
 # This file is derived from INSTALL_LAPTOP in NetBSD 1.6 stable branch.
 #
