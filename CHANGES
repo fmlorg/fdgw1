@@ -1,5 +1,30 @@
 		CHANGES
 
+2002/02/18
+
+   prepare proxy initialization codes in src/etc/$proxy/
+	for example, src/etc/squid/master.sh
+
+
+2002/02/15
+
+   model/proxybox/
+	fix path:
+	o /usr/pkg/sbin/squid (not /bin/squid)
+	o /usr/pkg/sbin/jftpgw not /bin/
+	add bin/sleep
+	install unlinkd
+	install mime.conf
+	create /etc/squid/icons/
+	remove /usr/pkg/bin/tproxy
+	squid is modified to use ipf transparency
+
+   change configure options for squid
+   do not build transproxy, which is not needed.
+
+   conf/etc/rc.router
+	add definitions for http_proxy ftp_proxy ssh_proxy pop_proxy
+
 2002/02/13
 
    add ipsec configuration
@@ -69,4 +94,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.9 2002/02/12 11:42:30 fukachan Exp $
+$FML: CHANGES,v 1.10 2002/02/13 14:37:17 fukachan Exp $
