@@ -33,7 +33,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.4 2001/09/20 12:22:28 fukachan Exp $
+# $FML: dot.profile,v 1.5 2001/09/29 08:15:40 fukachan Exp $
 #
 # Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
 #
@@ -86,6 +86,9 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# symlink(2) for /etc
 	mv /etc /etc.orig
 	ln -s /conf/etc /etc
+
+	# pwd.db for ps et.al.
+	ln -s /etc.orig/pwd.db /etc/pwd.db
 
         if [ -f /etc/rc.router ]
         then
