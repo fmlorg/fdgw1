@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.21 2002/04/17 04:26:38 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.22 2002/07/31 07:49:31 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -69,6 +69,7 @@ image:	netbsd
 	@echo "installing new bootblocks"
 	mkdir ${MOUNT_POINT}/etc
 	cp -pr ${_ETC_DIR}/[a-z]* ${MOUNT_POINT}/etc
+	cp -pr ${_ETC_DIR}/defaults/rc.conf ${MOUNT_POINT}/etc
 	if [ -d ${CURDIR}/work/etc ];then \
 	   rm -f ${CURDIR}/work/etc/*pwd.db ;\
 	   cp -pr ${CURDIR}/work/etc/[a-z]* ${MOUNT_POINT}/etc;\
