@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.33 2002/02/09 05:33:16 fukachan Exp $
+# $FML: Makefile,v 1.34 2002/02/09 06:41:55 fukachan Exp $
 #
 
 #
@@ -59,6 +59,9 @@ clean cleandir:
 	@ echo "===> clearing squid";
 	- (cd src/gnu/squid ; gmake distclean )
 	- rm -f src/gnu/.squid_done
+	@ echo "===> clearing jftpgw";
+	- (cd src/gnu/jftpgw ; gmake distclean )
+	- rm -f src/gnu/.jftpgw_done
 	@ for dir in src.* ; do \
 		if [ -d $$dir ];then\
 		(\
