@@ -37,6 +37,11 @@ all:	netbsd
 	@echo "installing new bootblocks"
 	mkdir ${MOUNT_POINT}/etc
 	cp -p conf/etc/[a-z]* ${MOUNT_POINT}/etc
+	if [ -f /usr/pkg/share/examples/rp-pppoe/pppoe.conf ];then \
+		mkdir -p ${MOUNT_POINT}/etc/ppp;\
+		cp -p /usr/pkg/share/examples/rp-pppoe/pppoe.conf \
+		${MOUNT_POINT}/etc/ppp ;\
+	fi
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
 	rm -f ${IMAGE}.[0-9]*
