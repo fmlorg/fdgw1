@@ -2,6 +2,8 @@
 
 2002/04/17
 
+   updated squid from 2.4 stable 4 to stable 6.
+
    use our lib/libtransparent/ipfilter.c not jftpgw builtin one
 
    include sysctl into proxybox model
@@ -168,4 +170,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.19 2002/04/17 10:36:13 fukachan Exp $
+$FML: CHANGES,v 1.20 2002/04/17 11:56:00 fukachan Exp $
