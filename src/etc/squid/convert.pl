@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $FML: convert.pl,v 1.2 2002/02/18 23:28:58 fukachan Exp $
+# $FML: convert.pl,v 1.3 2002/02/19 14:16:05 fukachan Exp $
 #
 
 my $allow = q{
@@ -20,7 +20,7 @@ while (<>) {
 	s!^\# cache_swap_high.*!cache_swap_high 50!;
 	s!^\# cache_swap_low.*!cache_swap_low  30!;
 	s!^\# http_port.*!http_port 127.0.0.1:3128!;
-	s!^\# httpd_accel_host.*!httpd_accel_host virtual!;
+	s!^\#.*: httpd_accel_host.*!httpd_accel_host virtual!;
 	s!^\# httpd_accel_port.*!httpd_accel_port 80!;
 	s!^\# httpd_accel_uses_host_header.*!httpd_accel_uses_host_header on!;
 	s!^\# httpd_accel_with_proxy.*!httpd_accel_with_proxy on!;
