@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.41 2002/02/21 11:02:32 fukachan Exp $
+# $FML: Makefile,v 1.42 2002/02/22 13:03:22 fukachan Exp $
 #
 
 
@@ -82,6 +82,7 @@ _DIRS+=	usr.bin/id
 _DIRS+=	usr.bin/less
 _DIRS+=	usr.bin/logger
 _DIRS+=	usr.bin/sed
+_DIRS+=	usr.bin/tput
 _DIRS+=	usr.bin/tty
 _DIRS+=	usr.bin/uname
 _DIRS+=	usr.sbin/chown

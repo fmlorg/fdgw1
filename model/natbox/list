@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.13 2001/09/29 08:18:13 fukachan Exp $
+# $FML: list,v 1.14 2002/02/12 12:37:32 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -58,6 +58,7 @@ SYMLINK /bin/cat			usr/bin/logger
 SYMLINK /bin/cat			usr/bin/id
 SYMLINK /bin/cat			usr/bin/basename
 SYMLINK /bin/cat			usr/bin/uname
+SYMLINK /bin/cat			usr/bin/tput
 
 SYMLINK	/bin/cat			usr/sbin/chown
 SYMLINK	/bin/cat			usr/sbin/chroot
