@@ -1,6 +1,20 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2002/08/05
+
+   conf/1.5/etc/
+	add rtsold, rtadvd (disabled by default)
+
+   add IPv6 multicast model (mcastrouter6)
+
+   modify riprouter model
+	add rtadvd, rtsold. 
+	nuke mount_msdos, dhcpd. 
+	nuke -lipsec
+
+   import pim6sd source
+
 2002/07/31
 
    enable BIOSBOOT options
@@ -209,4 +223,4 @@
 
 
 -----
-$FML: CHANGES,v 1.28 2002/06/20 10:05:01 fukachan Exp $
+$FML: CHANGES,v 1.29 2002/07/31 07:49:29 fukachan Exp $
