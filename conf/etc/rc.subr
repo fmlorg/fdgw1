@@ -49,3 +49,22 @@ install_file () {
 	exit 1
    fi
 }
+
+
+copyright () {
+   if [ -f /conf/etc/release_version ];then
+	echo    "NetBSD/${ARCH} one floppy NATBOX"
+	echo    "fdgw 
+	echo -n " `cat /conf/etc/release_version`"
+	echo    " (`cat conf/etc/release_date`)"
+   else
+	echo    "fdgw (NetBSD/${ARCH} one floppy NATBOX)"
+   fi
+
+   echo ""
+   echo "Copyright (C) Ken'ichi Fukamachi <fukachan@fml.org>"
+   echo ""
+   echo "All rights reserved. This program is free software; you can"
+   echo "redistribute it and/or modify it under the same terms as NetBSD itself."
+   echo ""
+}

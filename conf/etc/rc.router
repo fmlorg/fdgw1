@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.16 2001/09/06 12:59:22 fukachan Exp $
+# $FML: rc.router,v 1.17 2001/09/06 15:56:03 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -70,11 +70,7 @@ fi
 
 echo ""
 
-if [ -f /conf/etc/release_version ];then
-   echo -n "NetBSD/${ARCH} one floppy NATBOX"
-   echo -n " `cat /conf/etc/release_version`"
-   echo    " (`cat conf/etc/release_date`)"
-fi
+copyright
 
 date
 
