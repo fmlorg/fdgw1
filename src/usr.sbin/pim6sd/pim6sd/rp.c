@@ -1,4 +1,4 @@
-/*	$KAME: rp.c,v 1.18 2001/08/28 08:42:31 suz Exp $	*/
+/*	$KAME: rp.c,v 1.34 2003/09/02 09:48:46 suz Exp $	*/
 
 /*
  * Copyright (C) 1999 LSIIT Laboratory.
@@ -75,6 +75,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/route.h>
@@ -97,6 +98,7 @@
 #include "pimd.h"
 #include "debug.h"
 #include "crc.h"
+#include "cfparse-defs.h"
 
 /*
  * The hash function. Stollen from Eddy's (eddy@isi.edu) implementation (for
@@ -121,8 +123,10 @@ u_int16         		pim_bootstrap_timer;	/* For electing the BSR and sending
 u_int8          		my_bsr_priority;
 struct sockaddr_in6		my_bsr_address;
 struct in6_addr         	my_bsr_hash_mask;
-u_int8          		cand_bsr_flag = FALSE;	/* Set to TRUE if I am a candidate
+u_int8          		cand_bsr_flag;	/* Set to TRUE if I am a candidate
 						 	 * BSR */
+char				*cand_bsr_ifname;
+
 struct sockaddr_in6     	my_cand_rp_address;
 u_int8          		my_cand_rp_priority;
 u_int16         		my_cand_rp_holdtime;
@@ -131,9 +135,12 @@ u_int16         		my_cand_rp_adv_period;	/* The locally configured Cand-RP
 u_int16         		my_bsr_period;		/* The locally configured BSR	
 							   period */
 u_int16         		pim_cand_rp_adv_timer;
-u_int8          		cand_rp_flag = FALSE;	/* Candidate RP flag */
+u_int8          		cand_rp_flag;	/* Candidate RP flag */
 struct cand_rp_adv_message_ 	cand_rp_adv_message;
 struct in6_addr         	rp_my_ipv6_hashmask;
+char				*cand_rp_ifname;
+
+u_int8          		static_rp_flag;
 
 
 /*
@@ -157,12 +164,110 @@ static void delete_rp_entry __P((cand_rp_t ** used_cand_rp_list,
 
 
 void
-init_rp6_and_bsr6()
+init_rp6()
 {
+    struct sockaddr_in6 *sa6 = NULL;
+    u_int8 *data_ptr;
+
+    /* no need to init RP in case of static-rp */
+    if (static_rp_flag != FALSE) {
+	log_msg(LOG_DEBUG, 0, "static-rp config");
+	return;
+    }
+
+    /* defines RP address */
+    if (cand_rp_ifname) {
+	sa6 = local_iface(cand_rp_ifname);
+	if (!sa6)
+	    log_msg(LOG_WARNING, 0,
+		"cand_rp '%s' is not configured. "
+		"take the max local address the router..", cand_rp_ifname);
+	free(cand_rp_ifname);
+    }
+    if (!sa6)
+	sa6 = max_global_address(); /* this MUST succeed */
+    my_cand_rp_address = *sa6;
+
+    /*
+     * Note that sizeof(pim6_enocd_uni_addr_t) might be larger than
+     * the length of the Encoded-Unicast-address field(18 byte) due to
+     * some padding put in the compiler. However, it doesn't matter
+     * since we use the space just as a buffer(i.e not as the message).
+     */
+    cand_rp_adv_message.buffer = 
+		(u_int8 *) malloc(4 + sizeof(pim6_encod_uni_addr_t) +
+				  255*sizeof(pim6_encod_grp_addr_t));
+    if (cand_rp_adv_message.buffer == NULL)
+	log_msg(LOG_ERR, 0, "CandRPadv Buffer allocation");
+
+    cand_rp_adv_message.prefix_cnt_ptr = cand_rp_adv_message.buffer;
+
+    /*
+     * By default, if no group_prefix configured, then prefix_cnt == 0
+     * implies group_prefix = ff00::/8 and masklen = 8.
+     */
+    *cand_rp_adv_message.prefix_cnt_ptr = 0;
+    cand_rp_adv_message.insert_data_ptr = cand_rp_adv_message.buffer;
+
+    /* TODO: XXX: HARDCODING!!! */
+    cand_rp_adv_message.insert_data_ptr += (4 + 18);
+    cand_rp_adv_message.message_size =
+	cand_rp_adv_message.insert_data_ptr - cand_rp_adv_message.buffer;
+
+    my_cand_rp_holdtime = 2.5 * my_cand_rp_adv_period;
+
+    /* TODO: HARDCODING! */
+    data_ptr = cand_rp_adv_message.buffer + 1;	/* WARNING */
+    PUT_BYTE(my_cand_rp_priority,data_ptr);
+    PUT_HOSTSHORT(my_cand_rp_holdtime, data_ptr);
+    PUT_EUADDR6(my_cand_rp_address.sin6_addr,data_ptr);
+    IF_DEBUG(DEBUG_PIM_CAND_RP) {
+	log_msg(LOG_DEBUG, 0, "Local Cand-RP address is : %s",
+	    inet6_fmt(&my_cand_rp_address.sin6_addr));
+	log_msg(LOG_DEBUG, 0, "Local Cand-RP priority is : %u",my_cand_rp_priority);
+	log_msg(LOG_DEBUG, 0, "Local Cand-RP advertisement period is : %u sec.",
+	    my_cand_rp_adv_period);
+    }
+
     /* TODO: if the grplist is not NULL, remap all groups ASAP! */
 
     delete_rp_list(&cand_rp_list, &grp_mask_list);
     delete_rp_list(&segmented_cand_rp_list, &segmented_grp_mask_list);
+
+    if (cand_rp_flag != FALSE)
+    {
+	MASKLEN_TO_MASK6(RP_DEFAULT_IPV6_HASHMASKLEN, rp_my_ipv6_hashmask);
+	/* Setup the Cand-RP-Adv-Timer */
+	SET_TIMER(pim_cand_rp_adv_timer, RANDOM() % my_cand_rp_adv_period);
+    }
+
+    grp_prefix_config();
+}
+
+void
+init_bsr6()
+{
+    struct sockaddr_in6 *sa6 = NULL;
+
+    if (cand_bsr_ifname) {
+	sa6 = local_iface(cand_bsr_ifname);
+	if (!sa6)
+	     log_msg(LOG_WARNING, 0, "bsr '%s' is not configured. "
+	        "take the max local address the router..", cand_bsr_ifname);
+	free(cand_bsr_ifname);
+    }
+    if (!sa6)
+	sa6 = max_global_address(); /* this MUST succeed */
+    my_bsr_address = *sa6;
+
+    IF_DEBUG(DEBUG_PIM_BOOTSTRAP) {
+	log_msg(LOG_DEBUG, 0, "Local BSR address: %s",
+		    inet6_fmt(&my_bsr_address.sin6_addr));
+	log_msg(LOG_DEBUG, 0, "Local BSR priority : %u", my_bsr_priority);
+	log_msg(LOG_DEBUG, 0, "Local BSR period is : %u sec.", my_bsr_period);
+	log_msg(LOG_DEBUG, 0, "Local BSR hash mask length: %d", 
+	    inet6_mask2plen(&my_bsr_hash_mask));
+   }
 
     if (cand_bsr_flag == FALSE)
     {
@@ -186,30 +291,20 @@ init_rp6_and_bsr6()
 	SET_TIMER(pim_bootstrap_timer, bootstrap_initial_delay());
     }
 
-    if (cand_rp_flag != FALSE)
-    {
-	MASKLEN_TO_MASK6(RP_DEFAULT_IPV6_HASHMASKLEN, rp_my_ipv6_hashmask);
-	/* Setup the Cand-RP-Adv-Timer */
-	SET_TIMER(pim_cand_rp_adv_timer, RANDOM() % my_cand_rp_adv_period);
-    }
 }
 
 
 /*
- * XXX: This implementation is based on section 6.2 of RFC 2362, which
- * is highly dependent on IPv4.
- * We'll have to rewrite the function...
+ * based on draft-ietf-pim-sm-bsr-03.txt
  */
 u_int16
 bootstrap_initial_delay()
 {
-#if 0
     long            AddrDelay;
     long            Delay;
-    long            log_mask;
     int             log_of_2;
+    int             log_mask;
     u_int8          bestPriority;
-#endif
 
     /*
      * The bootstrap timer initial value (if Cand-BSR). It depends of the
@@ -218,34 +313,46 @@ bootstrap_initial_delay()
      * Delay = 5 + 2*log_2(1 + bestPriority - myPriority) + AddrDelay;
      * 
      * bestPriority = Max(storedPriority, myPriority); if (bestPriority ==
-     * myPriority) AddrDelay = log_2(bestAddr - myAddr)/16; else AddrDelay =
-     * 2 - (myAddr/2^31);
+     * myPriority) AddrDelay = log_2(bestAddr - myAddr)/64; else AddrDelay =
+     * 2 - (myAddr/2^127);
      */
 
-#if 0
     bestPriority = max(curr_bsr_priority, my_bsr_priority);
-    if (bestPriority == my_bsr_priority)
-    {
-	AddrDelay = ntohl(curr_bsr_address) - ntohl(my_bsr_address);
-	/* Calculate the integer part of log_2 of (bestAddr - myAddr) */
+    if (bestPriority == my_bsr_priority) {
+	char *curr = (char *) &curr_bsr_address.sin6_addr;
+	char *my = (char *) &my_bsr_address.sin6_addr;
+	int i, j;
+
 	/*
+	 * Calculate the integer part of log_2 of (bestAddr - myAddr).
 	 * To do so, have to find the position number of the first bit from
 	 * left which is `1`
 	 */
-	log_mask = sizeof(AddrDelay) << 3;
-	log_mask = (1 << (log_mask - 1));	/* Set the leftmost bit to
-						 * `1` */
-	for (log_of_2 = (sizeof(AddrDelay) << 3) - 1; log_of_2; log_of_2--)
-	{
-	    if (AddrDelay & log_mask)
-		break;
-	    else
-		log_mask >>= 1;	/* Start shifting `1` on right */
+	log_of_2 = 128;
+	for (i = 0; i < 16; i++) {
+	    char mask;
+	    int diff;
+
+	    diff = *curr++ - *my++;
+	    if (diff < 0)
+		log_msg(LOG_ERR, 0, "curr_bsr < my_bsr, impossible!");
+	    if (diff == 0) {
+		log_of_2 -= 8;
+		continue;
+	    }
+
+	    for (j = 0; j < 8; j++) {
+		mask = 0x80 >> j;
+		if ((mask & diff) == 0)
+			log_of_2--;
+			continue;
+	    }
+	    break;
 	}
-	AddrDelay = log_of_2 / 16;
+	AddrDelay = log_of_2 / 64;
+    } else {
+	AddrDelay = 2 - (my_bsr_address.sin6_addr.s6_addr[0] >> 7);
     }
-    else
-	AddrDelay = 2 - (ntohl(my_bsr_address) / (1 << 31));
 
     Delay = 1 + bestPriority - my_bsr_priority;
     /* Calculate log_2(Delay) */
@@ -253,20 +360,14 @@ bootstrap_initial_delay()
     log_mask = sizeof(Delay) << 3;
     log_mask = (1 << (log_mask - 1)); 	
 
-    for (log_of_2 = (sizeof(Delay) << 3) - 1; log_of_2; log_of_2--)
-    {
+    for (log_of_2 = (sizeof(Delay) << 3) - 1; log_of_2; log_of_2--) {
 	if (Delay & log_mask)
 	    break;
-	else
-	    log_mask >>= 1;	/* Start shifting `1` on right */
+	log_mask >>= 1;	/* Start shifting `1` on right */
     }
 
     Delay = 5 + 2 * Delay + AddrDelay;
     return (u_int16) Delay;
-#endif
-
-	/* Temporary implementation */
-	return (RANDOM()%my_bsr_period);
 }
 
 
@@ -287,7 +388,7 @@ add_cand_rp(used_cand_rp_list, address)
 
 	if (inet6_greaterthan(&cand_rp->rpentry->address, address))
 	    continue;
-	if (inet6_equal(&cand_rp->rpentry->address , address))
+	if (inet6_equal(&cand_rp->rpentry->address, address))
 	    return (cand_rp);
 	else
 	    break;
@@ -413,13 +514,14 @@ add_grp_mask(used_grp_mask_list, group_addr, group_mask, hash_mask)
  */
 rp_grp_entry_t *
 add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
-		 rp_addr, rp_priority, rp_holdtime, group_addr, group_mask,
-		 bsr_hash_mask,
-		 fragment_tag)
+		 rp_addr, rp_priority, rp_origin, rp_holdtime,
+		 group_addr, group_mask,
+		 bsr_hash_mask, fragment_tag)
     cand_rp_t     	**used_cand_rp_list;
     grp_mask_t    	**used_grp_mask_list;
     struct sockaddr_in6	*rp_addr;
     u_int8          	rp_priority;
+    u_int8          	rp_origin;
     u_int16         	rp_holdtime;
     struct sockaddr_in6 *group_addr;
     struct in6_addr     group_mask;
@@ -434,6 +536,8 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
     rp_grp_entry_t *grp_rp_entry_prev = (rp_grp_entry_t *) NULL;
     grpentry_t     *grpentry_ptr_prev;
     grpentry_t     *grpentry_ptr_next;
+    u_int8          old_highest_origin = ~0;	/* Smaller value means
+						 * "higher" */
     u_int8          old_highest_priority = ~0;	/* Smaller value means
 						 * "higher" */
 
@@ -442,9 +546,8 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
 	return (rp_grp_entry_t *) NULL;
 
     if (!IN6_IS_ADDR_MULTICAST(&group_addr->sin6_addr))
-    {
 	return (rp_grp_entry_t *) NULL;
-    }
+
     grp_mask_ptr = add_grp_mask(used_grp_mask_list, group_addr, group_mask,
 				bsr_hash_mask);
     if (grp_mask_ptr == (grp_mask_t *) NULL)
@@ -487,8 +590,10 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
 
     /* TODO: improve it */
 
-    if (grp_rp_entry_next != (rp_grp_entry_t *) NULL)
+    if (grp_rp_entry_next != (rp_grp_entry_t *) NULL) {
 	old_highest_priority = grp_rp_entry_next->priority;
+	old_highest_origin = grp_rp_entry_next->origin;
+    }
     for (; grp_rp_entry_next != (rp_grp_entry_t *) NULL;
 	 grp_rp_entry_prev = grp_rp_entry_next,
 	 grp_rp_entry_next = grp_rp_entry_next->grp_rp_next)
@@ -502,6 +607,16 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
 	if (grp_rp_entry_next->priority > rp_priority)
 	    break;
 
+	/* 
+	 * If priority is same, determine the order by its origin; static-
+	 *  config is much more preferred to BSR-config.
+	 * (Smaller origin value means higher priority)
+	 */
+	if (grp_rp_entry_next->origin < rp_origin)
+	    continue;
+	if (grp_rp_entry_next->origin > rp_origin)
+	    break;
+		
 	/*
 	 * Here we don't care about higher/lower addresses, because higher
 	 * address does not guarantee higher hash_value, but anyway we do
@@ -552,6 +667,7 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
 
     grp_rp_entry_new->holdtime = rp_holdtime;
     grp_rp_entry_new->advholdtime = rp_holdtime;
+    grp_rp_entry_new->origin = rp_origin;
     grp_rp_entry_new->fragment_tag = fragment_tag;
     grp_rp_entry_new->priority = rp_priority;
     grp_rp_entry_new->group = grp_mask_ptr;
@@ -560,15 +676,18 @@ add_rp_grp_entry(used_cand_rp_list, used_grp_mask_list,
 
     grp_mask_ptr->group_rp_number++;
 
-    if (grp_mask_ptr->grp_rp_next->priority == rp_priority)
+    if (grp_mask_ptr->grp_rp_next->priority == rp_priority ||
+	grp_mask_ptr->grp_rp_next->origin == rp_origin)
     {
-	/* The first entries are with the best priority. */
+	/* The first entries are with the best priority and origin. */
 	/* Adding this rp_grp_entry may result in group_to_rp remapping */
 	for (grp_rp_entry_next = grp_mask_ptr->grp_rp_next;
 	     grp_rp_entry_next != (rp_grp_entry_t *) NULL;
 	     grp_rp_entry_next = grp_rp_entry_next->grp_rp_next)
 	{
 	    if (grp_rp_entry_next->priority > old_highest_priority)
+		break;
+	    if (grp_rp_entry_next->origin > old_highest_origin)
 		break;
 	    for (grpentry_ptr_prev = grp_rp_entry_next->grplink;
 		 grpentry_ptr_prev != (grpentry_t *) NULL;)
@@ -1018,6 +1137,7 @@ rp_grp_match(group)
     rp_grp_entry_t *grp_rp_entry_ptr;
     rp_grp_entry_t *best_entry = (rp_grp_entry_t *) NULL;
     u_int8          best_priority = ~0;	/* Smaller is better */
+    u_int8          best_origin = ~0;	/* Smaller is better */
     u_int32         best_hash_value = 0;	/* Bigger is better */
     struct sockaddr_in6         best_address_h;	/* Bigger is better */
     u_int32         curr_hash_value = 0;
@@ -1057,6 +1177,10 @@ rp_grp_match(group)
 	    if (best_priority < grp_rp_entry_ptr->priority)
 		break;
 
+	    if (best_priority == grp_rp_entry_ptr->priority &&
+	        best_origin < grp_rp_entry_ptr->origin)
+		break;
+
 	    curr_address_h = grp_rp_entry_ptr->rp->rpentry->address;
 #if 0
 	    curr_hash_value = RP_HASH_VALUE(crc((char *)&group->sin6_addr,
@@ -1081,8 +1205,8 @@ rp_grp_match(group)
 	    }
 #endif
 
-	    if (best_priority == grp_rp_entry_ptr->priority)
-	    {
+	    if (best_priority == grp_rp_entry_ptr->priority &&
+	        best_origin == grp_rp_entry_ptr->origin) {
 		/* Compare the hash_value and then the addresses */
 
 		if (curr_hash_value < best_hash_value)
@@ -1096,6 +1220,7 @@ rp_grp_match(group)
 
 	    best_entry = grp_rp_entry_ptr;
 	    best_priority = best_entry->priority;
+	    best_origin = best_entry->origin;
 	    best_address_h = curr_address_h;
 	    best_hash_value = curr_hash_value;
 	}
@@ -1106,9 +1231,9 @@ rp_grp_match(group)
 	return (rp_grp_entry_t *) NULL;
 
     IF_DEBUG(DEBUG_PIM_CAND_RP)
-	log(LOG_DEBUG,0,"Rp_grp_match found %s for group %s",
-	    inet6_fmt(&best_entry->rp->rpentry->address.sin6_addr),
-	    inet6_fmt(&group->sin6_addr));
+	log_msg(LOG_DEBUG,0,"Rp_grp_match found %s for group %s",
+	    sa6_fmt(&best_entry->rp->rpentry->address),
+	    sa6_fmt(group));
 
     return (best_entry);
 }
@@ -1169,6 +1294,19 @@ create_pim6_bootstrap_message(send_buff)
     for (grp_mask_ptr = grp_mask_list; grp_mask_ptr != (grp_mask_t *) NULL;
 	 grp_mask_ptr = grp_mask_ptr->next)
     {
+	int bsr_entry = 0;
+
+	/* You don't have to redistribute Static-RP configuration by BSR */
+	for (grp_rp_entry_ptr = grp_mask_ptr->grp_rp_next;
+	     grp_rp_entry_ptr != (rp_grp_entry_t *) NULL;
+	     grp_rp_entry_ptr = grp_rp_entry_ptr->grp_rp_next) {
+	    if (grp_rp_entry_ptr->origin != RP_ORIGIN_BSR)
+	    	continue;
+	    bsr_entry = 1;
+	}
+	if (bsr_entry == 0)
+		continue;
+
 	MASK_TO_MASKLEN6(grp_mask_ptr->group_mask, masklen);
 	PUT_EGADDR6(grp_mask_ptr->group_addr.sin6_addr, masklen, 0, data_ptr);
 	PUT_BYTE(grp_mask_ptr->group_rp_number, data_ptr);
@@ -1178,6 +1316,10 @@ create_pim6_bootstrap_message(send_buff)
 	     grp_rp_entry_ptr != (rp_grp_entry_t *) NULL;
 	     grp_rp_entry_ptr = grp_rp_entry_ptr->grp_rp_next)
 	{
+	    /* You don't have to redistribute Static-RP configuration by BSR */
+	    if (grp_rp_entry_ptr->origin != RP_ORIGIN_BSR)
+	    	continue;
+
 	    PUT_EUADDR6(grp_rp_entry_ptr->rp->rpentry->address.sin6_addr, data_ptr);
 	    PUT_HOSTSHORT(grp_rp_entry_ptr->advholdtime, data_ptr);
 	    PUT_BYTE(grp_rp_entry_ptr->priority, data_ptr);
@@ -1213,4 +1355,55 @@ check_mrtentry_rp(mrtentry_ptr, rp_addr)
     if (inet6_equal(&mrtentry_ptr->group->rpaddr,rp_addr))
 	return (TRUE);
     return (FALSE);
+}
+
+void
+update_rp_neighbor()
+{
+	cand_rp_t      *cand_rp;
+
+	for (cand_rp = cand_rp_list; cand_rp != NULL; cand_rp = cand_rp->next) {
+		rp_grp_entry_t *rp_grp_entry_ptr; 
+		rpentry_t *rpentry = cand_rp->rpentry;
+
+		/* existing upstream is updated automatically */
+		if (cand_rp->rpentry->upstream != NULL)
+			continue;
+
+		/* (*,G) at RP has no upstream neighbor, but it's ok */
+		if (rpentry->incoming == reg_vif_num)
+			continue;
+
+		if (set_incoming(cand_rp->rpentry, PIM_IIF_RP))
+			continue;
+
+		/* have to update the (*,G) entry's upstream if it's empty */
+		for (rp_grp_entry_ptr = cand_rp->rp_grp_next;
+		     rp_grp_entry_ptr != NULL;
+		     rp_grp_entry_ptr = rp_grp_entry_ptr->rp_grp_next) {
+			grpentry_t *grpentry_ptr;
+
+			for (grpentry_ptr = rp_grp_entry_ptr->grplink;
+			     grpentry_ptr != NULL;
+			     grpentry_ptr = grpentry_ptr->rpnext) {
+				mrtentry_t *mrtentry_grp;
+				mrtentry_grp = grpentry_ptr->grp_route;
+
+				if (mrtentry_grp == NULL)
+					continue;
+
+				/* existing upstream is updated automatically */
+				if (mrtentry_grp->upstream != NULL)
+					continue;
+
+				/*
+				 * (*,G) at RP has no upstream neighbor, but
+				 * it's ok
+				 */
+				if (mrtentry_grp->incoming == reg_vif_num)
+					continue;
+				mrtentry_grp->upstream = rpentry->upstream;
+			}
+		}
+	}
 }

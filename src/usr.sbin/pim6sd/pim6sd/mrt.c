@@ -1,4 +1,4 @@
-/*	$KAME: mrt.c,v 1.10 2001/12/12 05:37:45 suz Exp $	*/
+/*	$KAME: mrt.c,v 1.19 2003/09/04 08:02:06 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -47,6 +47,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/route.h>
@@ -266,9 +267,7 @@ find_route(source, group, flags, create)
 
 
     /* Creation allowed */
-
-    /* first try to find an RP for this mrt => not used in SSM */
-    if (flags & (MRTF_SG | MRTF_WC))
+    if (flags & (MRTF_RP | MRTF_WC | MRTF_SG))
     {
 
 	grpentry_ptr = create_grpentry(group);
@@ -276,9 +275,21 @@ find_route(source, group, flags, create)
 	{
 	    return (mrtentry_t *) NULL;
 	}
+    }
 
-	if (SSMGROUP(group))
-		goto not_create;
+    /*
+     * Try to find an RP for mrt using RP.
+     * First hop (S,G) has to refer to the corresponding RP 
+     * unless G is in SSM range.  However SSM range check is skipped 
+     * here, since this function is never called if G is in SSM range
+     * (cache miss is impossible in SSM world).
+     * Draft-ietf-pim-sm-v2-new-06.txt does not mention explicitly
+     * whether first-hop DR has to create an (S,G) entry without RP(G) 
+     * or not.  However RP(G) existence is checked since PIM register
+     * packet cannot be advertised without RP(G) info.
+     */
+    if (flags & (MRTF_RP | MRTF_WC | MRTF_1ST))
+    {
 	if (grpentry_ptr->active_rp_grp == (rp_grp_entry_t *) NULL)
 	{
 	    rp_grp_entry_ptr = rp_grp_match(group);
@@ -309,9 +320,18 @@ find_route(source, group, flags, create)
 	}
 	else
 	    rpentry_ptr = grpentry_ptr->active_rp_grp->rp->rpentry;
+
+	/* 
+	 * don't accept the RP without any PIM neighbor 
+	 * (except when RP is myself)
+	 */
+	if (rpentry_ptr->upstream == NULL &&
+	    rpentry_ptr->incoming != reg_vif_num) {
+		delete_grpentry(grpentry_ptr);
+		return NULL;
+	}
     }
 
-not_create:
     mrtentry_ptr_wc = mrtentry_ptr_pmbr = (mrtentry_t *) NULL;
 
     if (flags & MRTF_WC)
@@ -401,21 +421,44 @@ not_create:
 
 	if (mrtentry_ptr->flags & MRTF_NEW)
 	{
+	    /* 
+	     * Copy the oif list from (*,G) or (*,*,RP) entry if it
+	     * exists and G is an non-SSM prefix
+	     */
+
 	    if (SSMGROUP(group))
 		goto not_copy;
 
-	    if ((mrtentry_ptr_2 = grpentry_ptr->grp_route)
-		== (mrtentry_t *) NULL)
-	    {
+	    mrtentry_ptr_2 = grpentry_ptr->grp_route;
+	    if (mrtentry_ptr_2 == NULL) {
+		if (grpentry_ptr->active_rp_grp != NULL) {
+		    rpentry_ptr = grpentry_ptr->active_rp_grp->rp->rpentry;
+		    mrtentry_ptr_2 = rpentry_ptr->mrtlink;
+		    goto found_mrtentry_ptr_2;
+		}
+		rp_grp_entry_ptr = rp_grp_match(group);
+		if (rp_grp_entry_ptr == NULL) {
+		    mrtentry_ptr_2 = NULL;
+		    goto found_mrtentry_ptr_2;
+		}
+
+		rpentry_ptr = rp_grp_entry_ptr->rp->rpentry;
 		mrtentry_ptr_2 = rpentry_ptr->mrtlink;
+
+		grpentry_ptr->active_rp_grp = rp_grp_entry_ptr;
+		grpentry_ptr->rpaddr = rpentry_ptr->address;
+
+		/* Link to the top of the rp_grp_chain */
+	    	grpentry_ptr->rpnext = rp_grp_entry_ptr->grplink;
+		rp_grp_entry_ptr->grplink = grpentry_ptr;
+		if (grpentry_ptr->rpnext != NULL)
+		    grpentry_ptr->rpnext->rpprev = grpentry_ptr;
 	    }
-	    /* Copy the oif list from the existing (*,G) or (*,*,RP) entry */
-	    /* not used in SSM */
-	    if (mrtentry_ptr_2 != (mrtentry_t *) NULL)
-	    {
+
+	found_mrtentry_ptr_2:
+	    if (mrtentry_ptr_2 != NULL) {
 		VOIF_COPY(mrtentry_ptr_2, mrtentry_ptr);
-		if (flags & MRTF_RP)
-		{
+		if (flags & MRTF_RP) {
 		    /* ~(S,G) prune entry */
 		    mrtentry_ptr->incoming = mrtentry_ptr_2->incoming;
 		    mrtentry_ptr->upstream = mrtentry_ptr_2->upstream;
@@ -426,21 +469,24 @@ not_create:
 	    }
 
     not_copy:
-	    if (!(mrtentry_ptr->flags & MRTF_RP))
-	    {
+	    if (!(mrtentry_ptr->flags & MRTF_RP)) {
 		mrtentry_ptr->incoming = srcentry_ptr->incoming;
 		mrtentry_ptr->upstream = srcentry_ptr->upstream;
 		mrtentry_ptr->metric = srcentry_ptr->metric;
 		mrtentry_ptr->preference = srcentry_ptr->preference;
 	    }
-	    if (!SSMGROUP(group))
-	    	move_kernel_cache(mrtentry_ptr, 0);
+	    move_kernel_cache(mrtentry_ptr, 0);
+
+	    /*
+	     * install (S,G) entry when there's no corresponding kernel cache
+	     * for (*,G) nor (*,*,RP), if it's non-RPT route.
+	     */
+	    if ((mrtentry_ptr->flags & (MRTF_RP | MRTF_KERNEL_CACHE)) == 0)
+		add_kernel_cache(mrtentry_ptr, source, group, 0);
 #ifdef RSRR
 	    rsrr_cache_bring_up(mrtentry_ptr);
 #endif				/* RSRR */
 	}
-	if (SSMGROUP(group))
-		add_kernel_cache(mrtentry_ptr, source, group, MFC_MOVE_FORCE);
 	return (mrtentry_ptr);
     }
 
@@ -756,8 +802,8 @@ create_srcentry(source)
     srcentry_ptr = (srcentry_t *) malloc(sizeof(srcentry_t));
     if (srcentry_ptr == (srcentry_t *) NULL)
     {
-	log(LOG_WARNING, 0, "Memory allocation error for srcentry %s",
-	    inet6_fmt(&source->sin6_addr));
+	log_msg(LOG_WARNING, 0, "Memory allocation error for srcentry %s",
+	    sa6_fmt(source));
 	return (srcentry_t *) NULL;
     }
 
@@ -782,8 +828,7 @@ create_srcentry(source)
 	srcentry_ptr->next->prev = srcentry_ptr;
 
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "create source entry, source %s",
-	    inet6_fmt(&source->sin6_addr));
+	log_msg(LOG_DEBUG, 0, "create source entry, source %s", sa6_fmt(source));
     return (srcentry_ptr);
 }
 
@@ -802,8 +847,8 @@ create_grpentry(group)
 
     if (grpentry_ptr == (grpentry_t *) NULL)
     {
-	log(LOG_WARNING, 0, "Memory allocation error for grpentry %s",
-	    inet6_fmt(&group->sin6_addr));
+	log_msg(LOG_WARNING, 0, "Memory allocation error for grpentry %s",
+	    sa6_fmt(group));
 	return (grpentry_t *) NULL;
     }
 
@@ -833,7 +878,7 @@ create_grpentry(group)
 	grpentry_ptr->next->prev = grpentry_ptr;
 
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "create group entry, group %s", inet6_fmt(&group->sin6_addr));
+	log_msg(LOG_DEBUG, 0, "create group entry, group %s", sa6_fmt(group));
     return (grpentry_ptr);
 }
 
@@ -981,7 +1026,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     mrtentry_ptr = (mrtentry_t *) malloc(sizeof(mrtentry_t));
     if (mrtentry_ptr == (mrtentry_t *) NULL)
     {
-	log(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
+	log_msg(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	return (mrtentry_t *) NULL;
     }
 
@@ -1033,7 +1078,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     if ((mrtentry_ptr->vif_timers == (u_int16 *) NULL) ||
 	(mrtentry_ptr->vif_deletion_delay == (u_int16 *) NULL))
     {
-	log(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
+	log_msg(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	FREE_MRTENTRY(mrtentry_ptr);
 	return (mrtentry_t *) NULL;
     }
@@ -1088,8 +1133,8 @@ create_mrtentry(srcentry_ptr, grpentry_ptr, flags)
 	     * search_srcmrtlink() did find it! Shoudn't happen. Panic!
 	     */
 
-	    log(LOG_ERR, 0, "MRT inconsistency for src %s and grp %s\n",
-		inet6_fmt(&source->sin6_addr), inet6_fmt(&group->sin6_addr));
+	    log_msg(LOG_ERR, 0, "MRT inconsistency for src %s and grp %s\n",
+		sa6_fmt(source), sa6_fmt(group));
 	    /* not reached but to make lint happy */
 	    return (mrtentry_t *) NULL;
 	}
@@ -1108,9 +1153,8 @@ create_mrtentry(srcentry_ptr, grpentry_ptr, flags)
 	r_new->flags |= MRTF_SG;
 
 	IF_DEBUG(DEBUG_MFC)
-	    log(LOG_DEBUG, 0, "create SG entry, source %s, group %s",
-		inet6_fmt(&source->sin6_addr),
-		inet6_fmt(&group->sin6_addr));
+	    log_msg(LOG_DEBUG, 0, "create SG entry, source %s, group %s",
+		sa6_fmt(source), sa6_fmt(group));
 
 	return (r_new);
     }
@@ -1195,9 +1239,9 @@ delete_single_kernel_cache(mrtentry_ptr, kernel_cache_ptr)
     if (kernel_cache_ptr->next != (kernel_cache_t *) NULL)
 	kernel_cache_ptr->next->prev = kernel_cache_ptr->prev;
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "Deleting MFC entry for source %s and group %s",
-	    inet6_fmt(&kernel_cache_ptr->source.sin6_addr),
-	    inet6_fmt(&kernel_cache_ptr->source.sin6_addr));
+	log_msg(LOG_DEBUG, 0, "Deleting MFC entry for source %s and group %s",
+	    sa6_fmt(&kernel_cache_ptr->source),
+	    sa6_fmt(&kernel_cache_ptr->group));
     k_del_mfc(mld6_socket, &kernel_cache_ptr->source,
 	      &kernel_cache_ptr->group);
     free((char *) kernel_cache_ptr);
@@ -1248,9 +1292,9 @@ delete_single_kernel_cache_addr(mrtentry_ptr, source, group)
     if (kernel_cache_ptr->next != (kernel_cache_t *) NULL)
 	kernel_cache_ptr->next->prev = kernel_cache_ptr->prev;
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "Deleting MFC entry for source %s and group %s",
-	    inet6_fmt(&kernel_cache_ptr->source.sin6_addr),
-	    inet6_fmt(&kernel_cache_ptr->group.sin6_addr));
+	log_msg(LOG_DEBUG, 0, "Deleting MFC entry for source %s and group %s",
+	    sa6_fmt(&kernel_cache_ptr->source),
+	    sa6_fmt(&kernel_cache_ptr->group));
     k_del_mfc(mld6_socket, &kernel_cache_ptr->source,
 	      &kernel_cache_ptr->group);
     free((char *) kernel_cache_ptr);

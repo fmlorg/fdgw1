@@ -1,4 +1,4 @@
-/*	$KAME: inet6.c,v 1.13 2001/11/13 12:38:49 jinmei Exp $	*/
+/*	$KAME: inet6.c,v 1.16 2002/06/26 10:40:08 itojun Exp $	*/
 
 /*
  * Copyright (C) 1998 WIDE Project.
@@ -215,8 +215,28 @@ sa6_fmt(struct sockaddr_in6 *sa6)
 {
     static char     ip6buf[8][MAXHOSTNAMELEN];
     static int      ip6round = 0;
+#ifdef NI_WITHSCOPEID
+    int flags = NI_WITHSCOPEID;
+#else
     int flags = 0;
-    char           *cp;    
+#endif
+    char           *cp;
+    struct sockaddr_in6 sa6_tmp; /* local copy for overriding */
+
+    sa6_tmp = *sa6;
+    sa6 = &sa6_tmp;
+
+    /*
+     * construct sin6_scope_id for link-scope addresses from  embedded link
+     * IDs.
+     * XXX: this should be hidden from applications.
+     */
+    if (IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr) ||
+	IN6_IS_ADDR_MC_LINKLOCAL(&sa6->sin6_addr)) {
+	    sa6->sin6_scope_id = sa6->sin6_addr.s6_addr[2] << 8 |
+		sa6->sin6_addr.s6_addr[3];
+	    sa6->sin6_addr.s6_addr[2] = sa6->sin6_addr.s6_addr[3] = 0;
+    }
 
     ip6round = (ip6round + 1) & 7;
     cp = ip6buf[ip6round];
@@ -229,17 +249,20 @@ sa6_fmt(struct sockaddr_in6 *sa6)
     return(cp);
 }
 
+/*
+ * convert a 128bit IPv6 address into a text string.
+ * please DO NOT use this function only when a corresponding sockaddr_in6 is
+ * available.  use sa6_fmt instead.
+ */
 char *
 inet6_fmt(struct in6_addr * addr)
 {
     struct sockaddr_in6 sa6;
 
-
     memset(&sa6, 0, sizeof(sa6));
     sa6.sin6_len = sizeof(sa6);
     sa6.sin6_family = AF_INET6;
     sa6.sin6_addr = *addr;
-    sa6.sin6_scope_id = 0;	/* XXX */
 
     return(sa6_fmt(&sa6));
 }
@@ -295,21 +318,23 @@ inet6_mask2plen(struct in6_addr * mask)
     return (masklen);
 }
 
-char           *
-net6name(struct in6_addr * prefix, struct in6_addr * mask)
+char *
+net6name(struct in6_addr *prefix, struct in6_addr *mask)
 {
-    static char     ip6buf[8][INET6_ADDRSTRLEN + 4];	/* length of addr/plen */
-    static int      ip6round = 0;
-    char *cp;
-    char *ep;
+	static char ip6buf[8][NI_MAXHOST + 4]; /* length of addr/plen */
+	static int ip6round = 0;
+	char *cp, *ep, *p;
+	
+	ip6round = (ip6round + 1) & 7;
+	cp = ip6buf[ip6round];
+	ep = &ip6buf[ip6round][sizeof(ip6buf[ip6round])];
 
-    ip6round = (ip6round + 1) & 7;
-    cp = ip6buf[ip6round];
-    ep = &ip6buf[ip6round][sizeof(ip6buf[ip6round])];
+	p = inet6_fmt(prefix);
+	if (!p)
+		return NULL;
+	strlcpy(cp, p, sizeof(ip6buf[ip6round]));
+	cp += strlen(cp);
+	snprintf(cp, ep - cp, "/%d", inet6_mask2plen(mask));
 
-    inet_ntop(AF_INET6, prefix, cp, INET6_ADDRSTRLEN);
-    cp += strlen(cp);
-    snprintf(cp, ep - cp, "/%d", inet6_mask2plen(mask));
-
-    return (ip6buf[ip6round]);
+	return(ip6buf[ip6round]);
 }

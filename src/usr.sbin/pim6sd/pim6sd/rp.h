@@ -1,4 +1,4 @@
-/*	$KAME: rp.h,v 1.5 2000/12/04 06:45:32 itojun Exp $	*/
+/*	$KAME: rp.h,v 1.8 2003/08/10 17:02:41 suz Exp $	*/
 
 /*
  * Copyright (C) 1999 LSIIT Laboratory.
@@ -53,9 +53,11 @@ extern cand_rp_t				*cand_rp_list;
 extern grp_mask_t       *grp_mask_list;
 extern cand_rp_t        *segmented_cand_rp_list;
 extern grp_mask_t       *segmented_grp_mask_list; 
+extern char *cand_rp_ifname, *cand_bsr_ifname;
 
 extern u_int8					cand_rp_flag;
 extern u_int8					cand_bsr_flag;
+extern u_int8					static_rp_flag;
 extern u_int8					my_cand_rp_priority;
 extern u_int8					my_bsr_priority;
 extern u_int16					my_cand_rp_adv_period;
@@ -78,8 +80,15 @@ extern struct cand_rp_adv_message_ {
 	u_int16					message_size;
 } cand_rp_adv_message;
 
+struct staticrp {
+	struct sockaddr_in6 paddr;
+	u_int8 plen;
+	struct sockaddr_in6 rpaddr;
+	u_int8 priority;
+};
 
-extern void      init_rp6_and_bsr6         __P((void));
+extern void      init_rp6	__P((void));
+extern void      init_bsr6	__P((void));
 void delete_rp_list( cand_rp_t **used_cand_rp_list , grp_mask_t **used_grp_mask_list );
 u_int16 bootstrap_initial_delay __P((void));
 extern rpentry_t *rp_match      __P((struct sockaddr_in6 *group));
@@ -90,6 +99,7 @@ extern rp_grp_entry_t *add_rp_grp_entry __P((cand_rp_t  **used_cand_rp_list,
                          grp_mask_t **used_grp_mask_list,
                          struct sockaddr_in6 *rp_addr,
                          u_int8  rp_priority,
+                         u_int8  rp_origin,
                          u_int16 rp_holdtime,
                          struct sockaddr_in6 *group_addr,
                          struct in6_addr group_mask,
@@ -114,7 +124,5 @@ extern int  remap_grpentry      __P((grpentry_t *grpentry_ptr));
 extern int  check_mrtentry_rp   __P((mrtentry_t *mrtentry_ptr,
                          struct sockaddr_in6 *rp_addr));
 
-
-
-
+extern void update_rp_neighbor __P((void));
 #endif

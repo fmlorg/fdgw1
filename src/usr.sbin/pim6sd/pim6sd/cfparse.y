@@ -1,4 +1,4 @@
-/*	$KAME: cfparse.y,v 1.20 2002/04/03 04:12:55 suz Exp $	*/
+/*	$KAME: cfparse.y,v 1.35 2003/10/21 08:15:45 itojun Exp $	*/
 
 /*
  * Copyright (C) 1999 WIDE Project.
@@ -30,6 +30,7 @@
  */
 %{
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/route.h>
@@ -79,6 +80,7 @@ struct attr_list {
 		unsigned int flags;
 		double number;
 		struct in6_prefix prefix;
+		struct staticrp staticrp;
 	}attru;
 };
 
@@ -86,12 +88,12 @@ enum {IFA_FLAG, IFA_PREFERENCE, IFA_METRIC, RPA_PRIORITY, RPA_TIME,
       BSRA_PRIORITY, BSRA_TIME, BSRA_MASKLEN, IN6_PREFIX, THRESA_RATE,
       THRESA_INTERVAL,
       IFA_ROBUST, IFA_QUERY_INT, IFA_QUERY_INT_RESP, IFA_MLD_VERSION, IFA_LLQI,
+      STATICRP,
      };
 
 static int strict;		/* flag if the grammer check is strict */
 static struct attr_list *rp_attr, *bsr_attr, *grp_prefix, *regthres_attr,
-	*datathres_attr;
-static char *cand_rp_ifname, *cand_bsr_ifname;
+	*datathres_attr, *static_rp;
 static int srcmetric, srcpref, helloperiod, jpperiod, granularity,
 	datatimo, regsuptimo, probetime, asserttimo;
 static double helloperiod_coef, jpperiod_coef;
@@ -112,20 +114,22 @@ extern int yylex __P((void));
 %token LOGGING LOGLEV NOLOGLEV
 %token YES NO
 %token REVERSELOOKUP
-%token PHYINT IFNAME DISABLE PREFERENCE METRIC NOLISTENER
+%token PHYINT IFNAME ENABLE DISABLE PREFERENCE METRIC NOLISTENER
 %token ROBUST QUERY_INT QUERY_INT_RESP MLD_VERSION LLQI
 %token GRPPFX
+%token STATICRP
 %token CANDRP CANDBSR TIME PRIORITY MASKLEN
-%token NUMBER STRING SLASH
+%token NUMBER STRING SLASH ANY
 %token REGTHRES DATATHRES RATE INTERVAL
 %token SRCMETRIC SRCPREF HELLOPERIOD GRANULARITY JPPERIOD
-%token DATATIME REGSUPTIME PROBETIME ASSERTTIME
+%token DATATIME REGSUPTIME PROBETIME ASSERTTIME DEFVIFSTAT
 
 %type <num> LOGLEV NOLOGLEV
 %type <fl> NUMBER
 %type <val> STRING IFNAME
 %type <attr> if_attributes rp_substatement rp_attributes
 %type <attr> bsr_substatement bsr_attributes thres_attributes
+%type <num> staticrp_priority
 
 %%
 statements:
@@ -139,6 +143,7 @@ statement:
 	|	phyint_statement
 	|	candrp_statement
 	|	candbsr_statement
+	|	staticrp_statement
 	|	grppfx_statement
 	|	regthres_statement
 	|	datathres_statement
@@ -167,7 +172,7 @@ phyint_statement:
 	PHYINT IFNAME if_attributes EOS {
 		struct uvif *v;
 
-		v = find_vif($2.v);
+		v = find_vif($2.v, CREATE, VIFF_ENABLED);
 		free($2.v);	/* XXX */
 		if (v == NULL) {
 			yywarn("unknown interface: %s", $2.v);
@@ -191,6 +196,12 @@ phyint_statement:
 
 if_attributes:
 		{ $$ = NULL; }
+	|	if_attributes ENABLE
+		{
+			if (($$ = add_attribute_flag($1, IFA_FLAG,
+						     VIFF_ENABLED)) == NULL)
+				return(-1);
+		}
 	|	if_attributes DISABLE
 		{
 			if (($$ = add_attribute_flag($1, IFA_FLAG,
@@ -242,6 +253,12 @@ if_attributes:
 	|	if_attributes MLD_VERSION NUMBER
 		{
 			if (($$ = add_attribute_num($1, IFA_MLD_VERSION, $3))
+			    == NULL)
+				return(-1);
+		}
+	|	if_attributes MLD_VERSION ANY
+		{
+			if (($$ = add_attribute_num($1, IFA_MLD_VERSION, MLDv1|MLDv2))
 			    == NULL)
 				return(-1);
 		}
@@ -352,6 +369,80 @@ bsr_attributes:
 		}
 	;
 
+staticrp_statement: 
+	STATICRP STRING SLASH NUMBER STRING staticrp_priority EOS {
+		struct staticrp entry;
+		struct attr_list *new;
+		int syntax_ng = 0;
+
+		bzero(&entry, sizeof(entry));
+		entry.paddr.sin6_family = AF_INET6;
+		entry.paddr.sin6_len = sizeof(entry.paddr);
+		if (inet_pton(AF_INET6, $2.v, &entry.paddr.sin6_addr) != 1) {
+			yywarn("invalid IPv6 address: %s", $2.v);
+			syntax_ng = 1;
+		}
+		if (!IN6_IS_ADDR_MULTICAST(&entry.paddr.sin6_addr)) {
+			yywarn("group prefix(%s) must be a multicast address",
+			       sa6_fmt(&entry.paddr));
+			syntax_ng = 1;
+		}
+		if (IN6_IS_ADDR_MC_NODELOCAL(&entry.paddr.sin6_addr) ||
+		    IN6_IS_ADDR_MC_LINKLOCAL(&entry.paddr.sin6_addr)) {
+			yywarn("group prefix (%s) has a narrow scope ",
+			       sa6_fmt(&entry.paddr));
+			syntax_ng = 1;
+		}
+		free($2.v);	/* XXX: which was allocated dynamically */
+
+		entry.plen = $4;
+		if (entry.plen > 128) {
+			yywarn("invalid prefix length: %d", entry.plen);
+			syntax_ng = 1;
+		}
+
+		entry.rpaddr.sin6_family = AF_INET6;
+		entry.rpaddr.sin6_len = sizeof(entry.rpaddr);
+		if (inet_pton(AF_INET6, $5.v, &entry.rpaddr.sin6_addr) != 1) {
+			yywarn("invalid IPv6 address: %s", $5.v);
+			syntax_ng = 1;
+		}
+		if (IN6_IS_ADDR_MULTICAST(&entry.rpaddr.sin6_addr)) {
+			yywarn("RP address (%s) must not be a multicast address",
+			       sa6_fmt(&entry.rpaddr));
+			syntax_ng = 1;
+		}
+		if (IN6_IS_ADDR_LINKLOCAL(&entry.rpaddr.sin6_addr)) {
+			yywarn("RP address (%s) has a narrow scope ",
+			       sa6_fmt(&entry.rpaddr));
+			syntax_ng = 1;
+		}
+		free($5.v);	/* XXX: which was allocated dynamically */
+
+		entry.priority = $6;
+
+		if (syntax_ng)
+			break;
+
+		if ((new = malloc(sizeof(*new))) == NULL) {
+			yyerror("malloc failed");
+			return(0);
+		}
+		memset(new, 0, sizeof(*new));
+		new->type = STATICRP;
+		new->attru.staticrp = entry;
+		new->next = static_rp;
+		static_rp = new;
+		static_rp_flag = TRUE;
+	}
+	;
+
+staticrp_priority :
+	  { $$ = PIM_DEFAULT_CAND_RP_PRIORITY; }
+	| PRIORITY NUMBER
+	  { $$ = $2; }
+	;
+
 /* group_prefix <group-addr>/<prefix_len> */
 grppfx_statement:
 	GRPPFX STRING SLASH NUMBER EOS {
@@ -359,7 +450,7 @@ grppfx_statement:
 		int prefixok = 1;
 
 		if (inet_pton(AF_INET6, $2.v, &prefix.paddr) != 1) {
-			yywarn("invalid IPv6 address: %s (ignored)", $2);
+			yywarn("invalid IPv6 address: %s (ignored)", $2.v);
 			prefixok = 0;
 		}
 		free($2.v);	/* XXX: which was allocated dynamically */
@@ -383,7 +474,7 @@ grppfx_statement:
 
 			if ((new = malloc(sizeof(*new))) == NULL) {
 				yyerror("malloc failed");
-				return(NULL);
+				return(0);
 			}
 			memset(new, 0, sizeof(*new));
 
@@ -496,6 +587,16 @@ param_statement:
 		{
 			set_param(asserttimo, $2, "assert_timeout");
 		}
+	|	DEFVIFSTAT ENABLE EOS
+		{
+			set_param(default_vif_status, VIFF_ENABLED,
+				 "default_phyint_status");
+		}
+	|	DEFVIFSTAT DISABLE EOS
+		{
+			set_param(default_vif_status, VIFF_DISABLED,
+				 "default_phyint_status");
+		}
 	;
 %%
 
@@ -508,7 +609,7 @@ static int param_config __P((void));
 static int phyint_config __P((void));
 static int rp_config __P((void));
 static int bsr_config __P((void));
-static int grp_prefix_config __P((void));
+static int static_rp_config __P((void));
 static int regthres_config __P((void));
 static int datathres_config __P((void));
 
@@ -583,6 +684,7 @@ param_config()
 	if (regsuptimo == -1) regsuptimo = PIM_REGISTER_SUPPRESSION_TIMEOUT;
 	if (probetime == -1) probetime = PIM_REGISTER_PROBE_TIME;
 	if (asserttimo == -1) asserttimo = PIM_ASSERT_TIMEOUT;
+	if (default_vif_status == -1) default_vif_status = VIFF_ENABLED;
 
 	/* set protocol parameters using the configuration variables */
 	for (vifi = 0, v = uvifs; vifi < MAXMIFS; ++vifi, ++v) {
@@ -600,34 +702,34 @@ param_config()
 	pim_assert_timeout = asserttimo;
 
 	IF_DEBUG(DEBUG_PIM_HELLO) {
-		log(LOG_DEBUG, 0, "pim_hello_period set to: %u",
+		log_msg(LOG_DEBUG, 0, "pim_hello_period set to: %u",
 		    pim_hello_period);
-		log(LOG_DEBUG, 0, "pim_hello_holdtime set to: %u",
+		log_msg(LOG_DEBUG, 0, "pim_hello_holdtime set to: %u",
 		    pim_hello_holdtime);
 	}
 
 	IF_DEBUG(DEBUG_PIM_JOIN_PRUNE) {
-		log(LOG_DEBUG,0 , "pim_join_prune_period set to: %u",
+		log_msg(LOG_DEBUG,0 , "pim_join_prune_period set to: %u",
 		    pim_join_prune_period);
-		log(LOG_DEBUG, 0, "pim_join_prune_holdtime set to: %u",
+		log_msg(LOG_DEBUG, 0, "pim_join_prune_holdtime set to: %u",
 		    pim_join_prune_holdtime);
 	}
 	IF_DEBUG(DEBUG_TIMER) {
-		log(LOG_DEBUG,0 , "timer interval set to: %u", timer_interval);
+		log_msg(LOG_DEBUG,0 , "timer interval set to: %u", timer_interval);
 	}
 	IF_DEBUG(DEBUG_PIM_TIMER) {
-		log(LOG_DEBUG,0 , "PIM data timeout set to: %u",
+		log_msg(LOG_DEBUG,0 , "PIM data timeout set to: %u",
 		    pim_data_timeout);
 	}
 	IF_DEBUG(DEBUG_PIM_REGISTER) {
-		log(LOG_DEBUG, 0,
+		log_msg(LOG_DEBUG, 0,
 		    "PIM register suppression timeout set to: %u",
 		    pim_register_suppression_timeout);
-		log(LOG_DEBUG, 0, "PIM register probe time set to: %u",
+		log_msg(LOG_DEBUG, 0, "PIM register probe time set to: %u",
 		    pim_register_probe_time);
 	}
 	IF_DEBUG(DEBUG_PIM_ASSERT) {
-		log(LOG_DEBUG, 0,
+		log_msg(LOG_DEBUG, 0,
 		    "PIM assert timeout set to: %u",
 		    pim_assert_timeout);
 	}
@@ -657,7 +759,7 @@ phyint_config()
 				else {
 					v->uv_local_pref = al->attru.number;
 					IF_DEBUG(DEBUG_ASSERT)
-						log(LOG_DEBUG, 0,
+						log_msg(LOG_DEBUG, 0,
 						    "default localpref for %s "
 						    "is %d",
 						    v->uv_name,
@@ -672,7 +774,7 @@ phyint_config()
 				else {
 					v->uv_metric = al->attru.number;
 					IF_DEBUG(DEBUG_ASSERT)
-						log(LOG_DEBUG, 0,
+						log_msg(LOG_DEBUG, 0,
 						    "default local metric for %s "
 						    "is %d",
 						    v->uv_name,
@@ -687,7 +789,7 @@ phyint_config()
 				else {
 					v->uv_mld_robustness = al->attru.number;
 					IF_DEBUG(DEBUG_MLD)
-						log(LOG_DEBUG, 0,
+						log_msg(LOG_DEBUG, 0,
 						    "mld robustness var. for %s "
 						    "is %d",
 						    v->uv_name,
@@ -695,27 +797,26 @@ phyint_config()
 				}
 				break;
 			case IFA_MLD_VERSION:
-				if (al->attru.number != 1 && 
-				    al->attru.number != 2)
+				if (((int)al->attru.number & MLDv1) == 0 && 
+				    ((int)al->attru.number & MLDv2) == 0) {
 					yywarn("invalid mld version(%d)",
 					       (int) al->attru.number);
-				else {
-					v->uv_mld_version = al->attru.number;
-					IF_DEBUG(DEBUG_MLD)
-						log(LOG_DEBUG, 0,
-						    "mld version for %s "
-						    "is %d",
-						    v->uv_name,
-						    v->uv_mld_version);
+					break;
 				}
+				v->uv_mld_version = al->attru.number;
+				IF_DEBUG(DEBUG_MLD)
+					log_msg(LOG_DEBUG, 0,
+					    "mld version for %s is %s %s",
+					    v->uv_name,
+					    v->uv_mld_version & MLDv1 ? "v1" : "",
+					    v->uv_mld_version & MLDv2 ? "v2" : "");
 				break;
 			case IFA_QUERY_INT:
 #ifdef MLDV2_LISTENER_REPORT
 				/* if the mld version is 2 we have to verify if this */
 				/* value is codable in the QQIC field */
 
-				if(v->uv_mld_version == MLDv2 )
-				{
+				if (v->uv_mld_version & MLDv2) {
 					qqic = codafloat(al->attru.number,&realnbr,3,4);
 					if(al->attru.number != realnbr )
 						yywarn("unrepresentable query int. value %.0f, corrected to %d",
@@ -723,13 +824,13 @@ phyint_config()
 				}
 #endif
 
-				if(v->uv_mld_version == MLDv2) 
+				if (v->uv_mld_version & MLDv2)
 					v->uv_mld_query_interval = realnbr;
 				else
 					v->uv_mld_query_interval = al->attru.number;
 
 				IF_DEBUG(DEBUG_MLD)
-					log(LOG_DEBUG, 0,
+					log_msg(LOG_DEBUG, 0,
 					    "mld query interval for %s "
 					    "is %d",
 					    v->uv_name,
@@ -741,8 +842,7 @@ phyint_config()
 				/* value is codable in the MAX RESP CODE field */
 				/* if this is mld version 1 we have to verify if this */
 				/* can be coded in 16 bits */
-				if(v->uv_mld_version == MLDv2 )
-				{
+				if (v->uv_mld_version & MLDv2) {
 					qqic = codafloat(al->attru.number,&realnbr,3,12);
 					if(al->attru.number != realnbr )
 						yywarn("unrepresentable query resp. value %.0f, corrected to %d",
@@ -750,7 +850,7 @@ phyint_config()
 				}
 #endif
 
-				if(v->uv_mld_version == MLDv2 ) 
+				if (v->uv_mld_version & MLDv2) 
 					v->uv_mld_query_rsp_interval = realnbr;
 				else
 				{
@@ -763,7 +863,7 @@ phyint_config()
 					v->uv_mld_query_rsp_interval = al->attru.number;
 				}
 				IF_DEBUG(DEBUG_MLD)
-					log(LOG_DEBUG, 0,
+					log_msg(LOG_DEBUG, 0,
 					    "mld query resp. interval for %s "
 					    "is %d",
 					    v->uv_name,
@@ -775,8 +875,7 @@ phyint_config()
 				/* value is codable in the MAX RESP CODE field */
 				/* if this is mld version 1 we have to verify if this */
 				/* can be coded in 16 bits */
-				if(v->uv_mld_version == MLDv2 )
-				{
+				if (v->uv_mld_version & MLDv2) {
 					qqic = codafloat(al->attru.number,&realnbr,3,12);
 					if(al->attru.number != realnbr )
 						yywarn("unrepresentable llqi value %.0f, corrected to %d",
@@ -784,7 +883,7 @@ phyint_config()
 				}
 #endif
 
-				if(v->uv_mld_version == MLDv2 ) 
+				if (v->uv_mld_version & MLDv2) 
 					v->uv_mld_llqi = realnbr;
 				else
 				{
@@ -797,7 +896,7 @@ phyint_config()
 					v->uv_mld_llqi = al->attru.number;
 				}
 				IF_DEBUG(DEBUG_MLD)
-					log(LOG_DEBUG, 0,
+					log_msg(LOG_DEBUG, 0,
 					    "mld llqi interval for %s "
 					    "is %d",
 					    v->uv_name,
@@ -805,34 +904,69 @@ phyint_config()
 				break;
 			}
 		}
+
+		/* determines enable/disable if necessary */
+		if ((v->uv_flags & (VIFF_ENABLED | VIFF_DISABLED)) ==
+		    (VIFF_ENABLED | VIFF_DISABLED)) {
+			yywarn("inconsistenet configuration for %s:"
+			       "enables and disables PIM simulteneously."
+			       "use default behavior", v->uv_name);
+			v->uv_flags &= ~(VIFF_ENABLED | VIFF_DISABLED);
+			v->uv_flags |= default_vif_status;
+		}
+		
+		if ((v->uv_flags & (VIFF_ENABLED | VIFF_DISABLED)) == 0) {
+			v->uv_flags |= default_vif_status;
+		}
 	}
 
-	/* IPv6 PIM needs one global unicast address (at least for now) */
-	if (max_global_address() == NULL)
-		log(LOG_ERR, 0, "There's no global address available");
+	return(0);
+}
 
+static int
+static_rp_config()
+{
+	struct attr_list *al;
+
+	if (cand_rp_flag == TRUE && static_rp) {
+		yywarn("cand-rp and static-rp configuration cannot coexist");
+		return -1;
+	}
+
+	if (cand_bsr_flag == TRUE && static_rp) {
+		yywarn("cand-bsr and static-rp configuration cannot coexist");
+		return -1;
+	}
+
+	for (al = static_rp; al; al = al->next) {
+		struct staticrp *entry;
+		struct in6_addr grp_mask;
+		struct in6_addr bsr_mask;
+
+		if (al->type != STATICRP)
+			continue;
+		entry = &al->attru.staticrp;
+
+		MASKLEN_TO_MASK6(entry->plen, grp_mask);
+		MASKLEN_TO_MASK6(8, bsr_mask);	/* XXX */
+		add_rp_grp_entry(&cand_rp_list, &grp_mask_list,
+				 &entry->rpaddr, entry->priority,
+				 RP_ORIGIN_STATIC,
+				 TIMER_INFINITY,
+				 &entry->paddr, grp_mask,
+				 bsr_mask, 0);
+	}
 	return(0);
 }
 
 static int
 rp_config()
 {
-	struct sockaddr_in6 *sa6_rp = NULL;
 	struct attr_list *al;
-	u_int8 *data_ptr;
 
 	/* initialization by default values */
 	my_cand_rp_adv_period = PIM_DEFAULT_CAND_RP_ADV_PERIOD;
 	my_cand_rp_priority = PIM_DEFAULT_CAND_RP_PRIORITY;
-
-	if (cand_rp_ifname) {
-		sa6_rp = local_iface(cand_rp_ifname);
-		if (!sa6_rp)
-			log(LOG_WARNING, 0,
-			    "cand_rp '%s' is not configured. "
-			    "take the max local address the router..",
-			    cand_rp_ifname);
-	}
 
 	for (al = rp_attr; al; al = al->next) {
 		switch(al->type) {
@@ -858,65 +992,12 @@ rp_config()
 		}
 	}
 
-	if (!sa6_rp)
-		sa6_rp = max_global_address(); /* this MUST succeed */
-	my_cand_rp_address = *sa6_rp;
-
-	/*
-	 * initialize related parameters
-	 */
-
-	/*
-	 * Note that sizeof(pim6_enocd_uni_addr_t) might be larger than
-	 * the length of the Encoded-Unicast-address field(18 byte) due to
-	 * some padding put in the compiler. However, it doesn't matter
-	 * since we use the space just as a buffer(i.e not as the message).
-	 */
-	cand_rp_adv_message.buffer = (u_int8 *)malloc(4 +
-						      sizeof(pim6_encod_uni_addr_t) +
-						      255*sizeof(pim6_encod_grp_addr_t));
-	if(cand_rp_adv_message.buffer == NULL)
-		log(LOG_ERR, 0, "Candrpadv Buffer allocation");
-
-	cand_rp_adv_message.prefix_cnt_ptr = cand_rp_adv_message.buffer;
-
-	/*
-	 * By default, if no group_prefix configured, then prefix_cnt == 0
-	 * implies group_prefix = ff00::/8 and masklen = 8.
-	 */
-	*cand_rp_adv_message.prefix_cnt_ptr = 0;
-	cand_rp_adv_message.insert_data_ptr = cand_rp_adv_message.buffer;
-
-	/* TODO: XXX: HARDCODING!!! */
-	cand_rp_adv_message.insert_data_ptr += (4 + 18);
-	cand_rp_adv_message.message_size =
-		cand_rp_adv_message.insert_data_ptr - cand_rp_adv_message.buffer;
-
-	my_cand_rp_holdtime = 2.5 * my_cand_rp_adv_period;
-
-	/* TODO: HARDCODING! */
-	data_ptr = cand_rp_adv_message.buffer + 1;	/* WARNING */
-	PUT_BYTE(my_cand_rp_priority,data_ptr);
-	PUT_HOSTSHORT(my_cand_rp_holdtime, data_ptr);
-	PUT_EUADDR6(my_cand_rp_address.sin6_addr,data_ptr);
-	IF_DEBUG(DEBUG_PIM_CAND_RP) {
-		log(LOG_DEBUG, 0,
-		    "Local Cand-RP address is : %s",
-		    inet6_fmt(&my_cand_rp_address.sin6_addr));
-		log(LOG_DEBUG, 0,
-		    "Local Cand-RP priority is : %u",my_cand_rp_priority);
-		log(LOG_DEBUG, 0,
-		    "Local Cand-RP advertisement period is : %u sec.",
-		    my_cand_rp_adv_period);
-	}
-
 	return(0);
 }
 
 static int
 bsr_config()
 {
-	struct sockaddr_in6 *sa6_bsr = NULL;
 	struct attr_list *al;
 	int my_bsr_hash_masklen;
 
@@ -924,15 +1005,6 @@ bsr_config()
 	my_bsr_period = PIM_DEFAULT_BOOTSTRAP_PERIOD;
 	my_bsr_priority = PIM_DEFAULT_BSR_PRIORITY;
 	my_bsr_hash_masklen = RP_DEFAULT_IPV6_HASHMASKLEN;
-
-	if (cand_bsr_ifname) {
-		sa6_bsr = local_iface(cand_bsr_ifname);
-		if (!sa6_bsr)
-			log(LOG_WARNING, 0,
-			    "bsr '%s' is not configured. "
-			    "take the max local address the router..",
-			    cand_bsr_ifname);
-	}
 
 	for (al = bsr_attr; al; al = al->next) {
 		switch(al->type) {
@@ -959,45 +1031,37 @@ bsr_config()
 		}
 	}
 
-	if (!sa6_bsr)
-		sa6_bsr = max_global_address(); /* this MUST succeed */
-	my_bsr_address = *sa6_bsr;
 	MASKLEN_TO_MASK6(my_bsr_hash_masklen, my_bsr_hash_mask);
-
-	IF_DEBUG(DEBUG_PIM_BOOTSTRAP) {
-		log(LOG_DEBUG, 0, "Local BSR address: %s",
-		    inet6_fmt(&my_bsr_address.sin6_addr));
-		log(LOG_DEBUG, 0, "Local BSR priority : %u", my_bsr_priority);
-		log(LOG_DEBUG, 0, "Local BSR period is : %u sec.",
-		    my_bsr_period);
-		log(LOG_DEBUG, 0, "Local BSR hash mask length: %d",
-		    my_bsr_hash_masklen);
-	}
 
 	return(0);
 }
 
-static int
+/* called from init_rp6() */
+int
 grp_prefix_config()
 {
 	struct attr_list *pl;
 
+	if (grp_prefix == NULL) {
+		log_msg(LOG_DEBUG, 0, "no group_prefix was specified");
+		return 0;
+	}
 	if (cand_rp_flag != TRUE) {
-		log(LOG_WARNING, 0,
+		log_msg(LOG_WARNING, 0,
 		    "group_prefix was specified without cand_rp(ignored)");
 		return(0);
 	}
 
 	for (pl = grp_prefix; pl; pl = pl->next) {
 		if (!IN6_IS_ADDR_MULTICAST(&pl->attru.prefix.paddr)) {
-			log(LOG_WARNING, 0,
+			log_msg(LOG_WARNING, 0,
 			    "Config error: %s is not a multicast address(ignored)",
 			    inet6_fmt(&pl->attru.prefix.paddr));
 			continue;
 		}
 
 		if (!(~(*cand_rp_adv_message.prefix_cnt_ptr))) {
-			log(LOG_WARNING, 0,
+			log_msg(LOG_WARNING, 0,
 			    "Too many group_prefix configured. Truncating...");
 			break;
 		}
@@ -1016,6 +1080,8 @@ grp_prefix_config()
 	cand_rp_adv_message.message_size =
 		cand_rp_adv_message.insert_data_ptr - cand_rp_adv_message.buffer;
 
+	if (grp_prefix) 
+		free_attr_list(grp_prefix);
 	return(0);
 }
 
@@ -1027,7 +1093,7 @@ regthres_config()
 	int interval = -1;
 
 	if (cand_rp_flag != TRUE) {
-		log(LOG_WARNING, 0,
+		log_msg(LOG_WARNING, 0,
 		    "register_threshold was specified without cand_rp");
 	}
 
@@ -1127,14 +1193,13 @@ cf_post_config()
 
 	phyint_config();
 
+	static_rp_config();
+
 	if (cand_bsr_flag == TRUE)
 		bsr_config();
 
 	if (cand_rp_flag == TRUE)
 		rp_config();
-
-	if (grp_prefix)		/* this must be called after rp_config() */
-		grp_prefix_config();
 
 	if (cand_rp_flag == TRUE)
 		regthres_config();
@@ -1142,23 +1207,21 @@ cf_post_config()
 	datathres_config();
 
 	IF_DEBUG(DEBUG_SWITCH) {
-		log(LOG_DEBUG, 0, "reg_rate_limit set to %u (bits/s)",
+		log_msg(LOG_DEBUG, 0, "reg_rate_limit set to %u (bits/s)",
 		    pim_reg_rate_bytes);
-		log(LOG_DEBUG, 0, "reg_rate_interval set to  %u s.",
+		log_msg(LOG_DEBUG, 0, "reg_rate_interval set to  %u s.",
 		    pim_reg_rate_check_interval);
-		log(LOG_DEBUG, 0, "data_rate_limit set to %u (bits/s)",
+		log_msg(LOG_DEBUG, 0, "data_rate_limit set to %u (bits/s)",
 		    pim_data_rate_bytes);
-		log(LOG_DEBUG, 0, "data_rate_interval set to %u s.",
+		log_msg(LOG_DEBUG, 0, "data_rate_interval set to %u s.",
 		    pim_data_rate_check_interval);
 	}
 
   cleanup:
 	/* cleanup temporary variables */
-	if (cand_rp_ifname) free(cand_rp_ifname);
-	if (cand_bsr_ifname) free(cand_bsr_ifname);
 	if (rp_attr) free_attr_list(rp_attr);
 	if (bsr_attr) free_attr_list(bsr_attr);
-	if (grp_prefix) free_attr_list(grp_prefix);
+	if (static_rp) free_attr_list(static_rp);
 	if (regthres_attr) free_attr_list(regthres_attr);
 	if (datathres_attr) free_attr_list(datathres_attr);
 	for (vifi = 0, v = uvifs; vifi < numvifs ; ++vifi , ++v)
@@ -1177,14 +1240,16 @@ cf_init(s, d)
 	strict = s;
 	debugonly = d;
 
-	rp_attr = bsr_attr = grp_prefix = regthres_attr	= datathres_attr = NULL;
+	rp_attr = bsr_attr = grp_prefix = regthres_attr	= datathres_attr
+		= static_rp = NULL;
 
+	cand_rp_flag = cand_bsr_flag = static_rp_flag = FALSE;
 	cand_rp_ifname = cand_bsr_ifname = NULL;
 
 	srcmetric = srcpref = helloperiod = jpperiod = jpperiod_coef
 		= granularity = datatimo = regsuptimo = probetime
 		= asserttimo = -1;
-	helloperiod_coef = jpperiod_coef = -1;
+	helloperiod_coef = jpperiod_coef = default_vif_status = -1;
 
 	for (vifi = 0, v = uvifs; vifi < numvifs ; ++vifi , ++v)
 		v->config_attr = NULL;

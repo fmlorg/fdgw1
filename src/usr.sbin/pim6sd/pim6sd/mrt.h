@@ -1,4 +1,4 @@
-/*	$KAME: mrt.h,v 1.12 2001/11/02 04:07:07 suz Exp $	*/
+/*	$KAME: mrt.h,v 1.14 2003/08/10 17:02:41 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -56,6 +56,7 @@
 #define MRTF_WC                 0x0002  /* (*,G) entry                      */
 #define MRTF_RP                 0x0004  /* iif toward RP                    */
 #define MRTF_NEW                0x0008  /* new created routing entry        */
+#define MRTF_1ST		0x0010	/* first hop entry		    */
 #define MRTF_IIF_REGISTER   	0x0020  /* ???                              */
 #define MRTF_REGISTER       	0x0080  /* ???                              */ 
 #define MRTF_KERNEL_CACHE   	0x0200  /* a mirror for the kernel cache    */ 
@@ -196,6 +197,13 @@ typedef struct rp_grp_entry {
 						 */
 	
 	u_int8			priority;	/* The RP priority */
+	u_int8			origin;		/* 
+						 * Where it's learned from
+						 * (smaller one is preferred) 
+						 */
+#define	RP_ORIGIN_STATIC 0
+#define	RP_ORIGIN_BSR    1
+
 	grp_mask_t 		*group;		/* Pointer to (group,mask) entry  */
 	cand_rp_t 		*rp;		/* Pointer to the RP */
 } rp_grp_entry_t;

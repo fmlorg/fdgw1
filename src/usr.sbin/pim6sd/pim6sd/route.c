@@ -1,4 +1,4 @@
-/*	$KAME: route.c,v 1.19 2002/02/22 15:18:53 suz Exp $	*/
+/*	$KAME: route.c,v 1.27 2003/09/02 09:48:45 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -47,6 +47,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/route.h>
@@ -198,8 +199,7 @@ set_incoming(srcentry_ptr, srctype)
 	{
 	    /* couldn't find a route */
 	    IF_DEBUG(DEBUG_PIM_MRT | DEBUG_RPF)
-		log(LOG_DEBUG, 0, "NO ROUTE found for %s",
-		    inet6_fmt(&source.sin6_addr));
+		log_msg(LOG_DEBUG, 0, "NO ROUTE found for %s", sa6_fmt(&source));
 	    return (FALSE);
 	}
 	srcentry_ptr->incoming = rpfc.iif;
@@ -233,9 +233,9 @@ set_incoming(srcentry_ptr, srctype)
 	     */
 	    srcentry_ptr->upstream = n;
 	    IF_DEBUG(DEBUG_RPF)
-		log(LOG_DEBUG, 0,
-		    "For src %s, iif is %d, next hop router is %s",
-		    sa6_fmt(&source), srcentry_ptr->incoming,
+		log_msg(LOG_DEBUG, 0,
+		    "For src %s, iif is %s, next hop router is %s",
+		    sa6_fmt(&source), mif_name(srcentry_ptr->incoming),
 		    sa6_fmt(&neighbor_addr));
 	    return (TRUE);
 	}
@@ -251,10 +251,10 @@ set_incoming(srcentry_ptr, srctype)
 	for (pa = n->aux_addrs; pa; pa = pa->pa_next) {
 	    if (inet6_equal(&neighbor_addr, &pa->pa_addr)) {
 		IF_DEBUG(DEBUG_RPF)
-		    log(LOG_DEBUG, 0,
-			"For src %s, iif is %d, next hop router is %s"
+		    log_msg(LOG_DEBUG, 0,
+			"For src %s, iif is %s, next hop router is %s"
 			" (aux_addr match)",
-			sa6_fmt(&source), srcentry_ptr->incoming,
+			sa6_fmt(&source), mif_name(srcentry_ptr->incoming),
 			sa6_fmt(&neighbor_addr));
 
 		srcentry_ptr->upstream = n;
@@ -264,10 +264,10 @@ set_incoming(srcentry_ptr, srctype)
     }
 
     /* TODO: control the number of messages! */
-    log(LOG_INFO, 0,
-	"For src %s, iif is %d, next hop router is %s: NOT A PIM ROUTER",
-	inet6_fmt(&source.sin6_addr), srcentry_ptr->incoming,
-	inet6_fmt(&neighbor_addr.sin6_addr));
+    log_msg(LOG_INFO, 0,
+	"For src %s, iif is %s, next hop router is %s: NOT A PIM ROUTER",
+	sa6_fmt(&source), mif_name(srcentry_ptr->incoming),
+	sa6_fmt(&neighbor_addr));
 
     srcentry_ptr->upstream = (pim_nbr_entry_t *) NULL;
 
@@ -296,7 +296,7 @@ add_leaf(vifi, source, group)
 	     * I am not the DR on the subnet on which the report is received.
 	     * Ignore the report.
 	     */
-	    log(LOG_DEBUG, 0, "I'm not the DR on mif %d. Ignore a report.\n",
+	    log_msg(LOG_DEBUG, 0, "I'm not the DR on mif %d. Ignore a report.\n",
 		vifi);
 	    return;
     }
@@ -307,9 +307,9 @@ add_leaf(vifi, source, group)
      * the source have to be specified => mldv2_proto  
      */
     if (SSMGROUP(group)) {
-	log(LOG_DEBUG, 0, "Hmmm this is an SSM group...");
+	log_msg(LOG_DEBUG, 0, "Hmmm this is an SSM group...");
 	if (source == NULL) {
-	    log(LOG_DEBUG, 0,
+	    log_msg(LOG_DEBUG, 0,
 		"Sorry,the source is unspecified,will not forward");
 	    return;
 	}
@@ -322,8 +322,7 @@ add_leaf(vifi, source, group)
 	return;
 
     IF_DEBUG(DEBUG_MRT)
-	log(LOG_DEBUG, 0, "Adding vif %d for group %s", vifi,
-	    inet6_fmt(&group->sin6_addr));
+	log_msg(LOG_DEBUG, 0, "Adding vif %d for group %s", vifi, sa6_fmt(group));
 
     if (IF_ISSET(vifi, &mrtentry_ptr->leaves))
 	return;			/* Already a leaf */
@@ -382,9 +381,9 @@ delete_leaf(vifi, source, group)
      */
 
     if (SSMGROUP(group)) {
-	log(LOG_DEBUG, 0, "Hey! this is an SSM group...");
+	log_msg(LOG_DEBUG, 0, "Hey! this is an SSM group...");
 	if (source == NULL) {
-	    log(LOG_DEBUG, 0,
+	    log_msg(LOG_DEBUG, 0,
 		"Sorry,the source is unspecified,delete leaf wrong call");
 	    return;
 	}
@@ -456,9 +455,12 @@ calc_oifs(mrtentry_ptr, oifs_ptr)
 
     /*
      * oifs = (((copied_outgoing + my_join) - my_prune) + my_leaves) -
-     * my_asserted_oifs - incoming_interface, i.e. `leaves` have higher
-     * priority than `prunes`, but lower priority than `asserted`. The
-     * incoming interface is always deleted from the oifs
+     * my_asserted_oifs, i.e. `leaves` have higher priority than `prunes`,
+     * but lower priority than `asserted`.
+     * The incoming interface will be deleted in k_chg_mfc() when
+     * routing entries are installed into kernel. (see 
+     * draft-ietf-pim-sm-v2-new-05.txt section 4.2 and the definitions of
+     * *_olist() macros.
      */
 
     if (mrtentry_ptr == (mrtentry_t *) NULL)
@@ -504,7 +506,6 @@ bypass_oif_inheritance:
     IF_MERGE(&oifs, &mrtentry_ptr->leaves, &oifs);
     IF_CLR_MASK(&oifs, &mrtentry_ptr->asserted_oifs);
 
-    IF_CLR(mrtentry_ptr->incoming, &oifs);
     IF_COPY(&oifs, oifs_ptr);
 }
 
@@ -542,8 +543,8 @@ change_interfaces(mrtentry_ptr, new_iif, new_joined_oifs_, new_pruned_oifs,
     rp_grp_entry_t *rp_grp_entry_ptr;
     grpentry_t     *grpentry_ptr;
     mrtentry_t     *mrtentry_srcs;
-    mrtentry_t     *mrtentry_wc;
-    mrtentry_t     *mrtentry_rp;
+    mrtentry_t     *mrtentry_wc = NULL;
+    mrtentry_t     *mrtentry_rp = NULL;
     int             delete_mrtentry_flag;
     int             return_value;
     int             fire_timer_flag;
@@ -922,7 +923,7 @@ process_kernel_call()
 	break;
     default:
 	IF_DEBUG(DEBUG_KERN)
-	    log(LOG_DEBUG, 0, "Unknown kernel_call code");
+	    log_msg(LOG_DEBUG, 0, "Unknown kernel_call code");
 	break;
     }
 }
@@ -963,14 +964,14 @@ process_cache_miss(im)
     if(SSMGROUP(&group))
     {
 	IF_DEBUG(DEBUG_MFC)
-		log(LOG_DEBUG,0,"SSM Cache miss src %s dst %s, iif %d",
-	    inet6_fmt(&source.sin6_addr), inet6_fmt(&group.sin6_addr), iif);
+		log_msg(LOG_DEBUG,0,"SSM Cache miss src %s dst %s, iif %d",
+	    sa6_fmt(&source), sa6_fmt(&group), iif);
 	return;
     }
 
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "Cache miss, src %s, dst %s, iif %d",
-	    inet6_fmt(&source.sin6_addr), inet6_fmt(&group.sin6_addr), iif);
+	log_msg(LOG_DEBUG, 0, "Cache miss, src %s, dst %s, iif %d",
+	    sa6_fmt(&source), sa6_fmt(&group), iif);
 
     /*
      * TODO: XXX: check whether the kernel generates cache miss for the LAN
@@ -991,7 +992,7 @@ process_cache_miss(im)
     if ((uvifs[iif].uv_flags & VIFF_DR)
 	&& (find_vif_direct_local(&source) == iif))
     {
-	mrtentry_ptr = find_route(&source, &group, MRTF_SG, CREATE);
+	mrtentry_ptr = find_route(&source, &group, MRTF_SG | MRTF_1ST, CREATE);
 	if (mrtentry_ptr == (mrtentry_t *) NULL)
 	{
 	    goto fail;
@@ -1142,8 +1143,8 @@ process_wrong_iif(im)
 
     /* Don't create routing entries for the LAN scoped addresses */
     if (IN6_IS_ADDR_MC_NODELOCAL(&group.sin6_addr) ||/* sanity? */
-    IN6_IS_ADDR_MC_LINKLOCAL(&group.sin6_addr))
-    return;
+	IN6_IS_ADDR_MC_LINKLOCAL(&group.sin6_addr))
+	return;
 
 
     /*

@@ -15,7 +15,7 @@ DDEESSCCRRIIPPTTIIOONN
 
      --cc _c_o_n_f_i_g_f_i_l_e
              Specify alternate location, _c_o_n_f_i_g_f_i_l_e, for configuration file.
-             By default, _/_u_s_r_/_l_o_c_a_l_/_v_6_/_e_t_c_/_p_i_m_6_s_d_._c_o_n_f is used.
+             By default, _/_e_t_c_/_p_i_m_6_s_d_._c_o_n_f is used.
 
      --dd      Specify debug levels. If this option is specified without any ar-
              guments, all debug messages will be printed out.  A subset of the
@@ -37,13 +37,13 @@ DDEESSCCRRIIPPTTIIOONN
      ble interfaces, i.e., interfaces that have the IFF_MULTICAST flag set
      (excluding the "loopback interface" and interaces that do not have an
      IPv6 address).  To override the default configuration, configuration com-
-     mands may be placed in _/_u_s_r_/_l_o_c_a_l_/_v_6_/_e_t_c_/_p_i_m_6_s_d_._c_o_n_f (or an alternative
-     file, specified by the `--cc' option).  If the multicast group address is
-     within SSM-range (ff20::/12 and ff30::/12), ppiimm66ssdd will behaves as an SSM
-     routing daemon; speaking MLDv2 toward hosts and uses only Shortest Path
-     Tree for these multicast addresses.  Note that ppiimm66ssdd ignores interfaces
-     that do not have an IPv6 address.  Such interfaces should not appear in
-     the configuration file.
+     mands may be placed in _/_e_t_c_/_p_i_m_6_s_d_._c_o_n_f (or an alternative file,
+     specified by the `--cc' option).  If the multicast group address is within
+     SSM-range (ff20::/12 and ff30::/12), ppiimm66ssdd will behaves as an SSM rout-
+     ing daemon; speaking MLDv2 toward hosts and uses only Shortest Path Tree
+     for these multicast addresses.  Note that ppiimm66ssdd ignores interfaces that
+     do not have an IPv6 address.  Such interfaces should not appear in the
+     configuration file.
 
      The ppiimm66ssdd program dumps its current routing information to a dump file
      when it receives a SIGUSR1 signal.  The information includes a list of
@@ -59,12 +59,13 @@ DDEESSCCRRIIPPTTIIOONN
      line option or the configuration file.
 
 FFIILLEESS
-     /usr/local/v6/etc/pim6sd.conf  The default configuration file.
-     /var/run/pim6sd.dump           The file to which ppiimm66ssdd dumps its inter-
-                                    nal status.
-     /var/run/pim6sd.stat           The file to which ppiimm66ssdd dumps its inter-
-                                    nal statistics.
-     /var/log/pim6sd.log            The pim6sd specific log file.
+     /etc/pim6sd.conf  The default configuration file.
+     /var/run/pim6sd.dump
+                       The file to which ppiimm66ssdd dumps its internal status.
+     /var/run/pim6sd.stat
+                       The file to which ppiimm66ssdd dumps its internal statistics.
+     /var/log/pim6sd.log
+                       The pim6sd specific log file.
 
 SSEEEE AALLSSOO
      daemon(3), pim6sd.conf(5)
@@ -88,5 +89,8 @@ BBUUGGSS
 
      ppiimm66ssdd requires the node running the daemon to have an IPv6 global ad-
      dress.
+
+     ppiimm66ssdd does not work properly when interface is dynamically added or
+     deleted (e.g. ifconfig gif0 create).
 
  KAME                            June 10, 1999                               2

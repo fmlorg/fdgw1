@@ -1,4 +1,4 @@
-#	$KAME: Makefile,v 1.13 2002/04/03 05:32:18 itojun Exp $
+#	$KAME: Makefile,v 1.16 2003/09/23 11:09:10 itojun Exp $
 #
 # Copyright (c) 1999 WIDE Project. All rights reserved.
 #
@@ -87,8 +87,7 @@ SRCS=	mld6.c mld6_proto.c\
 	inet6.c kern.c main.c config.c debug.c routesock.c vers.c callout.c\
 	route.c vif.c timer.c mrt.c pim6.c pim6_proto.c rp.c crc.c trace.c\
 	cfparse.y cftoken.l
-CLEANFILES+= lex.yy.c y.tab.c y.tab.h
-YFLAGS+=-d
+CLEANFILES+= lex.yy.c y.tab.c y.tab.h cfparse.h
 
 .if (${OPSYS} == "BSD/OS")
 CC=	gcc
@@ -97,9 +96,9 @@ CC=	gcc
 CFLAGS+=-Wall
 .endif
 .if (${OPSYS} != "NetBSD")
-CFLAGS+=-DINET6 -DPIM -DIOCTL_OK_ON_RAW_SOCKET -DHAVE_GETIFADDRS
+CFLAGS+=-DINET6 -DPIM -DIOCTL_OK_ON_RAW_SOCKET
 .else
-CPPFLAGS+=-DINET6 -DPIM -DIOCTL_OK_ON_RAW_SOCKET -DHAVE_GETIFADDRS
+CPPFLAGS+=-DINET6 -DPIM -DIOCTL_OK_ON_RAW_SOCKET
 .endif
 CFLAGS+=-g
 .if exists(/usr/local/v6/lib/libinet6.a)
@@ -119,11 +118,11 @@ YFLAGS+=-d
 
 CLEANFILES+=	y.tab.h cfparse.h
 
-.if (${OPSYS} != "NetBSD")
+.if (${OPSYS} == "NetBSD") || (${OPSYS} == "OpenBSD")
+MAN=	pim6sd.8 pim6sd.conf.5
+.else
 MAN5=	pim6sd.conf.5
 MAN8=	pim6sd.8
-.else
-MAN=	pim6sd.8 pim6sd.conf.5
 .endif
 
 realinstall:

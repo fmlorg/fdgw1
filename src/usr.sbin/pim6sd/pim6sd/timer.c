@@ -1,4 +1,4 @@
-/*	$KAME: timer.c,v 1.19 2002/04/03 02:47:04 itojun Exp $	*/
+/*	$KAME: timer.c,v 1.22 2003/09/02 09:48:46 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -235,16 +235,13 @@ age_vifs()
 		v->uv_querier_timo++; /* count statistics */
 
 		/* send gen. query, start gen. q timer */
-		switch(v->uv_mld_version) {
-		case MLDv1:
-			query_groups(v);
-			break;
 #ifdef MLDV2_LISTENER_REPORT
-		case MLDv2:
+		if (v->uv_mld_version & MLDv2)
 			query_groupsV2(v);
-			break;
+		else
 #endif
-		}
+		if (v->uv_mld_version & MLDv1)
+			query_groups(v);
 
 		/* act as a querier by myself */
 		v->uv_flags |= VIFF_QUERIER;
@@ -256,16 +253,13 @@ age_vifs()
 		/* We are in Querier state */
 		/* MLD6 query periodic */
 		IF_TIMEOUT(v->uv_gq_timer) {
-			switch(v->uv_mld_version) {
-			case 1:
-				query_groups(v);
-				break;
 #ifdef MLDV2_LISTENER_REPORT
-			case 2:
+			if (v->uv_mld_version & MLDv2)
 				query_groupsV2(v);
-				break;
+			else
 #endif
-			}
+			if (v->uv_mld_version & MLDv1)
+				query_groups(v);
 		}
 	}
 
@@ -289,9 +283,9 @@ age_vifs()
 
 	    v->uv_pim6_nbr_timo++;
 	    IF_DEBUG(DEBUG_PIM_HELLO)
-		log(LOG_DEBUG, 0,
+		log_msg(LOG_DEBUG, 0,
 		    "%s on %s is dead , delete it",
-		    inet6_fmt(&curr_nbr->address.sin6_addr),
+		    sa6_fmt(&curr_nbr->address),
 		    uvifs[curr_nbr->vifi].uv_name);
 	    delete_pim6_nbr(curr_nbr);
 	}
@@ -615,13 +609,13 @@ age_routes()
 	    {
 
 		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-			log(LOG_DEBUG,0,"Join/Prune timer expired");
+			log_msg(LOG_DEBUG,0,"Join/Prune timer expired");
 
 		rp_action = join_or_prune(mrtentry_rp,
 					  mrtentry_rp->upstream);
 
 		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-			log(LOG_DEBUG,0,"rp_action = %d",rp_action);
+			log_msg(LOG_DEBUG,0,"rp_action = %d",rp_action);
 
 		if (rp_action != PIM_ACTION_NOTHING)
 		    add_jp_entry(mrtentry_rp->upstream,
@@ -820,14 +814,14 @@ age_routes()
 		    IF_TIMEOUT(mrtentry_grp->jp_timer)
 		    {
 			IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-				log(LOG_DEBUG,0,"Join/Prune timer expired");
+				log_msg(LOG_DEBUG,0,"Join/Prune timer expired");
 
 			if (dont_calc_action != TRUE)
 			    grp_action = join_or_prune(mrtentry_grp,
 						    mrtentry_grp->upstream);
 
 			IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-				log(LOG_DEBUG,0,"grp_action = %d",grp_action);
+				log_msg(LOG_DEBUG,0,"grp_action = %d",grp_action);
 
 			if (grp_action != PIM_ACTION_NOTHING)
 			{
@@ -1081,7 +1075,7 @@ age_routes()
 			    src_action = join_or_prune(mrtentry_srcs,
 						   mrtentry_srcs->upstream);
 			IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-				log(LOG_DEBUG,0,"src_action = %d",src_action);
+				log_msg(LOG_DEBUG,0,"src_action = %d",src_action);
 
 			if (src_action != PIM_ACTION_NOTHING)
 			    add_jp_entry(mrtentry_srcs->upstream,
@@ -1114,7 +1108,7 @@ age_routes()
 				if (src_action_rp == PIM_ACTION_PRUNE)
 				{
 					IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-						log(LOG_DEBUG,0,"src_action = %d",src_action);
+						log_msg(LOG_DEBUG,0,"src_action = %d",src_action);
 				    add_jp_entry(mrtentry_wide->upstream,
 						 pim_join_prune_holdtime,
 						 &mrtentry_srcs->group->group,
@@ -1317,7 +1311,7 @@ age_routes()
 		    src_action = join_or_prune(mrtentry_srcs,
 					       mrtentry_srcs->
 					       upstream);
-		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE) log(LOG_DEBUG, 0,
+		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE) log_msg(LOG_DEBUG, 0,
 						   "SSM src_action = %d",
 						   src_action);
 

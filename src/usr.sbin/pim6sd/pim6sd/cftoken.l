@@ -1,4 +1,4 @@
-/*	$KAME: cftoken.l,v 1.11 2002/04/03 05:32:18 itojun Exp $	*/
+/*	$KAME: cftoken.l,v 1.19 2003/04/30 05:09:01 suz Exp $	*/
 
 %{
 /*
@@ -31,6 +31,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/param.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -85,6 +86,7 @@ slash		\/
 %s S_LOG
 %s S_PHYINT S_IFCONF S_CANDRP S_CANDBSR S_PREFIX
 %s S_THRES
+%s S_STATICRP
 
 %%
 %{
@@ -527,6 +529,7 @@ slash		\/
 }
 <S_PHYINT>{semi} { yyerror("phyint was specified without interface."); return(EOS); }
 <S_IFCONF>disable { YYD_ECHO; return(DISABLE); }
+<S_IFCONF>enable { YYD_ECHO; return(ENABLE); }
 <S_IFCONF>preference { YYD_ECHO; return(PREFERENCE); }
 <S_IFCONF>metric { YYD_ECHO; return(METRIC); }
 <S_IFCONF>robustness { YYD_ECHO; return(ROBUST); }
@@ -535,6 +538,7 @@ slash		\/
 <S_IFCONF>llqi { YYD_ECHO; return(LLQI); }
 <S_IFCONF>mld_version { YYD_ECHO; return(MLD_VERSION); }
 <S_IFCONF>nolistener { YYD_ECHO; return(NOLISTENER); }
+<S_IFCONF>any { YYD_ECHO; return(ANY); }
 <S_IFCONF>{semi} { DP("end phyint"); BEGIN S_CNF; return(EOS); }
 
 	/* cand_rp */
@@ -577,6 +581,11 @@ slash		\/
 <S_THRES>interval { YYD_ECHO; return(INTERVAL); }
 <S_THRES>{semi} { DP("end thres"); BEGIN S_CNF; return(EOS); }
 
+	/* static_rp */
+<S_CNF>static_rp { YYD_ECHO; BEGIN S_STATICRP; return(STATICRP); }
+<S_STATICRP>priority { YYD_ECHO; return(PRIORITY); }
+<S_STATICRP>{semi} { DP("end static_rp"); BEGIN S_CNF; return(EOS); }
+
 	/* various parameters */
 <S_CNF>default_source_metric { YYD_ECHO; return(SRCMETRIC); }
 <S_CNF>default_source_preference { YYD_ECHO; return(SRCPREF); }
@@ -587,6 +596,9 @@ slash		\/
 <S_CNF>register_suppression_timeout { YYD_ECHO; return(REGSUPTIME); }
 <S_CNF>probe_time { YYD_ECHO; return(PROBETIME); }
 <S_CNF>assert_timeout { YYD_ECHO; return(ASSERTTIME); }
+<S_CNF>default_phyint_status { YYD_ECHO; return(DEFVIFSTAT); }
+<S_CNF>disable { YYD_ECHO; return(DISABLE); }
+<S_CNF>enable { YYD_ECHO; return(ENABLE); }
 
 	/* misc */
 {ws}		{ ; }
@@ -662,6 +674,7 @@ cfparse(strict, debugonly)
 	cf_init(strict, debugonly);
 
 	if ((yyparse() || yyerrorcount) && strict) {
+		fclose(yyin);
 		if (yyerrorcount) {
 			yyerror("fatal parse failure: exiting (%d errors)",
 				yyerrorcount);
@@ -670,6 +683,7 @@ cfparse(strict, debugonly)
 		return(-1);
 	}
 
+	fclose(yyin);
 	YIPSDP(PLOG("parse successed.\n"));
 
 	return cf_post_config();

@@ -1,4 +1,4 @@
-/*	$KAME: debug.c,v 1.50 2002/04/03 02:47:04 itojun Exp $	*/
+/*	$KAME: debug.c,v 1.59 2003/09/02 09:48:45 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -66,6 +66,7 @@
 #include <netinet6/ip6_mroute.h>
 #include <netinet6/pim6.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <errno.h>
 #include "defs.h"
@@ -77,6 +78,7 @@
 #include "rp.h"
 #include "inet6.h"
 #include "mld6.h"
+#include "mld6v2_proto.h"
 
 #ifdef __STDC__
 #include <stdarg.h>
@@ -310,6 +312,7 @@ fdump(i)
 	dump_vifs(fp);
 	dump_nbrs(fp);
 	dump_mldqueriers(fp);
+	dump_mldgroups(fp);
 	dump_pim_mrt(fp);
 	dump_rp_set(fp);
 	(void) fclose(fp);
@@ -345,7 +348,7 @@ dump_stat()
 
 	fp = fopen(statfilename, "w");
 	if (fp == NULL) {
-		log(LOG_WARNING, errno, "dump_stat: can't open file(%s)",
+		log_msg(LOG_WARNING, errno, "dump_stat: can't open file(%s)",
 		    statfilename);
 		return;
 	}
@@ -509,10 +512,14 @@ dump_vifs(fp)
 	}
 
 	fprintf(fp, "  %3s %6s ", "", "");
-	fprintf(fp, "Timers: PIM hello = %d:%02d, MLD query = %d:%02d,  MLD version = %d\n",
+	fprintf(fp, "Timers: PIM hello = %d:%02d, MLD query = %d:%02d\n",
 		v->uv_pim_hello_timer / 60, v->uv_pim_hello_timer % 60,
-		v->uv_gq_timer / 60, v->uv_gq_timer % 60,
-		v->uv_mld_version);
+		v->uv_gq_timer / 60, v->uv_gq_timer % 60);
+
+	fprintf(fp, "  %3s %6s ", "", "");
+	fprintf(fp, "possible MLD version = %s%s\n",
+		v->uv_mld_version & MLDv1 ? "1 " : "",
+		v->uv_mld_version & MLDv2 ? "2 " : "");
     }
     fprintf(fp, "\n");
 }
@@ -585,6 +592,39 @@ dump_mldqueriers(fp)
 	fprintf(fp, "\n");
 } 
 
+void
+dump_mldgroups(fp)
+	FILE *fp;
+{
+	struct uvif *v;
+	mifi_t vifi;
+	struct listaddr *grp, *src;
+
+	fprintf(fp, "Reported MLD Group\n");
+	fprintf(fp, " %-3s %6s %-40s\n", "Mif", "PhyIF", "Group/Source");
+
+	for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
+		for (grp = v->uv_groups; grp; grp = grp->al_next) {
+			fprintf(fp, " %-3u %6s %-40s\n", vifi,
+				(v->uv_flags & MIFF_REGISTER) ? 
+				    "regist" : v->uv_name,
+				sa6_fmt(&grp->al_addr));
+
+			src = grp->sources;
+			if (src == NULL) {
+				fprintf(fp, " %-3s %6s   %-40s\n", "", "",
+					"(any source)");
+				continue;
+			}
+			for ( ; src; src = src->al_next) {
+				fprintf(fp, " %-3s %6s   %-40s\n", "", "",
+					sa6_fmt(&src->al_addr));
+			}
+		}
+	}
+	fprintf(fp, "\n");
+} 
+
 /*
  * Log errors and other messages to the system log daemon and to stderr,
  * according to the severity of the message and the current debug level. For
@@ -592,7 +632,7 @@ dump_mldqueriers(fp)
  */
 #ifdef __STDC__
 void
-log(int severity, int syserr, char *format, ...)
+log_msg(int severity, int syserr, char *format, ...)
 {
     va_list         ap;
     static char     fmt[211] = "warning - ";
@@ -604,7 +644,7 @@ log(int severity, int syserr, char *format, ...)
 #else
 /* VARARGS3 */
 void
-log(severity, syserr, format, va_alist)
+log_msg(severity, syserr, format, va_alist)
     int             severity,
                     syserr;
     char           *format;
@@ -713,9 +753,9 @@ dump_pim_mrt(fp)
 	    /* Print the (*,G) routing info */
 	    fprintf(fp, "---------------------------(*,G)----------------------------\n");
 	    fprintf(fp, " %-15s", "IN6ADDR_ANY");
-	    fprintf(fp, " %-15s", inet6_fmt(&g->group.sin6_addr));
+	    fprintf(fp, " %-15s", sa6_fmt(&g->group));
 	    fprintf(fp, " %-15s",
-	    g->active_rp_grp ? inet6_fmt(&g->rpaddr.sin6_addr) : "NULL");
+	    g->active_rp_grp ? sa6_fmt(&g->rpaddr) : "NULL");
 
 	    for (vifi = 0; vifi < numvifs; vifi++)
 	    {
@@ -746,6 +786,8 @@ dump_pim_mrt(fp)
 		fprintf(fp, " WC");
 	    if (r->flags & MRTF_RP)
 		fprintf(fp, " RP");
+	    if (r->flags & MRTF_1ST)
+		fprintf(fp, " 1ST");
 	    if (r->flags & MRTF_REGISTER)
 		fprintf(fp, " REG");
 	    if (r->flags & MRTF_IIF_REGISTER)
@@ -772,7 +814,7 @@ dump_pim_mrt(fp)
 	    fprintf(fp, "Incoming     : %-20s\n", incoming_iif);
 	
 	    fprintf(fp, "Upstream nbr: %s\n",
-		    r->upstream ? inet6_fmt(&r->upstream->address.sin6_addr) : "NONE");
+		    r->upstream ? sa6_fmt(&r->upstream->address) : "NONE");
 
 	    fprintf(fp, "\nTIMERS: Entry=%d JP=%d RS=%d Assert=%d\n",
 		    r->timer, r->jp_timer, r->rs_timer, r->assert_timer);
@@ -797,10 +839,10 @@ dump_pim_mrt(fp)
 		number_of_cache_mirrors++;
 
 	    /* Print the routing info */
-	    fprintf(fp, " %-15s", inet6_fmt(&r->source->address.sin6_addr));
-	    fprintf(fp, " %-15s", inet6_fmt(&g->group.sin6_addr));
+	    fprintf(fp, " %-15s", sa6_fmt(&r->source->address));
+	    fprintf(fp, " %-15s", sa6_fmt(&g->group));
 	    fprintf(fp, " %-15s",
-	       g->active_rp_grp ? inet6_fmt(&g->rpaddr.sin6_addr) : "NULL");
+	       g->active_rp_grp ? sa6_fmt(&g->rpaddr) : "NULL");
 
 	    for (vifi = 0; vifi < numvifs; vifi++)
 	    {
@@ -857,7 +899,7 @@ dump_pim_mrt(fp)
 	    fprintf(fp, "Incoming     : %-20s\n", incoming_iif);
 
 	    fprintf(fp, "Upstream nbr: %s\n",
-		    r->upstream ? inet6_fmt(&r->upstream->address.sin6_addr) : "NONE");
+		    r->upstream ? sa6_fmt(&r->upstream->address) : "NONE");
 
 	    fprintf(fp, "\nTIMERS: Entry=%d JP=%d RS=%d Assert=%d\n",
 		    r->timer, r->jp_timer, r->rs_timer, r->assert_timer);
@@ -889,7 +931,7 @@ dump_pim_mrt(fp)
 	    }
 
 	    /* Print the (*,*,RP) routing info */
-	    fprintf(fp, " RP = %-15s", inet6_fmt(&r->source->address.sin6_addr));
+	    fprintf(fp, " RP = %-15s", sa6_fmt(&r->source->address));
 	    fprintf(fp, " %-15s", "IN6ADDR_ANY");
 
 	    for (vifi = 0; vifi < numvifs; vifi++)
@@ -966,7 +1008,6 @@ dump_pim_mrt(fp)
 }
 
 
-/* TODO: modify the output for better redability */
 /*
  * Dumps the local Cand-RP-set
  */
@@ -977,58 +1018,48 @@ dump_rp_set(fp)
     cand_rp_t      *rp;
     rp_grp_entry_t *rp_grp_entry;
     grp_mask_t     *grp_mask;
-    int print_upstream;
 
     fprintf(fp, "---------------------------RP-Set----------------------------\n");
     fprintf(fp, "Current BSR address: %s Prio: %d Timeout: %d\n",
-	    inet6_fmt(&curr_bsr_address.sin6_addr), curr_bsr_priority,
+	    sa6_fmt(&curr_bsr_address), curr_bsr_priority,
 	    pim_bootstrap_timer);
-    fprintf(fp, "%-40s %-3s Group prefix     Prio Hold Age\n",
-	    "RP-address/Upstream", "IN");
+    fprintf(fp, "%-45s Prio Hold Age\n", "RP-address(Upstream)/Group prefix");
 
     for (rp = cand_rp_list; rp != (cand_rp_t *) NULL; rp = rp->next)
     {
-	char *upstream_str;
-
-	print_upstream = 0;
-
-	fprintf(fp, "%-40s %-3d ",
-		inet6_fmt(&rp->rpentry->address.sin6_addr),
-		rp->rpentry->incoming);
-	if ((rp_grp_entry = rp->rp_grp_next) != (rp_grp_entry_t *) NULL)
-	{
-	    grp_mask = rp_grp_entry->group;
-	    fprintf(fp, "%-16.16s %-4u %-4u %-3u\n",
-		    net6name(&grp_mask->group_addr.sin6_addr,
-			     &grp_mask->group_mask),
-		    rp_grp_entry->priority, rp_grp_entry->advholdtime,
-		    rp_grp_entry->holdtime);
-
-	    if (rp->rpentry->upstream != NULL)
-		upstream_str = sa6_fmt(&rp->rpentry->upstream->address);
-	    else
-		upstream_str = "(none)";
-
-	    for (rp_grp_entry = rp_grp_entry->rp_grp_next;
-		 rp_grp_entry != (rp_grp_entry_t *) NULL;
-		 rp_grp_entry = rp_grp_entry->rp_grp_next)
-	    {
-		grp_mask = rp_grp_entry->group;
-		/* XXX: hardcoding */
-		if (print_upstream == 0) {
-		    fprintf(fp, "  %-38s", upstream_str);
-		    print_upstream = 1;
+	if (rp->rpentry->upstream != NULL) {
+		fprintf(fp, "%s(%s%%%s)\n",
+			sa6_fmt(&rp->rpentry->address),
+			sa6_fmt(&rp->rpentry->upstream->address),
+			uvifs[rp->rpentry->incoming].uv_name);
+	} else {
+		if (local_address(&rp->rpentry->address) != NO_VIF) {
+			fprintf(fp, "%s(myself)\n",
+				sa6_fmt(&rp->rpentry->address));
+		} else {
+			fprintf(fp, "%s(none)\n", sa6_fmt(&rp->rpentry->address));
 		}
-		else
-		    fprintf(fp, "  %38s", "");
-		fprintf(fp, "%4s %-16.16s %-4u %-4u %-3u\n", "",
-			net6name(&grp_mask->group_addr.sin6_addr,
-				 &grp_mask->group_mask),
-			rp_grp_entry->priority,
-			rp_grp_entry->advholdtime, rp_grp_entry->holdtime);
-	    }
-	    if (print_upstream == 0)
-		fprintf(fp, "  %-38s\n", upstream_str);
+	}
+
+	if ((rp_grp_entry = rp->rp_grp_next) == NULL)
+		continue;
+
+	grp_mask = rp_grp_entry->group;
+	fprintf(fp, "%4s %-40s %-4u %-4u %-3u\n", "",
+		net6name(&grp_mask->group_addr.sin6_addr,
+			 &grp_mask->group_mask),
+		rp_grp_entry->priority, rp_grp_entry->advholdtime,
+		rp_grp_entry->holdtime);
+
+	for (rp_grp_entry = rp_grp_entry->rp_grp_next;
+	     rp_grp_entry != (rp_grp_entry_t *) NULL;
+	     rp_grp_entry = rp_grp_entry->rp_grp_next) {
+	    grp_mask = rp_grp_entry->group;
+	    /* XXX: hardcoding */
+	    fprintf(fp, "%4s %-40s %-4u %-4u %-3u\n", "",
+		    net6name(&grp_mask->group_addr.sin6_addr,
+			     &grp_mask->group_mask), rp_grp_entry->priority,
+			    rp_grp_entry->advholdtime, rp_grp_entry->holdtime);
 	}
     }
     return (TRUE);

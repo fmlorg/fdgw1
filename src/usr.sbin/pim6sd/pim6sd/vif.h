@@ -1,4 +1,4 @@
-/*	$KAME: vif.h,v 1.18 2001/11/27 07:23:29 suz Exp $	*/
+/*	$KAME: vif.h,v 1.25 2003/01/22 06:47:02 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -59,6 +59,7 @@
 #define VIF_H
 
 extern int total_interfaces;
+extern int default_vif_status;
 extern int udp_socket;
 extern struct uvif uvifs[];
 extern mifi_t numvifs;
@@ -76,6 +77,8 @@ extern mifi_t reg_vif_num;
 #define VIFF_NONBRS		0x080000
 #define VIFF_PIM_NBR            0x200000
 #define VIFF_POINT_TO_POINT	0x400000	
+#define VIFF_NOLISTENER         0x800000       /* no listener on the link   */
+#define VIFF_ENABLED       	0x1000000
 #define NBRTYPE 		u_long
 #define NBRBITS			sizeof(NBRTYPE) *8
 
@@ -126,13 +129,18 @@ struct listaddr {
 	struct sockaddr_in6 al_addr; /* local group or neighbor address */
 	struct listaddr *sources; /* list of sources for this group */
 
-	/* al_timer is not used in PIM-SSM; the source timer is used */
-	u_long al_timer; /* for timing out group or neighbor */
+	/* 
+	 * al_timer is used for many purposes.
+	 *	- last-listener-query timer (MLDv1)
+	 *	- old-listener-present timer (MLDv2)
+	 *	- PIM neighboring timeout (PIM)
+	 */
+	u_long al_timer;
 	time_t al_ctime; /* entry creation time */
 
 	/* filter_mode is not used in PIM-SSM, because it is always INCLUDE */
 	u_int16 filter_mode; /* filter mode for mldv2 */
-	u_int16 comp_mode; /* compatibility mode (not yet) */
+	u_int16 comp_mode; /* compatibility mode */
 	union {
 		u_int32 alu_genid; /* generation id for neighbor */
 		/* a host which reported membership */
@@ -192,6 +200,7 @@ struct uvif {
 	u_int16 uv_pim_hello_timer; /* timer for sending PIM hello msgs  */
 	u_int16	uv_gq_timer;	/* Group Query timer                    */
 	u_int16	uv_jp_timer;	/* Join/Prune timer 			*/	
+	u_int16 uv_stquery_cnt;	/* Startup Query Count */
 	u_int16 uv_mld_version;	/* mld version of this mif */
 	u_int16 uv_mld_robustness; /* robustness variable of this vif (mld6 protocol) */
 	u_int32 uv_mld_query_interval; /* query interval of this vif (mld6 protocol) */
@@ -235,13 +244,13 @@ struct uvif {
 struct phaddr {
 	struct phaddr 			*pa_next;
 	struct sockaddr_in6 	pa_addr;
+	struct sockaddr_in6 	pa_rmt_addr;	/* valid only in case of P2P I/F */
 	struct sockaddr_in6 	pa_prefix;
 	struct in6_addr 		pa_subnetmask;
 };
 
 
 /* The Access Control List (list with scoped addresses) member */
-#define VIFF_NOLISTENER         0x800000       /* no listener on the link   */
 
 struct vif_acl {
 	struct vif_acl 			*acl_next;
@@ -275,5 +284,6 @@ extern mifi_t  find_vif_direct_local   __P((struct sockaddr_in6 *src));
 extern int vif_forwarder __P((if_set *p1 ,if_set *p2));
 extern if_set *vif_and __P((if_set *p1, if_set *p2, if_set *result)); 
 extern if_set *vif_xor __P((if_set *p1, if_set *p2, if_set *result));
-extern struct uvif *find_vif __P((char *ifname));
+extern struct uvif *find_vif __P((char *ifname, int, int));
+extern char *mif_name __P((mifi_t));
 #endif

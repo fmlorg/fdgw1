@@ -1,4 +1,4 @@
-/*	$KAME: vif.c,v 1.24 2002/04/03 02:47:04 itojun Exp $	*/
+/*	$KAME: vif.c,v 1.39 2003/09/02 09:48:46 suz Exp $	*/
 
 /*
  * Copyright (c) 1998-2001
@@ -57,6 +57,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/route.h>
@@ -91,6 +92,7 @@ struct uvif	uvifs[MAXMIFS];	/*the list of virtualsinterfaces */
 mifi_t numvifs;				/*total number of interface */
 int vifs_down;
 mifi_t reg_vif_num;		   /*register interface*/
+int default_vif_status;
 int phys_vif; /* An enabled vif that has a global address */
 int udp_socket;
 int total_interfaces;
@@ -103,6 +105,8 @@ void start_vif __P((mifi_t vifi));
 void stop_vif __P((mifi_t vivi));
 int update_reg_vif __P((mifi_t register_vifi));
 
+extern void add_phaddr __P((struct uvif *, struct sockaddr_in6 *,
+		           struct in6_addr *, struct sockaddr_in6 *));
 extern int cfparse __P((int, int));
 
 void init_vifs()
@@ -124,17 +128,16 @@ void init_vifs()
 	udp_socket = mld6_socket;
 #else
 	if ((udp_socket = socket(AF_INET6, SOCK_DGRAM, 0)) < 0)
-		log(LOG_ERR, errno, "UDP6 socket");
+		log_msg(LOG_ERR, errno, "UDP6 socket");
 #endif
 
 	/* clean all the interfaces ... */
 
-	for(vifi = 0,v=uvifs; vifi < MAXMIFS; ++ vifi, ++v)
-	{
-		memset(v,0,sizeof(*v)); /* everything is zeroed  => NULL , pointer NULL , addrANY ...) */
+	for (vifi = 0, v = uvifs; vifi < MAXMIFS; ++vifi, ++v) {
+		memset(v, 0, sizeof(*v));
 		v->uv_metric = DEFAULT_METRIC;
 		v->uv_rate_limit = DEFAULT_PHY_RATE_LIMIT;
-		strncpy(v->uv_name,"",IFNAMSIZ);
+		strncpy(v->uv_name, "", IFNAMSIZ);
 		v->uv_local_pref = default_source_preference;
 		v->uv_local_metric = default_source_metric;
 		v->uv_mld_version = MLD6_DEFAULT_VERSION;
@@ -144,51 +147,58 @@ void init_vifs()
 		v->uv_mld_llqi = MLD6_DEFAULT_LAST_LISTENER_QUERY_INTERVAL;
 	}
 	IF_DEBUG(DEBUG_IF)
-		log(LOG_DEBUG,0,"Interfaces world initialized...");
+		log_msg(LOG_DEBUG, 0, "Interfaces world initialized...");
 	IF_DEBUG(DEBUG_IF)
-		log(LOG_DEBUG,0,"Getting vifs from kernel");
-	config_vifs_from_kernel();
-	IF_DEBUG(DEBUG_IF)
-		log(LOG_DEBUG,0,"Getting vifs from %s",configfilename);
+		log_msg(LOG_DEBUG, 0, "Getting vifs from %s", configfilename);
 
 	/* read config from file */
 	if (cfparse(1, 0) != 0)
-		log(LOG_ERR, 0, "fatal error in parsing the config file");
+		log_msg(LOG_ERR, 0, "fatal error in parsing the config file");
 
 	enabled_vifs = 0;
 	phys_vif = -1;
 
-	for( vifi = 0, v = uvifs ; vifi < numvifs ; ++ vifi,++v)
-	{
-		if(v->uv_flags & (VIFF_DISABLED | VIFF_DOWN | MIFF_REGISTER))
-			continue;
-		if(v->uv_linklocal == NULL)
-			log(LOG_ERR,0,"there is no link-local address on vif %s",v->uv_name);
-		if (phys_vif == -1) {
-			struct phaddr *p;
+	IF_DEBUG(DEBUG_IF)
+		log_msg(LOG_DEBUG, 0, "Getting vifs from kernel");
+	config_vifs_from_kernel();
 
-			/*
-			 * If this vif has a global address, set its id
-			 * to phys_vif.
-			 */
-			for(p = v->uv_addrs; p; p = p->pa_next) {
-				if (!IN6_IS_ADDR_LINKLOCAL(&p->pa_addr.sin6_addr) &&
-				    !IN6_IS_ADDR_SITELOCAL(&p->pa_addr.sin6_addr)) {
-					phys_vif = vifi;
-					break;
-				}
+	/* IPv6 PIM needs one global unicast address (at least for now) */
+	if (max_global_address() == NULL)
+		log_msg(LOG_ERR, 0, "There's no global address available");
+
+	for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
+		struct phaddr *p;
+		if (v->uv_flags & (VIFF_DISABLED | MIFF_REGISTER))
+			continue;
+
+		enabled_vifs++;
+		if (v->uv_flags & VIFF_DOWN)
+			continue;
+		if (v->uv_linklocal == NULL)
+			log_msg(LOG_ERR, 0,
+			    "there is no link-local address on vif %s",
+			    v->uv_name);
+
+		/* If this vif has a global address, set its id to phys_vif */
+		if (phys_vif != -1)
+			continue;
+		for (p = v->uv_addrs; p; p = p->pa_next) {
+			if (!IN6_IS_ADDR_LINKLOCAL(&p->pa_addr.sin6_addr) &&
+			    !IN6_IS_ADDR_SITELOCAL(&p->pa_addr.sin6_addr)) {
+				phys_vif = vifi;
+				break;
 			}
 		}
-		enabled_vifs++;
 	}
 	if (enabled_vifs < 2)
-		log(LOG_ERR,0,"can't forward: %s",
-		enabled_vifs == 0 ? "no enabled vifs" : "only one enabled vif" );
+		log_msg(LOG_ERR, 0, "can't forward: %s",
+		    enabled_vifs == 0 ? "no enabled vifs" :
+		     "only one enabled vif");
 
-	memset(&if_nullset,0,sizeof(if_nullset));
+	memset(&if_nullset, 0, sizeof(if_nullset));
 	k_init_pim(mld6_socket);	
 	IF_DEBUG(DEBUG_PIM_DETAIL)
-		log(LOG_DEBUG,0,"Pim kernel initialization done");
+		log_msg(LOG_DEBUG, 0, "Pim kernel initialization done");
 
 
 	/* Add a dummy virtual interface to support Registers in the kernel. */
@@ -197,49 +207,49 @@ void init_vifs()
 	start_all_vifs();
 
 }
+
 int init_reg_vif()
 {
 	struct uvif *v;
 	mifi_t i;
 
 	v = &uvifs[numvifs];
-	if (( numvifs+1 ) == MAXMIFS )
-	{
-     /* Exit the program! The PIM router must have a Register vif */
-    log(LOG_ERR, 0,
-        "cannot install the Register vif: too many interfaces");
-    /* To make lint happy */
-    return (FALSE);
+	if ((numvifs + 1) == MAXMIFS) {
+	     /* Exit the program! The PIM router must have a Register vif */
+	    log_msg(LOG_ERR, 0,
+		"cannot install the Register vif: too many interfaces");
+	    /* To make lint happy */
+	    return (FALSE);
 	}
 
-    /*
-     * So far in PIM we need only one register vif and we save its number in
-     * the global reg_vif_num.
-     */
+	/*
+	 * So far in PIM we need only one register vif and we save its number in
+	 * the global reg_vif_num.
+	 */
 
 
 	reg_vif_num = numvifs;
 
-    /* Use the address of the first available physical interface to
-     * create the register vif.
-     */
 
-	for(i =0 ; i < numvifs ; i++)
-	{
-		if(uvifs[i].uv_flags & (VIFF_DOWN | VIFF_DISABLED | MIFF_REGISTER))
+	/* 
+	 * copy the address of the first available physical interface to
+	 * create the register vif.
+	 */
+	for (i =0 ; i < numvifs ; i++) {
+		if (uvifs[i].uv_flags & (VIFF_DOWN | VIFF_DISABLED | MIFF_REGISTER))
 			continue;
-	else
 		break;
 	}
-	if( i >= numvifs)
-	{
-		  log(LOG_ERR, 0, "No physical interface enabled");
-    	return -1;
-    }
-
+	if (i >= numvifs) {
+		log_msg(LOG_ERR, 0, "No physical interface enabled");
+		return -1;
+	}
 	
-	memcpy(v,&uvifs[i],sizeof(*v));
-	strncpy(v->uv_name,"register_mif0",IFNAMSIZ);
+	add_phaddr(v, &uvifs[i].uv_linklocal->pa_addr,
+		   &uvifs[i].uv_linklocal->pa_subnetmask,
+		   &uvifs[i].uv_linklocal->pa_prefix); 
+	v->uv_ifindex = uvifs[i].uv_ifindex;
+	strncpy(v->uv_name, "register_mif0", IFNAMSIZ);
 	v->uv_flags = MIFF_REGISTER;
 	v->uv_mld_version = MLDv1;
 
@@ -247,10 +257,13 @@ int init_reg_vif()
 	v->uv_flags |= MIFF_REGISTER_KERNEL_ENCAP;
 #endif
 
-    IF_DEBUG(DEBUG_IF)
-		log(LOG_DEBUG,0,"Interface %s (subnet %s) ,installed on vif #%u - rate = %d",
-    	v->uv_name,net6name(&v->uv_prefix.sin6_addr,&v->uv_subnetmask),
-    	reg_vif_num,v->uv_rate_limit);
+	IF_DEBUG(DEBUG_IF)
+		log_msg(LOG_DEBUG, 0,
+		    "Interface %s (subnet %s), installed on vif #%u - rate = %d",
+		    v->uv_name,
+		    net6name(&v->uv_prefix.sin6_addr,&v->uv_subnetmask),
+		    reg_vif_num,
+		    v->uv_rate_limit);
 
 	numvifs++;
 	total_interfaces++;
@@ -264,35 +277,31 @@ void start_all_vifs()
 	u_int action;
 
 
-   /* Start first the NON-REGISTER vifs */
-
-	for(action=0; ;action = MIFF_REGISTER )
-	{
-		for(vifi= 0,v = uvifs;vifi < numvifs ; ++vifi, ++v)
-		{
-			if (( v->uv_flags & MIFF_REGISTER ) ^ action )
-        /* If starting non-registers but the vif is a register
-         * or if starting registers, but the interface is not
-         * a register, then just continue.
-         */
+	/* Start first the NON-REGISTER vifs */
+	for (action = 0; ; action = MIFF_REGISTER) {
+		for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
+			/*
+			 * If starting non-registers but the vif is a register
+			 * or if starting registers, but the interface is not
+			 * a register, then just continue.
+			 */
+			if ((v->uv_flags & MIFF_REGISTER) ^ action)
 				continue;
 
-			if ( v->uv_flags & (VIFF_DISABLED | VIFF_DOWN ))
-			{
+			if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN)) {
 				IF_DEBUG(DEBUG_IF)
-				{
-					if ( v-> uv_flags & VIFF_DISABLED)
-						log(LOG_DEBUG,0,"%s is DISABLED ; vif #%u out of service",v->uv_name,vifi); 
-					else
-						log(LOG_DEBUG,0,"%s is DOWN ; vif #%u out of service",v->uv_name,vifi);
-				}	
+					log_msg(LOG_DEBUG, 0,
+					    "%s is %s; vif #%u out of service",
+					    v->uv_name,
+					    v->uv_flags & VIFF_DISABLED ? "DISABLED" : "DOWN",
+					    vifi); 
+				continue;
 			}
-			else
-				start_vif(vifi);
+			start_vif(vifi);
 		}
-		if ( action == MIFF_REGISTER)
+		if (action == MIFF_REGISTER)
 			break;
-	}	
+	}
 }
 
 /*
@@ -300,8 +309,6 @@ void start_all_vifs()
  * physical, register or tunnel (tunnels will be used in the future
  * when this code becomes PIM multicast boarder router.
  */
-
-
 void start_vif (mifi_t vifi)
 {
 	struct uvif *v;
@@ -323,7 +330,7 @@ void start_vif (mifi_t vifi)
 
 	k_add_vif(mld6_socket,vifi,&uvifs[vifi]);
 	IF_DEBUG(DEBUG_IF)
-		log(LOG_DEBUG,0,"%s comes up ,vif #%u now in service",v->uv_name,vifi);
+		log_msg(LOG_DEBUG,0,"%s comes up ,vif #%u now in service",v->uv_name,vifi);
 
 	if (!(v->uv_flags & MIFF_REGISTER)) {
 	    /*
@@ -343,7 +350,7 @@ void start_vif (mifi_t vifi)
 	     * Join the All-MLDv2-routers multicast group on the interface
 	     * if it is configured so.
 	     */
-	    if (v->uv_mld_version == MLDv2)
+	    if (v->uv_mld_version & MLDv2)
 		k_join(mld6_socket, &allmldv2routers_group.sin6_addr,
 		       v->uv_ifindex);
 
@@ -360,18 +367,15 @@ void start_vif (mifi_t vifi)
 	    v->uv_querier->al_addr = v->uv_linklocal->pa_addr;
 	    v->uv_querier->al_timer = MLD6_OTHER_QUERIER_PRESENT_INTERVAL;
 	    time(&v->uv_querier->al_ctime); /* reset timestamp */
-	    switch (v->uv_mld_version) {
-	    case MLDv1:
-		query_groups(v);
-		break;
+	    v->uv_stquery_cnt = MLD6_STARTUP_QUERY_COUNT;
+
 #ifdef MLD6V2_LISTENER_REPORT
-	    case MLDv2:
+	    if (v->uv_mld_version & MLDv2)
 		query_groupsV2(v);
-		break;
+	    else
 #endif
-	    default:
-		break;
-	    }
+	        if (v->uv_mld_version & MLDv1)
+			query_groups(v);
   
 	    /*
 	     * Send a probe via the new vif to look for neighbors.
@@ -395,17 +399,17 @@ void stop_vif( mifi_t vifi )
 	struct vif_acl *acl;
 
  
-    /*
-     * TODO: make sure that the kernel viftable is
-     * consistent with the daemon table
-     */
+	/*
+	 * TODO: make sure that the kernel viftable is
+	 * consistent with the daemon table
+	 */
 
 	v=&uvifs[vifi];
 	if( !( v->uv_flags&MIFF_REGISTER ) )
 	{
 		k_leave( mld6_socket , &allpim6routers_group.sin6_addr , v->uv_ifindex );
 		k_leave( mld6_socket , &allrouters_group.sin6_addr , v->uv_ifindex );
-		if (v->uv_mld_version == MLDv2)
+		if (v->uv_mld_version & MLDv2)
 		    k_leave(mld6_socket, &allmldv2routers_group.sin6_addr,
 		    	    v->uv_ifindex);
     /*
@@ -427,12 +431,12 @@ void stop_vif( mifi_t vifi )
 			}
 
 			/* frees all the related sources */
-			while (v->uv_groups->sources != NULL) {
-			    struct listaddr *curr = v->uv_groups->sources;
-			    v->uv_groups->sources = curr->al_next;
+			while (a->sources != NULL) {
+			    struct listaddr *curr = a->sources;
+			    a->sources = a->sources->al_next;
 			    free((char *)curr);
 			}
-			v->uv_groups->sources = NULL;
+			a->sources = NULL;
 
 			/* discard the group */
 			free((char *)a);
@@ -440,28 +444,29 @@ void stop_vif( mifi_t vifi )
 		v->uv_groups = NULL;
 	}
 
-    /*
-     * TODO: inform (eventually) the neighbors I am going down by sending
-     * PIM_HELLO with holdtime=0 so someone else should become a DR.
-     */
-    /* TODO: dummy! Implement it!! Any problems if don't use it? */
-    delete_vif_from_mrt(vifi);
+	/*
+	 * TODO: inform (eventually) the neighbors I am going down by sending
+	 * PIM_HELLO with holdtime=0 so someone else should become a DR.
+	 */
+	/* TODO: dummy! Implement it!! Any problems if don't use it? */
+	delete_vif_from_mrt(vifi);
 
-    /*
-     * Delete the interface from the kernel's vif structure.
-     */
+	/*
+	 * Delete the interface from the kernel's vif structure.
+	 */
 
 	k_del_vif( mld6_socket , vifi );
 	v->uv_flags=(v->uv_flags & ~VIFF_DR & ~VIFF_QUERIER & ~VIFF_NONBRS) | VIFF_DOWN;
 	if( !(v->uv_flags & MIFF_REGISTER ))
 	{
-    	RESET_TIMER(v->uv_pim_hello_timer);
-    	RESET_TIMER(v->uv_jp_timer);
-    	RESET_TIMER(v->uv_gq_timer);
+		RESET_TIMER(v->uv_pim_hello_timer);
+		RESET_TIMER(v->uv_jp_timer);
+		RESET_TIMER(v->uv_gq_timer);
 
 		for( n=v->uv_pim_neighbors ; n!=NULL ; n = next )
 		{
-			next=n->next;			/* Free the space for each neighbour */
+			/* Free the space for each neighbour */
+			next=n->next;
 			delete_pim6_nbr(n);
 		}
 		v->uv_pim_neighbors=NULL;
@@ -484,8 +489,8 @@ void stop_vif( mifi_t vifi )
 
 
 	
-   /* TODO: currently not used */
-   /* The Access Control List (list with the scoped addresses) */
+	/* TODO: currently not used */
+	/* The Access Control List (list with the scoped addresses) */
 
 	while( v->uv_acl!=NULL )
 	{
@@ -497,7 +502,7 @@ void stop_vif( mifi_t vifi )
 	vifs_down=TRUE;
 
 	IF_DEBUG(DEBUG_IF)
-		log( LOG_DEBUG ,0,"%s goes down , vif #%u out of service" , v->uv_name , vifi);
+		log_msg( LOG_DEBUG ,0,"%s goes down , vif #%u out of service" , v->uv_name , vifi);
 }
 
 /*
@@ -519,16 +524,17 @@ update_reg_vif( mifi_t register_vifi )
 	    continue;
         /* Found. Stop the bogus Register vif first */
 	stop_vif(register_vifi);
-	uvifs[register_vifi].uv_linklocal->pa_addr =
-	    uvifs[vifi].uv_linklocal->pa_addr;
+	add_phaddr(v, &uvifs[vifi].uv_linklocal->pa_addr,
+		   &uvifs[vifi].uv_linklocal->pa_subnetmask,
+		   &uvifs[vifi].uv_linklocal->pa_prefix); 
 	start_vif(register_vifi);
 	IF_DEBUG(DEBUG_PIM_REGISTER | DEBUG_IF)
-	    log(LOG_NOTICE, 0, "%s has come up; vif #%u now in service",
+	    log_msg(LOG_NOTICE, 0, "%s has come up; vif #%u now in service",
 		uvifs[register_vifi].uv_name, register_vifi);
 	return 0;
     }
     vifs_down = TRUE;
-    log(LOG_WARNING, 0, "Cannot start Register vif: %s",
+    log_msg(LOG_WARNING, 0, "Cannot start Register vif: %s",
 	uvifs[vifi].uv_name);
     return(-1);
 }
@@ -670,7 +676,7 @@ check_vif_state()
   
 	/* get the interface flags */
 	if( ioctl( udp_socket , SIOCGIFFLAGS , (char *)&ifr )<0 )
-	    log(LOG_ERR, errno,
+	    log_msg(LOG_ERR, errno,
         	"check_vif_state: ioctl SIOCGIFFLAGS for %s", ifr.ifr_name);
 
 	if( v->uv_flags & VIFF_DOWN )
@@ -686,7 +692,7 @@ check_vif_state()
 	{
 	    if( !( ifr.ifr_flags & IFF_UP ))
 	    {
-		log( LOG_NOTICE ,0,
+		log_msg( LOG_NOTICE ,0,
 		     "%s has gone down ; vif #%u taken out of  service",
 		     v->uv_name , vifi );
 		stop_vif ( vifi );
@@ -755,6 +761,10 @@ find_vif_direct(src)
 	{
             if (inet6_equal(src, &p->pa_addr))
                 return(NO_VIF);
+
+	    if (v->uv_flags & VIFF_POINT_TO_POINT)
+	    	if (inet6_equal(src, &p->pa_rmt_addr))
+		    return(vifi);
             if (inet6_match_prefix(src, &p->pa_prefix, &p->pa_subnetmask))
             	return(vifi);
     	}
@@ -810,8 +820,12 @@ find_vif_direct_local(src)
         	continue;
     	for (p = v->uv_addrs; p; p = p->pa_next) {
         	if (inet6_equal(src, &p->pa_addr) ||
-            	inet6_match_prefix(src, &p->pa_prefix, &p->pa_subnetmask))  
+            	    inet6_match_prefix(src, &p->pa_prefix, &p->pa_subnetmask))
         		return(vifi);
+
+		if (v->uv_flags & VIFF_POINT_TO_POINT)
+		    if (inet6_equal(src, &p->pa_rmt_addr))
+			return(vifi);
     	}
     }
     return (NO_VIF);
@@ -873,23 +887,58 @@ stop_all_vifs()
     struct uvif *v;
  
     for (vifi = 0, v=uvifs; vifi < numvifs; ++vifi, ++v) {
-	if (!(v->uv_flags &  VIFF_DOWN)) {
-	    stop_vif(vifi);
-	}
+	if (v->uv_flags & (VIFF_DOWN | VIFF_DISABLED))
+		continue;
+	stop_vif(vifi);
     }
 }
 
+/* 
+ * locate vif from interface name, and allocate a new vif if necessary.
+ * 2nd and 3rd arg controls the "necessity" when there is no matching vif.
+ *   2nd arg: create vif if 3rd arg permits
+ *   3rd arg: default policy to create vif, usually same as 
+ *            default_phyint_status.  Only in configuration phase (i.e.
+ *            prior to the configuration of this variable), it has to be
+ *            specified properly.
+ */
 struct uvif *
-find_vif(ifname)
+find_vif(ifname, create, default_policy)
 	char *ifname;
+	int create;
+	int default_policy;	
 {
+	u_int ifindex;
 	struct uvif *v;
 	mifi_t vifi;
 
+	/* rejects non-existing interface */
+	ifindex = if_nametoindex(ifname);
+	if (ifindex == 0)
+		return NULL; 	
+
+	/* not allocate same interface multiply */
 	for (vifi = 0, v = uvifs; vifi < numvifs ; ++vifi , ++v) {
-		if (strcasecmp(v->uv_name, ifname) == 0)
-			return(v);
+		if (ifindex == v->uv_ifindex)
+			return v;
 	}
 
-	return(NULL);
+	if (create == DONT_CREATE || default_policy != VIFF_ENABLED)
+		return NULL;
+
+	v = &uvifs[numvifs++];
+	strncpy(v->uv_name, ifname, IFNAMSIZ);
+	v->uv_ifindex = ifindex;
+	v->uv_flags = VIFF_DOWN;
+	return v;
+}
+
+char *
+mif_name(mifi)
+	mifi_t mifi;
+{
+	if (mifi < numvifs)
+		return(uvifs[mifi].uv_name);
+	else
+		return("???");
 }

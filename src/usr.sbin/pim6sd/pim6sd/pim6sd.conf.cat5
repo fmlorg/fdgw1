@@ -34,11 +34,16 @@ DDEESSCCRRIIPPTTIIOONN
              Specifies if a hostname for an IPv6 address should be resolved on
              logging.  yyeess means a hostname should be resolved, and nnoo means
              should not.  By default, a hostname is not resolved.
-     pphhyyiinntt _i_n_t_e_r_f_a_c_e [disable] ;
-             Specifies pim6sd(8) to ignore the interface even if the interface
-             is multicast-capable.  Note that PIM will be activated on all in-
-             terfaces by default.  Interfaces are specified in the form of
-             "name unit", such as _g_i_f_0 and _e_p_1_.
+     ddeeffaauulltt__pphhyyiinntt__ssttaattuuss ((ddiissaabbllee || eennaabbllee));;
+             Specifies pim6sd(8) to enable or disable multicast routing, when
+             it is not explicitly configured in pphhyyiinntt statement.  By default,
+             eennaabbllee is assumed.
+     pphhyyiinntt _i_n_t_e_r_f_a_c_e ((ddiissaabbllee || eennaabbllee));;
+             Specifies pim6sd(8) to enable or disable multicast routing on the
+             interface.  If none of them are specified, ddeeffaauulltt__pphhyyiinntt__ssttaattuuss
+             statement determines whether multicast routing is enabled or dis-
+             abled.  Interfaces are specified in the form of "name unit", such
+             as _g_i_f_0 and _e_p_1_.
      pphhyyiinntt _i_n_t_e_r_f_a_c_e [preference _p_r_e_f_e_r_e_n_c_e] [metric _m_e_t_r_i_c] [nolistener] ;
              Specifies the preference and/or metric values when sending a PIM
              assert message on the interface.  If another optional parameter
@@ -54,7 +59,14 @@ DDEESSCCRRIIPPTTIIOONN
              the interface and its default value is 2.  qquueerryy__rrsspp__iinntteerrvvaall and
              qquueerryy__iinntteerrvvaall corresponds to query-response-interval and query-
              interval in MLDv2 Query message, and their default value is
-             10000ms (query_rsp_interval), and 125ms (query_interval).
+             10000ms (query_rsp_interval), and 125s (query_interval).
+             mmlldd__vveerrssiioonn is used to specify the acceptable version of MLD.
+             For example if it is configured as 1, then only MLDv1 packet is
+             permitted on this interface.  If the argument is aannyy , then any
+             version of MLD (currently v1 and v2) are permitted.  If you are
+             to enable MLDv1-compat-mode under MLDv2, you should specify aannyy ,
+             since only MLDv2 packet is permitted if it is configured as 2.
+             Its default value is 1.
      ddeeffaauulltt__ssoouurrccee__pprreeffeerreennccee _p_r_e_f_e_r_e_n_c_e_;
              Specifies a default preference value when sending a PIM assert
              message.  Preferences are used by assert elections to determine
@@ -109,6 +121,22 @@ DDEESSCCRRIIPPTTIIOONN
              ment messages.  Another optional parameter pprriioorriittyy specifies the
              priority of the RP.  The default value is 0, which means the
              highest priority.
+     ssttaattiicc__rrpp _p_r_e_f_i_x _a_d_d_r_e_s_s [pprriioorriittyy _p_r_i_o_r_i_t_y] ;
+             Specifies a static group-to-RP mapping.  Necessary when there is
+             a IPv6 multicast router not understanding BSR message.  It cannot
+             be specified with ccaanndd__rrpp or ccaanndd__bbssrr configuration.
+
+             BSR function remains working independly of this option, so you
+             can specify static group-to-RP mappings by this option while
+             flodding BSR messages from upstream to downstreams, but cannot
+             redistribute this static mapping by BSR messages.
+
+             If this option and BSR message provides a different RP for the
+             same group, the one with higher priority (i.e. smaller priority
+             value) is chosen.  If their priority is same, static one wins.
+
+             An optional parameter pprriioorriittyy specifies the priority of this
+             static group-to-RP mapping.  Its default value is 0 (highest).
      ggrroouupp__pprreeffiixx _p_r_e_f_i_x_;
              When acting as a Rendezvous Point(RP), _p_r_e_f_i_x specifies a group
              prefix that the RP will handle.
@@ -124,7 +152,7 @@ DDEESSCCRRIIPPTTIIOONN
              ue is 60.  Another optional parameter pprriioorriittyy specifies the pri-
              ority of the BSR.  The default value is 0, which means the lowest
              priority.  Hash mask length can also be specified by the mmaasskklleenn
-             parametr. Its value, _m_a_s_k_l_e_n, must be no less than 0 and no
+             parameter. Its value, _m_a_s_k_l_e_n, must be no less than 0 and no
              greater than 128.
      sswwiittcchh__rreeggiisstteerr__tthhrreesshhoolldd rraattee _r_a_t_e iinntteerrvvaall _i_n_t_e_r_v_a_l_;
              Specifies the threshold that a Rendezvous Point(RP) switches to a
@@ -132,7 +160,6 @@ DDEESSCCRRIIPPTTIIOONN
              rraattee specifies the threshold in bits per second, and iinntteerrvvaall
              specifies the interval of checking the rate in seconds.  The de-
              fault values are 50000 and 20, respectively.
-
      sswwiittcchh__ddaattaa__tthhrreesshhoolldd rraattee _r_a_t_e iinntteerrvvaall _i_n_t_e_r_v_a_l_;
              Specifies the threshold that a last hop router switches to a
              shortest path tree.  rraattee specifies the threshold in bits per
