@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $FML$
+#  $FML: master.sh,v 1.1 2002/02/18 10:47:36 fukachan Exp $
 #
 
 prefix=/usr/pkg
@@ -30,6 +30,7 @@ failcount=0
 while : ; do
 	echo "Running: squid -Y $conf >> $logdir/squid.out 2>&1"
 	echo "Startup: `date`" | logger -t squid
+	chown -R nobody ${logdir}
 	squid -z
 	squid -NY $conf | logger -t squid
 	sleep 10
