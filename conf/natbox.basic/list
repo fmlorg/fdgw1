@@ -104,7 +104,3 @@ COPY	${CURDIR}/termcap.mini		usr/share/misc/termcap
 
 # and the installation tools
 COPY	${CURDIR}/dot.profile		.profile
-
-# install boot scripts
-SPECIAL df -i ${MOUNT_POINT}/etc/
-SPECIAL cp -p ${CURDIR}/conf/etc/[a-z]* ${MOUNT_POINT}/etc
