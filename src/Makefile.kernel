@@ -12,10 +12,12 @@ KERNEL_CONF?=	ROUTER
 .WORKDIR=	${.CURDIR}/compile/${KERNEL_CONF}
 KERN=		${.WORKDIR}/netbsd
 
+_KERNEL_CONF =	conf/kernel.${ARCH}/${KERNEL_CONF}
+
 # make kernel
-${KERN}: conf/kernel/${KERNEL_CONF}
+${KERN}: ${_KERNEL_CONF}
 	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
-	cp conf/kernel/${KERNEL_CONF} ${.WORKDIR}/CONFIG
+	cp -p ${_KERNEL_CONF} ${.WORKDIR}/CONFIG
 	(cd ${.WORKDIR}; \
 		config -s ${TOP}/../../../sys ;\
 		make depend;\
