@@ -1,4 +1,8 @@
 #
+# $FML$
+#
+
+#
 # checkyesno
 #       Test $1 variable, and warn if not set to YES or NO.
 #       return 0 if it's "yes" (et al), nonzero otherwise
@@ -62,7 +66,7 @@ copyright () {
    fi
 
    echo ""
-   echo "Copyright (C) Ken'ichi Fukamachi <fukachan@fml.org>"
+   echo "Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>"
    echo ""
    echo "All rights reserved. This program is free software; you can"
    echo "redistribute it and/or modify it under the same terms as NetBSD itself."
