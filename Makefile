@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.24 2001/12/16 06:07:45 fukachan Exp $
+# $FML: Makefile,v 1.26 2001/12/16 14:31:28 fukachan Exp $
 #
 
 #
@@ -34,15 +34,18 @@ dist-image:
 
 build:
 	${SH} ./src/prepare_workdir.sh ${ARCH}.${MODEL}
-	(cd src.${ARCH}.${MODEL}; ${MAKE} MODEL=${MODEL} build )
+	(cd src.${ARCH}.${MODEL};\
+	   ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} build;\
+	)
 		
 image:
 	@ echo ""	
 	@ echo "\"make image\" needs root privilege"
 	@ echo ""	
-	(cd src.${ARCH}.${MODEL}; \
-		${SU_CMD} "cd `pwd`; ${MAKE} MODEL=${MODEL} image" )
-
+	(cd src.${ARCH}.${MODEL};\
+	   ${SU_CMD} \
+	   "cd `pwd`; ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} image";\
+	)
 
 #
 # clean up
