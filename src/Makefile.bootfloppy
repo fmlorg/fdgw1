@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.22 2002/07/31 07:49:31 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.23 2003/01/10 00:20:34 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -49,6 +49,10 @@ INO_BYTES?=	204800
 
 BIOSBOOT?=	biosboot.sym
 
+#
+# custom
+#
+LOCAL_DIR?=	${CURDIR}/../local/model/${MODEL}
 
 build:
 	@ echo nothing to do
@@ -70,13 +74,21 @@ image:	netbsd
 	mkdir ${MOUNT_POINT}/etc
 	cp -pr ${_ETC_DIR}/[a-z]* ${MOUNT_POINT}/etc
 	cp -pr ${_ETC_DIR}/defaults/rc.conf ${MOUNT_POINT}/etc
-	if [ -d ${CURDIR}/work/etc ];then \
+	@ if [ -f rc.conf ];then \
+	  echo "merge up rc.conf";\
+	  awk 	-v MASTER=conf/etc/defaults/rc.conf \
+		-f merge_conf.awk \
+		rc.conf |sh > ${MOUNT_POINT}/etc/rc.conf;\
+	fi
+	@ if [ -d ${CURDIR}/work/etc ];then \
+	   echo "merging config(s) from ${CURDIR}/work/etc";\
 	   rm -f ${CURDIR}/work/etc/*pwd.db ;\
 	   cp -pr ${CURDIR}/work/etc/[a-z]* ${MOUNT_POINT}/etc;\
 	   chown -R root ${MOUNT_POINT}/etc;\
 	fi
-	if [ -d ${CURDIR}/../rc.${MODEL} ];then \
-	   cp -pr ${CURDIR}/../rc.${MODEL}/[a-z]*  ${MOUNT_POINT}/etc;\
+	@ if [ -d ${LOCAL_DIR} ];then \
+	   echo "merging config(s) from ${LOCAL_DIR}";\
+	   cp -pr ${LOCAL_DIR}/[a-z]*  ${MOUNT_POINT}/etc;\
 	fi
 	@ rm -f log.df.floppy
 	@ ( echo "===> floppy"; df -i ${MOUNT_POINT} )| sed 1d > log.df.floppy
