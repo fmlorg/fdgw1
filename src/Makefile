@@ -1,12 +1,16 @@
 #
-# $FML: Makefile,v 1.9 2001/09/08 09:50:01 fukachan Exp $
+# $FML: Makefile,v 1.10 2001/09/08 16:14:17 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
+LOCALBASE?=	/usr/pkg
 
 ARCH?=		`uname -p`
 _TOP=		${BSDSRCDIR}/distrib/${ARCH}/floppies
 WARNS=1
+
+# floppy
+INO_BYTES=	40960
 
 IMAGE=		boot.fs
 MOUNT_POINT=	/mnt
@@ -17,7 +21,8 @@ _CBIN?=		model/${MODEL}/ramdiskbin
 ETC_DIR?=	conf/etc
 
 _ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} BSDSRCDIR=${BSDSRCDIR} \
-		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL} ARCH=${ARCH}
+		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} MODEL=${MODEL} ARCH=${ARCH} \
+		INO_BYTES=${INO_BYTES}
 
 all: ${IMAGE}
 
@@ -25,7 +30,7 @@ ${IMAGE}: _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
-	(cd ../utils/resolver/; make ${_ARGS})
+	(cd utils/resolver/; make ${_ARGS})
 	-make -f Makefile.ramdisk ${_ARGS}
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
@@ -40,12 +45,11 @@ ${IMAGE}: _prepare
 
 _prepare:
 	@ echo "0. prepations ... "
-	-rm -f disktab.preinstall termcap.mini conf model utils
+	-rm -f disktab.preinstall termcap.mini conf model
 	ln ../conf/dot.profile .
 	ln ../conf/mtree.conf  .
 	ln -s ../conf  conf
 	ln -s ../model model
-	ln -s ../utils utils
 	cp ${_TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
 	cp ${_TOP}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
@@ -53,11 +57,17 @@ _prepare:
 	-rm -f list
 	ln -s ${_LISTS} list
 	if [ -x model/${MODEL}/configure ]; then model/${MODEL}/configure ; fi
+	@ echo "";echo "make rp-pppoe for ADSL router";echo "";
+	( cd gnu/rp-pppoe/src;\
+		./configure --prefix=${LOCALBASE};\
+		make ;\
+	)
+
 
 clean cleandir:
 	-make -f Makefile.ramdisk unconfig TOP=${_TOP}
 	-make -f Makefile.ramdisk cleandir TOP=${_TOP}
-	-rm -f disktab.preinstall termcap.mini conf model utils
+	-rm -f disktab.preinstall termcap.mini conf model
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
 	-rm -f dot.profile mtree.conf
