@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML$
+# $FML: list,v 1.13 2001/09/29 08:18:13 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -108,3 +108,7 @@ SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
 SPECIAL touch    ${MOUNT_POINT}/var/db/dhcpd.leases
+
+
+# XXX parepare /etc on /dev/fd0a not /dev/vnd0a 
+SPECIAL cp -pr   ${MOUNT_POINT}/etc ${CURDIR}/work
