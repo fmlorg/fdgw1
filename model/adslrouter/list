@@ -82,7 +82,7 @@ COPY	${TOP}/../../../etc/etc.${ARCH}/MAKEDEV	dev/MAKEDEV
 SPECIAL	cd dev; sh MAKEDEV ramdisk
 SPECIAL	cd dev; sh MAKEDEV std
 SPECIAL	cd dev; sh MAKEDEV ipl
-SPECIAL cd dev; sh MAKEDEV bpf0
+SPECIAL cd dev; sh MAKEDEV bpf0 bpf1 bpf2 bpf3
 SPECIAL	/bin/rm dev/MAKEDEV
 
 # and the common installation tools
