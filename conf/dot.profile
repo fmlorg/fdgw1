@@ -1,4 +1,4 @@
-# $FML$
+# $FML: dot.profile,v 1.7 2002/04/17 02:04:16 fukachan Exp $
 # $NetBSD: dot.profile,v 1.1.2.1 2000/10/09 13:43:33 fvdl Exp $
 #
 # Copyright (c) 1997 Perry E. Metzger
@@ -34,7 +34,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.6 2002/02/25 10:20:02 fukachan Exp $
+# $FML: dot.profile,v 1.7 2002/04/17 02:04:16 fukachan Exp $
 #
 # Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
 #
@@ -91,7 +91,9 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	umount /conf
 
 	# pwd.db for ps et.al.
-	ln -s /etc.orig/pwd.db /etc/pwd.db
+	ln /etc.orig/pwd.db /etc/pwd.db
+
+	rm -fr /etc.orig
 
         if [ -f /etc/rc.router ]
         then
