@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.46 2002/06/18 12:29:52 fukachan Exp $
+# $FML: Makefile,v 1.47 2002/06/20 09:22:01 fukachan Exp $
 #
 
 #
@@ -13,6 +13,7 @@
 ARCH?=		`uname -p`
 MODEL?=         natbox
 KERNEL_CONF?=	FDGW
+BIOSBOOT?=	biosboot.sym
 
 # root privilege control
 SU_CMD?=	su - root -c
@@ -39,7 +40,10 @@ dist-image:
 build:
 	${SH} ./src/utils/prepare_workdir.sh ${ARCH}.${MODEL}
 	(cd obj.${ARCH}.${MODEL};\
-	   ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} build;\
+	   ${MAKE}	MODEL=${MODEL} \
+			KERNEL_CONF=${KERNEL_CONF} \
+			BIOSBOOT=${BIOSBOOT} \
+			build;\
 	)
 		
 image:
@@ -48,7 +52,11 @@ image:
 	@ echo ""	
 	(cd obj.${ARCH}.${MODEL};\
 	   ${SU_CMD} \
-	   "cd `pwd`; ${MAKE} MODEL=${MODEL} KERNEL_CONF=${KERNEL_CONF} image";\
+	   "cd `pwd`; ${MAKE} \
+			MODEL=${MODEL} \
+			KERNEL_CONF=${KERNEL_CONF} \
+			BIOSBOOT=${BIOSBOOT} \
+			image";\
 	)
 
 #

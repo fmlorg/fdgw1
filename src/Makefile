@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.56 2002/06/20 09:22:02 fukachan Exp $
+# $FML: Makefile,v 1.57 2002/06/20 10:47:21 fukachan Exp $
 #
 
 
@@ -136,6 +136,7 @@ _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
 
 RAMDISK_S?=	ramdisk-small.fs
+BIOSBOOT?=	biosboot.sym
 
 
 #
@@ -152,7 +153,8 @@ _ARGS?=		MOUNT_POINT=${MOUNT_POINT} \
 		CURDIR=${PWD} _ETC_DIR=${ETC_DIR} \
 		MODEL=${MODEL} ARCH=${ARCH} \
 		INO_BYTES=${INO_BYTES} \
-		RAMDISK_S=${RAMDISK_S}
+		RAMDISK_S=${RAMDISK_S} \
+		BIOSBOOT=${BIOSBOOT}
 
 # import from pkgsrc/www/squid/Makefile
 SQUID_CONFIGURE_ARGS?=  --enable-ipf-transparent \

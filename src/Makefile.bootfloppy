@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.20 2002/02/25 10:20:03 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.21 2002/04/17 04:26:38 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -47,6 +47,7 @@ DISKSIZE?=	2880
 
 INO_BYTES?=	204800
 
+BIOSBOOT?=	biosboot.sym
 
 
 build:
@@ -57,7 +58,7 @@ image:	netbsd
 	vnconfig -t ${DISKTYPE} -v -c ${VND_CDEV} ${IMAGE}
 	disklabel -rw ${VND_CDEV} ${DISKTYPE}
 	newfs -B le -m 0 -o space -i ${INO_BYTES} -c 80 ${VND_RDEV} ${DISKTYPE}
-	${MDEC}/installboot -v -f ${MDEC}/biosboot.sym ${VND_RDEV}
+	${MDEC}/installboot -v -f ${MDEC}/${BIOSBOOT} ${VND_RDEV}
 	test -d ${MOUNT_POINT} || mkdir -p ${MOUNT_POINT}
 	mount ${VND_DEV} ${MOUNT_POINT}
 	TOPDIR=${TOP} CURDIR=${.CURDIR} OBJDIR=${.OBJDIR} \
