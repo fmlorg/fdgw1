@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.61 2003/01/10 00:20:12 fukachan Exp $
+# $FML: Makefile,v 1.62 2003/01/10 04:01:18 fukachan Exp $
 #
 
 
@@ -37,6 +37,7 @@ _FETCH_PROGRAM=	sh utils/fetch.sh
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
+_RACOON_SOURCE=	racoon-20020507a.tar.gz
 
 
 # individual directories to link to
