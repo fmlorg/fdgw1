@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.43 2002/02/23 04:27:10 fukachan Exp $
+# $FML: Makefile,v 1.44 2002/04/17 04:26:38 fukachan Exp $
 #
 
 
@@ -73,6 +73,7 @@ _DIRS+=	sbin/umount
 _DIRS+=	sbin/ping
 _DIRS+=	sbin/route
 _DIRS+=	sbin/reboot
+_DIRS+=	sbin/sysctl
 .ifdef IPSEC
 _DIRS+=	sbin/setkey
 .endif
