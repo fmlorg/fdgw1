@@ -1,6 +1,19 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2004/02/06
+
+  new feature: $bridge_flap
+
+	if $bridge_flap = yes, fdgw simulates line trouble by running
+	the folloging command repeatedly :-).
+
+	   while true
+	   do
+		ifconfig bridge0 down; sleep 300;
+		ifconfig bridge0 up;   sleep 300;
+  	   done
+
 2004/02/05
 
   support bridge model. 
@@ -304,4 +317,4 @@
 
 
 -----
-$FML: CHANGES,v 1.38 2004/02/05 05:06:17 fukachan Exp $
+$FML: CHANGES,v 1.39 2004/02/05 10:17:11 fukachan Exp $

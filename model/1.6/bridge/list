@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: list,v 1.1.1.1 2004/01/27 15:58:07 fukachan Exp $
+# $FML: list,v 1.1 2004/02/05 10:16:03 fukachan Exp $
 #
 #	$NetBSD: list,v 1.4.2.1 2000/10/09 13:43:33 fvdl Exp $
 
@@ -34,6 +34,7 @@ LINK    ramdiskbin                      bin/ps
 LINK    ramdiskbin                      bin/kill
 LINK    ramdiskbin                      bin/echo
 LINK    ramdiskbin                      bin/date
+LINK    ramdiskbin                      bin/sleep
 LINK    ramdiskbin                      bin/expr
 
 LINK	ramdiskbin			sbin/halt
@@ -75,6 +76,8 @@ SPECIAL	/bin/rm ramdiskbin
 # utility
 COPY	${CURDIR}/utils/x_grep/grep.sh	usr/bin/grep
 
+# $bridge_flap
+COPY	${CURDIR}/utils/brflap/brflap.sh usr/sbin/brflap
 
 # various files that we need in /etc for the install
 COPY	${TOP}/../../../etc/group			etc/group

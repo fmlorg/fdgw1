@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.1.1.1 2004/01/27 15:58:42 fukachan Exp $
+# $FML: rc.router,v 1.2 2004/02/05 10:14:28 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -286,6 +286,13 @@ if checkyesno irc_proxy; then
    if check_prog_exist /usr/pkg/sbin/stone ;then
 	/usr/pkg/sbin/stone -N irc-proxy -l -T localhost:0 localhost:16667 &
    fi
+fi
+
+
+if checkyesno bridge_flap; then
+   echo 'starting bridge flapping';
+
+   /usr/sbin/brflap $bridge_flap_interface $bridge_flap_interval &
 fi
 
 
