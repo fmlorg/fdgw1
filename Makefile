@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.3 2001/08/14 21:42:51 fukachan Exp $
+# $FML: Makefile,v 1.4 2001/08/15 07:46:08 fukachan Exp $
 #
 
 TOP=		${.CURDIR}/..
@@ -10,7 +10,8 @@ WARNS=1
 
 IMAGE=		boot.fs
 MOUNT_POINT=	/mnt
-
+LISTS?=		conf/natbox.basic/list
+CBIN?=		conf/natbox.basic/ramdiskbin
 
 all: ${IMAGE}
 
@@ -18,7 +19,9 @@ ${IMAGE}: _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
-	-make -f Makefile.ramdisk MOUNT_POINT=${MOUNT_POINT}
+	-make -f Makefile.ramdisk MOUNT_POINT=${MOUNT_POINT} \
+		LISTS=${LISTS} \
+		CBIN=${CBIN}
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
 	@ echo ""
