@@ -1,5 +1,17 @@
 		CHANGES
 
+2002/02/21
+
+  minor bug fixes proxymodel around squid
+	log file rotations to avoid file system full
+	install icons/
+	fix permissions et.al.
+
+  get tarball and extract it.
+	we should not hold sources in fdgw itself to shlink fdgw source tree.
+	o squid
+	o jftpgw
+
 2002/02/20
 
    o.k. proxybox works !
@@ -124,4 +136,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.13 2002/02/20 10:58:48 fukachan Exp $
+$FML: CHANGES,v 1.14 2002/02/20 13:40:33 fukachan Exp $
