@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.7 2001/09/08 00:46:21 fukachan Exp $
+# $FML: Makefile,v 1.8 2001/09/08 09:43:56 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -41,8 +41,8 @@ ${IMAGE}: _prepare
 _prepare:
 	@ echo "0. prepations ... "
 	-rm -f disktab.preinstall termcap.mini conf model utils
-	ln -s ../conf/dot.profile .
-	ln -s ../conf/mtree.conf  .
+	ln ../conf/dot.profile .
+	ln ../conf/mtree.conf  .
 	ln -s ../conf  conf
 	ln -s ../model model
 	ln -s ../utils utils
@@ -60,3 +60,4 @@ clean cleandir:
 	-rm -f disktab.preinstall termcap.mini conf model utils
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
+	-rm -f dot.profile mtree.conf
