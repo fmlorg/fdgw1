@@ -63,6 +63,11 @@ SYMLINK /bin/cat			usr/sbin/ipmon
 SYMLINK /bin/cat			usr/sbin/syslogd
 SYMLINK /bin/cat			usr/sbin/dhcpd
 
+# pppoe
+SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
+LINK    ramdiskbin                      usr/pkg/sbin/pppoe
+
+
 SPECIAL	/bin/rm ramdiskbin
 
 # utility
@@ -77,8 +82,8 @@ COPY	${TOP}/../../../etc/netconfig	etc/netconfig
 COPY	${TOP}/../../../etc/services	etc/services
 
 SPECIAL	pwd_mkdb -p -d ./ etc/master.passwd
-#SPECIAL /bin/rm etc/spwd.db
-#SPECIAL /bin/rm etc/pwd.db
+SPECIAL /bin/rm etc/spwd.db
+SPECIAL /bin/rm etc/pwd.db
 
 # copy the MAKEDEV script and make some devices
 COPY	${TOP}/../../../etc/etc.${ARCH}/MAKEDEV	dev/MAKEDEV
@@ -96,9 +101,9 @@ COPY	${CURDIR}/termcap.mini		usr/share/misc/termcap
 COPY	${CURDIR}/dot.profile		.profile
 
 # prepare /etc/ and /usr/pkg/
-SPECIAL df -i ${MOUNT_POINT}/etc/
-SPECIAL mkdir -p ${MOUNT_POINT}/etc/rc.d
-SPECIAL mkdir -p ${MOUNT_POINT}/etc/ppp
+SPECIAL cp -pr   ${MOUNT_POINT}/etc ${CURDIR}/work
+SPECIAL mkdir -p ${MOUNT_POINT}/etc
+SPECIAL df -i    ${MOUNT_POINT}
 SPECIAL mkdir -p ${MOUNT_POINT}/usr
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg
 SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/bin
@@ -106,6 +111,9 @@ SPECIAL mkdir -p ${MOUNT_POINT}/usr/pkg/sbin
 SPECIAL touch    ${MOUNT_POINT}/var/db/dhcpd.leases
 
 # install pppoe package
-SPECIAL cp -p /usr/pkg/etc/rc.d/pppoe ${MOUNT_POINT}/etc/rc.d
-SPECIAL install -c -s /usr/pkg/sbin/pppoe ${MOUNT_POINT}/usr/pkg/sbin/
-SPECIAL cp -p ${CURDIR}/work/adsl-* ${MOUNT_POINT}/usr/pkg/sbin/
+# SPECIAL install -c -s /usr/pkg/sbin/pppoe ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-connect ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-setup ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-start ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-status ${MOUNT_POINT}/usr/pkg/sbin/
+SPECIAL cp -p ${CURDIR}/gnu/rp-pppoe/scripts/adsl-stop ${MOUNT_POINT}/usr/pkg/sbin/
