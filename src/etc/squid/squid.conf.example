@@ -45,7 +45,7 @@
 #	You may specify multiple socket addresses on multiple lines.
 #
 #Default:
-http_port 127.0.0.1:3128
+# http_port 3128
 
 #  TAG: icp_port
 #	The port number where Squid sends and receives ICP queries to
@@ -599,14 +599,14 @@ no_cache deny QUERY
 #	ones with no max-size specification last.
 #
 #Default:
-# cache_dir ufs /usr/pkg/cache 100 16 256
+# cache_dir ufs /var/squid/cache 100 16 256
 
 #  TAG: cache_access_log
 #	Logs the client request activity.  Contains an entry for
 #	every HTTP and ICP queries received.
 #
 #Default:
-# cache_access_log /usr/pkg/logs/access.log
+# cache_access_log /var/squid/logs/access.log
 
 #  TAG: cache_log
 #	Cache logging file. This is where general information about
@@ -614,7 +614,7 @@ no_cache deny QUERY
 #	logged to this file with the "debug_options" tag below.
 #
 #Default:
-# cache_log /usr/pkg/logs/cache.log
+# cache_log /var/squid/logs/cache.log
 
 #  TAG: cache_store_log
 #	Logs the activities of the storage manager.  Shows which
@@ -624,7 +624,7 @@ no_cache deny QUERY
 #	disable it.
 #
 #Default:
-# cache_store_log /usr/pkg/logs/store.log
+# cache_store_log /var/squid/logs/store.log
 
 #  TAG: cache_swap_log
 #	Location for the cache "swap.log."  This log file holds the
@@ -719,7 +719,7 @@ no_cache deny QUERY
 #	A filename to write the process-id to.  To disable, enter "none".
 #
 #Default:
-# pid_filename /usr/pkg/logs/squid.pid
+# pid_filename /var/squid/logs/squid.pid
 
 #  TAG: debug_options
 #	Logging options are set as section,level where each source file
@@ -791,7 +791,7 @@ no_cache deny QUERY
 #	Specify the location of the executable for dnslookup process.
 #
 #Default:
-# cache_dns_program /usr/pkg/libexec/squid/
+# cache_dns_program /usr/pkg/libexec/
 
 #  TAG: dns_children
 # Note: This option is only available if Squid is rebuilt with the
@@ -852,13 +852,13 @@ no_cache deny QUERY
 #	diskd as one of the store io modules.
 #
 #Default:
-# diskd_program /usr/pkg/libexec/squid/diskd
+# diskd_program /usr/pkg/libexec/diskd
 
 #  TAG: unlinkd_program
 #	Specify the location of the executable for file deletion process.
 #
 #Default:
-# unlinkd_program /usr/pkg/libexec/squid/unlinkd
+# unlinkd_program /usr/pkg/libexec/unlinkd
 
 #  TAG: pinger_program
 # Note: This option is only available if Squid is rebuilt with the
@@ -869,7 +869,7 @@ no_cache deny QUERY
 #	with the '--enable-icmp' option.
 #
 #Default:
-# pinger_program /usr/pkg/libexec/squid/
+# pinger_program /usr/pkg/libexec/
 
 #  TAG: redirect_program
 #	Specify the location of the executable for the URL redirector.
@@ -1443,7 +1443,6 @@ acl CONNECT method CONNECT
 #Recommended minimum configuration:
 #
 # Only allow cachemgr access from localhost
-http_access allow src localhost
 http_access allow manager localhost
 http_access deny manager
 # Deny requests to unknown ports
