@@ -1,3 +1,9 @@
+#
+# $FML$
+#
+# This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.
+#
+
 #	$NetBSD: INSTALL_LAPTOP,v 1.4.2.6 2001/04/25 09:07:03 he Exp $
 #
 #	INSTALL - Installation kernel.
