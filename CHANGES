@@ -6,9 +6,20 @@
 	copy /etc on /dev/fd0a to /etc/ on md0a and use it as /etc not
 	/conf/etc
 
+2002/02/25
+
+   install pwd.db after booted to decrease /etc size on fd0a
+
+2002/02/23
+
+   show statistics (Makefile src/stat.sh)
+	results by df -i for ramdisk and floppy
+
+   remove /etc/spwd.db but hold /etc/pwd.db
+
 2002/02/22
 
-  minor bug fix for proxymodel
+   minor bug fix for proxymodel
 	update squid to 2.4 stable 4.
 	tune up squid parameters
 	use /usr/pkg/etc/squid/ for squid configuration files.
@@ -17,12 +28,12 @@
 
 2002/02/21
 
-  minor bug fixes proxymodel around squid
+   minor bug fixes proxymodel around squid
 	log file rotations to avoid file system full
 	install icons/
 	fix permissions et.al.
 
-  get tarball and extract it.
+   get tarball and extract it.
 	we should not hold sources in fdgw itself to shlink fdgw source tree.
 	o squid
 	o jftpgw
@@ -151,4 +162,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.16 2002/02/22 13:30:24 fukachan Exp $
+$FML: CHANGES,v 1.17 2002/04/17 02:04:15 fukachan Exp $
