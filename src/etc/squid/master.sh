@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $FML: master.sh,v 1.2 2002/02/18 13:44:48 fukachan Exp $
+#  $FML: master.sh,v 1.3 2002/02/19 14:15:20 fukachan Exp $
 #
 
 prefix=/usr/pkg
@@ -25,6 +25,7 @@ cp /dev/null ${logdir}/logs/cache.log
 cp /dev/null ${logdir}/logs/store.log
 chown -R nobody ${logdir}
 
+( sleep 15; logger -t squid start squidclean; /usr/pkg/sbin/squidclean &)&
 
 failcount=0
 while : ; do
@@ -33,5 +34,10 @@ while : ; do
 	chown -R nobody ${logdir}
 	squid -z
 	squid -NsY $conf | logger -t squid
+	/usr/pkg/sbin/squidclean once
 	sleep 10
 done
+
+logger -t squid squidmater dies
+
+exit 0
