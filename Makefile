@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.51 2003/01/10 04:21:49 fukachan Exp $
+# $FML: Makefile,v 1.52 2003/01/17 09:21:58 fukachan Exp $
 #
 
 # programs and directories
@@ -109,8 +109,8 @@ _clean_obj:
 	  done
 
 allclean: clean
-	-rm -fr obj.* image.*
-	- (cd ${GNU_DIR} ; make clean )
+	- rm -fr obj.* image.*
+	- rm -fr src/NetBSD
 	- (rm -fr ${PKG_DIR} )
 
 stat:	obj.*.*/log.*
