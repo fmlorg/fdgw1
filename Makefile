@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.21 2001/12/15 16:29:40 fukachan Exp $
+# $FML: Makefile,v 1.22 2001/12/15 16:31:45 fukachan Exp $
 #
 
 
@@ -23,15 +23,19 @@ dist:
 	-make MODEL=natbox     KERNEL_CONF=FDGW6
 
 build:
-	${SH} ./src/prepare_workdir.sh ${MODEL}
-	(cd src.${MODEL}; make MODEL=${MODEL} build )
-
+	${SH} ./src/prepare_workdir.sh ${ARCH}.${MODEL}
+	(cd src.${ARCH}.${MODEL}; make MODEL=${MODEL} build )
+		
 image:
-	(cd src.${MODEL}; ${SU_CMD} "cd `pwd`; make MODEL=${MODEL} image" )
+	(cd src.${ARCH}.${MODEL}; \
+		${SU_CMD} "cd `pwd`; make MODEL=${MODEL} image" )
 
 clean cleandir:
-	(cd src; make clean )
+	- (cd src; make clean )
 	- (cd src/gnu/rp-pppoe/src/;make distclean)
+	@ for dir in src.* ; do \
+		(cd $$dir ; make clean );\
+	  done
 
 allclean: clean
 	-rm -fr src.* image.*

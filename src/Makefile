@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.21 2001/12/15 14:47:57 fukachan Exp $
+# $FML: Makefile,v 1.22 2001/12/15 16:03:36 fukachan Exp $
 #
 
 
@@ -22,14 +22,11 @@ ARCH?=		`uname -p`
 # destination to install
 LOCALBASE?=	/usr/pkg
 
-# targets for lndir
-SRC_DIRS?=	bin sbin usr.bin usr.sbin distrib dist etc include lib gnu sys
-
 # NetBSD source
 BSDSRCDIR?=	/usr/src
 
 # dir to lndir
-_BSDSRCDIR=	${PWD}/work/src
+_BSDSRCDIR=	${PWD}/NetBSD
 
 _FLOPPY_DIR=	${_BSDSRCDIR}/distrib/${ARCH}/floppies
 
@@ -115,22 +112,10 @@ _init_mesg:
 _lndir:
 	@ test -d ${_BSDSRCDIR} || mkdir -p ${_BSDSRCDIR}
 	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
-	@ if [ ! -f work/.lndir_done ]; then \
+	@ if [ ! -f ${_BSDSRCDIR}/.lndir_done ]; then \
 		lndir ${BSDSRCDIR} ${_BSDSRCDIR};\
 	  fi
-
-__lndir:
-	@ echo ""
-	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
-	@ echo ""
-	@ if [ ! -f work/.lndir_done ]; then \
-	  for dir in ${SRC_DIRS} ;\
-	  do \
-		test -d ${_BSDSRCDIR}/$$dir || mkdir -p ${_BSDSRCDIR}/$$dir ;\
-		lndir ${BSDSRCDIR}/$$dir ${_BSDSRCDIR}/$$dir; \
-	  done \
-	  fi
-	@ touch work/.lndir_done
+	@ touch ${_BSDSRCDIR}/.lndir_done
 
 _init_dir:
 	@ test -d work || mkdir -p work
@@ -159,10 +144,13 @@ _init_pppoe:
 	@ echo "";
 	@ echo "make rp-pppoe for ADSL router";
 	@ echo "";
-	( cd gnu/rp-pppoe/src;\
+	@ if [ ! -f gnu/.pppoe_done ];then \
+	  ( cd gnu/rp-pppoe/src;\
 		./configure --prefix=${LOCALBASE};\
 		make ;\
-	)
+	  );\
+	  fi
+	@ touch gnu/.pppoe_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
