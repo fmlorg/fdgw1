@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.3 2001/09/06 07:57:20 fukachan Exp $
+# $FML: Makefile,v 1.4 2001/09/06 12:45:39 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -23,6 +23,7 @@ ${IMAGE}: _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
+	(cd ../utils/resolver/; make ${_ARGS})
 	-make -f Makefile.ramdisk ${_ARGS}
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
