@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.63 2003/01/17 07:07:01 fukachan Exp $
+# $FML: Makefile,v 1.64 2003/01/17 09:22:04 fukachan Exp $
 #
 
 
@@ -18,6 +18,9 @@ __VERSION != uname -r
 NetBSD_VERSION?=	${__VERSION:C|^(...).*|\1|}
 
 _CONF_DIR=	conf/${NetBSD_VERSION}
+
+# 
+MODEL?=         natbox
 
 #
 # directories for targets and sources
@@ -43,6 +46,10 @@ _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
 _RACOON_SOURCE=	racoon-20020507a.tar.gz
 
+#
+.if ${MODEL} == "vpn-racoon"
+IPSEC=yes
+.endif
 
 # individual directories to link to
 _DIR1=	etc
@@ -138,7 +145,6 @@ INO_BYTES=	40960
 
 IMAGE=		boot.fs
 MOUNT_POINT=	${.CURDIR}/mnt
-MODEL?=         natbox
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
 _RC_CONF?=	model/${MODEL}/rc.conf
