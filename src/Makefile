@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.57 2002/06/20 10:47:21 fukachan Exp $
+# $FML: Makefile,v 1.58 2002/07/31 07:49:30 fukachan Exp $
 #
 
 
@@ -97,6 +97,8 @@ _DIR1+=	usr.sbin/dhcp
 _DIR1+=	usr.sbin/ipf
 _DIR1+=	usr.sbin/pppd
 _DIR1+=	usr.sbin/route6d
+_DIR1+=	usr.sbin/rtadvd
+_DIR1+=	usr.sbin/rtsold
 _DIR1+=	usr.sbin/syslogd
 _DIR1+=	usr.sbin/traceroute6
 
@@ -223,6 +225,10 @@ INIT_RULES +=	_init_squid \
 
 .if ${MODEL} == "bgprouter"
 INIT_RULES +=	_init_zebra
+.endif
+
+.if ${MODEL} == "multicast6"
+INIT_RULES +=	_init_pim6sd
 .endif
 
 INIT_RULES +=	_init_model_post_configure
@@ -375,6 +381,14 @@ _init_dhcp:
 _init_resolver:
 	(cd utils/resolver/; make ${_ARGS})
 
+_init_pim6sd:
+	@ echo "";
+	@ echo "make pim6sd for pim6sd model";
+	@ echo "";
+	@ if [ ! -f gnu/.pim6sd_done ];then \
+		(cd usr.sbin/pim6sd/pim6sd/; make );\
+	fi
+	@ touch gnu/.pim6sd_done
 
 #
 # cleaning
