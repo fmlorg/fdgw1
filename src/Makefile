@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.31 2002/01/30 12:33:22 fukachan Exp $
+# $FML: Makefile,v 1.32 2002/01/30 14:02:45 fukachan Exp $
 #
 
 
@@ -173,7 +173,8 @@ image:
 #
 _prepare_build_system:	_init_mesg _init_dir  _lndir \
 			_init_config _init_model \
-			_init_pppoe _init_dhcp _init_resolver
+			_init_pppoe _init_squid \
+			_init_dhcp _init_resolver
 
 _init_mesg:
 	@ echo "
@@ -225,6 +226,18 @@ _init_pppoe:
 	  );\
 	  fi
 	@ touch gnu/.pppoe_done
+
+_init_squid:
+	@ echo "";
+	@ echo "make squid for proxyfw model";
+	@ echo "";
+	@ if [ ! -f gnu/.squid_done ];then \
+	  ( cd gnu/squid;\
+		./configure --prefix=${LOCALBASE};\
+		make ;\
+	  );\
+	  fi
+	@ touch gnu/.squid_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
