@@ -1,9 +1,19 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2002/04/25
+
+   add variables to control IP forwarding
+	$ip4forwarding
+	$ip6forwarding
+
+   clean up
+	prepare rc.conf for each model
+	clean up riprouter model
+
 2002/04/24
 
-   add riprouter6 model to handle both IPv4 and IPv6 :)
+   add riprouter model to handle routing by RIP in both IPv4 and IPv6 cases
 	primary target is a IPv6 router, which needs RIPv2 only now.
 
 2002/04/22
@@ -188,4 +198,4 @@
 
 
 -----
-$FML: CHANGES,v 1.25 2002/04/24 09:09:30 fukachan Exp $
+$FML: CHANGES,v 1.26 2002/04/24 09:12:29 fukachan Exp $
