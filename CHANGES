@@ -2,7 +2,11 @@
 
 2001/10/13
 
+   conf/etc/rc.router
+	syslogd -> syslogd $syslogd_flags
+
+   conf/etc/rc.conf
 	"syslogd -s" by default
 
 
-$FML$
+$FML: CHANGES,v 1.1 2001/10/13 15:00:06 fukachan Exp $
