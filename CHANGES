@@ -3,6 +3,8 @@
 
 2004/02/05
 
+  support bridge model. 
+
   clean up conf/1.6/kernel.i386
 	re-create kernel config file from 1.6 source.
 	add BRIDGE for bridge model.
@@ -302,4 +304,4 @@
 
 
 -----
-$FML: CHANGES,v 1.37 2004/01/28 12:33:46 fukachan Exp $
+$FML: CHANGES,v 1.38 2004/02/05 05:06:17 fukachan Exp $
