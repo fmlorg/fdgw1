@@ -4,12 +4,14 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.10 2001/12/15 12:31:47 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.11 2001/12/15 12:46:01 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
 
 IMAGE=		boot.fs
+
+OBJ_DIR=	../image.${ARCH}
 
 MOUNT_POINT?=	/mnt
 VND?=		vnd0
@@ -53,8 +55,8 @@ image:	netbsd
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
 	rm -f ${IMAGE}.[0-9]* ${MODEL}.img
-	test -d ../image || mkdir -p ../image
-	cp -p ${IMAGE} ../image/${MODEL}.img
+	test -d ${OBJ_DIR} || mkdir -p ${OBJ_DIR}
+	cp -p ${IMAGE} ${OBJ_DIR}/${MODEL}.img
 
 .include <bsd.own.mk>
 .include <bsd.obj.mk>

@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.18 2001/12/15 12:34:22 fukachan Exp $
+# $FML: Makefile,v 1.19 2001/12/15 12:46:01 fukachan Exp $
 #
 
 
@@ -82,15 +82,15 @@ build: _prepare_build_system
 image:
 	@ echo "1. make ramdisk-small.fs"
 	@ echo ""
-	-make -f Makefile.ramdisk ${_ARGS} install
+	-make -f Makefile.ramdisk ${_ARGS} image
 	@ echo ""
 	@ echo "2. inject mdsetimage into NetBSD Kernel"
 	@ echo ""
-	-make -f Makefile.kernel ${_ARGS} install
+	-make -f Makefile.kernel ${_ARGS} image
 	@ echo ""
-	@ echo "3. make a bootable floppy and install netbsd to it"
+	@ echo "3. make a bootable floppy and inject netbsd into it"
 	@ echo ""
-	-make -f Makefile.bootfloppy ${_ARGS} install
+	-make -f Makefile.bootfloppy ${_ARGS} image
 	@ echo ""
 	@ echo "done."
 
@@ -100,7 +100,8 @@ image:
 #
 # initialize process before main build process
 #
-_prepare_build_system:	_init_mesg _init_dir _init_config _init_model \
+_prepare_build_system:	_init_mesg _init_dir  _lndir \
+			_init_config _init_model \
 			_init_pppoe _init_dhcp _init_resolver
 
 _init_mesg:
@@ -122,7 +123,7 @@ _lndir:
 	  fi
 	@ touch work/.lndir_done
 
-_init_dir: _lndir
+_init_dir:
 	@ test -d work || mkdir -p work
 
 _init_config:
@@ -170,7 +171,7 @@ clean cleandir:
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
 	-rm -f dot.profile mtree.conf
-	-rm -fr work
 
 allclean: clean
+	-rm -fr work
 	-make -f Makefile.ramdisk unconfig TOP=${_FLOPPY_DIR}
