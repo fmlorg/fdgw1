@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.32 2002/02/09 05:05:01 fukachan Exp $
+# $FML: Makefile,v 1.33 2002/02/09 05:33:16 fukachan Exp $
 #
 
 #
@@ -53,8 +53,12 @@ image:
 clean cleandir:
 	@ echo "===> clearing src";
 	- (cd src; ${MAKE} clean )
-	- (cd src/gnu/rp-pppoe/src/; ${MAKE} distclean )
+	@ echo "===> clearing rp-pppoe";
+	- (cd src/gnu/rp-pppoe/src ; gmake distclean )
 	- rm -f src/gnu/.pppoe_done
+	@ echo "===> clearing squid";
+	- (cd src/gnu/squid ; gmake distclean )
+	- rm -f src/gnu/.squid_done
 	@ for dir in src.* ; do \
 		if [ -d $$dir ];then\
 		(\
