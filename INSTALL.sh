@@ -2,9 +2,7 @@
 
 set -x
 
-dd if=boot.fs of=/dev/rfd0a bs=512
-
-sync;sync;sync; sleep 3
+dd if=boot.fs of=/dev/rfd0a bs=18k
 
 mount /dev/fd0a /mnt
 test -d /mnt/etc || mkdir /mnt/etc
