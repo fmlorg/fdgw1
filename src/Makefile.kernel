@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.kernel,v 1.6 2001/09/29 08:15:41 fukachan Exp $
+# $FML: Makefile.kernel,v 1.7 2001/12/15 02:11:42 fukachan Exp $
 #
 
 ARCH?= i386
@@ -32,7 +32,7 @@ ${KERN}: ${_KERNEL_CONF}
 	@ test -d ${.WORKDIR} || mkdir -p  ${.WORKDIR}
 	cp -p ${_KERNEL_CONF} ${.WORKDIR}/CONFIG
 	(cd ${.WORKDIR}; \
-		config -s ${TOP}/../../../sys ;\
+		config -s ${_SYS_DIR} ;\
 		make depend;\
 		make -j 4 \
 	)
