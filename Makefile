@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.27 2001/12/16 16:01:10 fukachan Exp $
+# $FML: Makefile,v 1.28 2002/01/27 03:14:27 fukachan Exp $
 #
 
 #
