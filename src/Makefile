@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.66 2004/01/27 16:00:45 fukachan Exp $
+# $FML: Makefile,v 1.67 2004/01/28 06:23:57 fukachan Exp $
 #
 
 
@@ -134,6 +134,11 @@ _DIR2+=	dist/dhcp
 .endif
 _DIR2+=	sys/conf
 _DIR2+=	sys/arch/i386/stand
+
+.if ${NetBSD_VERSION} == 1.6
+# sysctl needs sys/compat/linux
+_DIR2+=	sys/compat/linux
+.endif
 
 
 _FLOPPY_DIR=	${_BSDSRCDIR}/distrib/${ARCH}/floppies
