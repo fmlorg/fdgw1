@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -x
+
+test -d work || mkdir -p work
+cd work
+
+for x in /usr/pkg/sbin/adsl-*
+do
+   y=`basename $x`
+   sed	-e '/^ME=/,/^$/d' \
+	-e 's/^basename \$0/xxx/' \
+	-e 's@/usr/bin/id -u@echo 0@' \
+	-e 's/ECHO=.*/ECHO=echo/' \
+	$x > $y
+   chmod 755 $y 
+done
