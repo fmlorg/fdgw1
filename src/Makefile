@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.50 2002/04/22 07:16:52 fukachan Exp $
+# $FML: Makefile,v 1.51 2002/04/24 09:02:06 fukachan Exp $
 #
 
 
@@ -83,6 +83,7 @@ _DIR1+=	usr.bin/id
 _DIR1+=	usr.bin/less
 _DIR1+=	usr.bin/logger
 _DIR1+=	usr.bin/sed
+_DIR1+=	usr.bin/tput
 _DIR1+=	usr.bin/tty
 _DIR1+=	usr.bin/uname
 _DIR1+=	usr.sbin/chown
@@ -239,6 +240,7 @@ _lndir:
 	  lndir ${BSDSRCDIR}/$$DIR ${_BSDSRCDIR}/$$DIR; \
 	done
 	(cd ${_BSDSRCDIR}/distrib; ln -s -f ${BSDSRCDIR}/distrib/Makefile.inc)
+	(cd ${_BSDSRCDIR}/sbin; ln -s -f ${BSDSRCDIR}/sbin/Makefile.inc)
 	(cd ${_BSDSRCDIR}; ln -s -f ${BSDSRCDIR}/Makefile.inc)
 	for DIR in ${_DIR1} ; do \
 	  (cd ${_BSDSRCDIR}/$$DIR; echo cleaning in $$DIR; make cleandir) \
