@@ -1,5 +1,13 @@
 		CHANGES
 
+2002/02/09
+
+   add proxyfw model (prototype)
+	enable squid
+	import squid source in src/gnu/squid/
+
+   fix rp-pppoe building rule in ramdiskbin.conf
+
 2002/01/30
 
    clean up Makefile. we should check error more. 
@@ -38,4 +46,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.5 2002/01/27 04:43:13 fukachan Exp $
+$FML: CHANGES,v 1.6 2002/01/30 14:16:26 fukachan Exp $
