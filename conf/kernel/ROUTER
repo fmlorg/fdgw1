@@ -1,5 +1,5 @@
 #
-# $FML: ROUTER,v 1.1.1.1 2001/09/06 03:30:25 fukachan Exp $
+# $FML: ROUTER,v 1.2 2001/09/07 12:49:03 fukachan Exp $
 #
 # This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.
 #
@@ -374,15 +374,29 @@ fd*	at fdc? drive ?			# the drives themselves
 # Network Interfaces
 
 # PCI network interfaces
+# PCI network interfaces
+de*	at pci? dev ? function ?	# DEC 21x4x-based Ethernet
+en*	at pci? dev ? function ?	# ENI/Adaptec ATM
+ep*	at pci? dev ? function ?	# 3Com 3c59x
 ex*	at pci? dev ? function ?	# 3Com 90x[B]
+epic*	at pci? dev ? function ?	# SMC EPIC/100 Ethernet
+esh*	at pci? dev ? function ?	# Essential HIPPI card
+fpa*	at pci? dev ? function ?	# DEC DEFPA FDDI
 fxp*	at pci? dev ? function ?	# Intel EtherExpress PRO 10+/100B
-ne* 	at pci? dev ? function ?	# NE2000-compatible Ethernet
-rtk* 	at pci? dev ? function ? 	# Realtek 8129/8139
+le*	at pci? dev ? function ?	# PCnet-PCI Ethernet
+lmc*	at pci? dev ? function ?	# Lan Media Corp SSI/HSSI/DS3
+ne*	at pci? dev ? function ?	# NE2000-compatible Ethernet
+ntwoc*	at pci? dev ? function ?	# Riscom/N2 PCI Sync Serial
+rtk*	at pci? dev ? function ?	# Realtek 8129/8139
+sip*	at pci? dev ? function ?	# SiS 900 Ethernet
+ti*	at pci? dev ? function ?	# Alteon ACEnic gigabit Ethernet
+tl*	at pci? dev ? function ?	# ThunderLAN-based Ethernet
 tlp*	at pci? dev ? function ?	# DECchip 21x4x (and clones) Ethernet
-#options       TLP_MATCH_21040
-#options       TLP_MATCH_21041
-#options       TLP_MATCH_21140
-#options       TLP_MATCH_21142
+#options 	TLP_MATCH_21040
+#options 	TLP_MATCH_21041
+#options 	TLP_MATCH_21140
+#options 	TLP_MATCH_21142
+vr*	at pci? dev ? function ?	# VIA Rhine Fast Ethernet
 
 # PCMCIA network interfaces
 an*	at pcmcia? function ?		# Aironet PC4500/PC4800 (802.11)
