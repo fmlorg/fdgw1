@@ -6,49 +6,94 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: convert.pl,v 1.1.1.1 2004/01/27 15:58:42 fukachan Exp $
+# $FML: convert.pl,v 1.2 2004/02/05 02:15:47 fukachan Exp $
 #
 
 use strict;
+use Carp;
 use FileHandle;
 
-my $fh = new FileHandle "../../../../../sys/arch/i386/conf/INSTALL_LAPTOP";
+my $source = "/sys/arch/i386/conf/INSTALL_LAPTOP";
+my $regexp = "\n";
 
+load_config_disable();
+load_config_enable();
+
+my $fh = new FileHandle $source;
 if (defined $fh) {
-    print "#\n";
-    print "# \$FML\$\n";
-    print "#\n";
-    print "# This file is derived from INSTALL_LAPTOP in NetBSD 1.5 stable branch.\n";
-    print "#\n\n";
+    print <<'_EOF_';
+#
+# Copyright (C) 2004 Ken'ichi Fukamachi <fukachan@fml.org>
+#
+# All rights reserved. This program is free software; you can
+# redistribute it and/or modify it under the same terms as NetBSD itself.
+#
+# $FML$
+#
+# This file is derived from INSTALL_LAPTOP in NetBSD 1.6 stable branch.
+#
+_EOF_
 
-    while (<$fh>) {
-	if (/^\#/) {	
-	    if (/pseudo-device\s*ipfilter/ ||
-		/options\s*GATEWAY/
-		) {
-		s/^\#\s*//;
-	    }
+    print "\n\n";
+
+    my $s = qq{
+	while (<\$fh>) {
+	    $regexp;
+	    print;
 	}
-	else {
-	    if (/COMPAT_1[0123]/ ||
-		/DDB/            || 
-		/atapibus/ 	 ||
-		/[uo]hci/ 	 ||	# USB HUB
-		/uhub./          ||	# USB HUB
-		/ukbd./          ||	# USB HUB
-		/umass./         ||	# USB HUB
-		/isapnp./        ||
-		/pseudo-device\s*sl\s*/ || # SLIP
-		/file-system\s*(EXT2FS|MFS|NFS|NTFS|CD9660)/
-		) {
-		$_ = "\#". $_;
-	    }
-	}
+    };
 
-
-	print;
-    }
+    eval $s;
+    croak($@) if $@;
+}
+else {
+    croak("cannot open $source");
 }
 
 exit 0;
 
+
+sub load_config_enable
+{
+    $regexp .= "\n\t# enable\n";
+
+    my $fh = new FileHandle "config.enable";
+    if (defined $fh) {
+	my @a;
+	my $_regexp;
+	while (<$fh>) {
+	    chomp;
+	    if ($_) {
+		$_regexp = '';
+		for my $e (split(/\s+/, $_)) {
+		    $_regexp .= ".*" . quotemeta($e);
+		}
+		$regexp .= "\ts/^\\#// if /^\\\#$_regexp/;\n";
+	    }
+	}
+	$fh->close();
+    }
+}
+
+
+sub load_config_disable
+{
+    $regexp .= "\n\t# disable\n";
+
+    my $fh = new FileHandle "config.disable";
+    if (defined $fh) {
+	my @a;
+	my $_regexp;
+	while (<$fh>) {
+	    chomp;
+	    if ($_) {
+		$_regexp = '';
+		for my $e (split(/\s+/, $_)) {
+		    $_regexp .= ".*" . quotemeta($e);
+		}
+		$regexp .= "\ts/^/\\#/ if /^\\w/ &&/^$_regexp/;\n";
+	    }
+	}
+	$fh->close();
+    }
+}
