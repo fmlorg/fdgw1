@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.5 2003/01/10 00:29:51 fukachan Exp $
+# $FML: rc.router,v 1.1.1.1 2004/01/27 15:58:42 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -32,12 +32,43 @@ if [ -f /etc/myname ];then
 fi
 
 
-for if in `ifconfig -l`
+# check cloned devices.
+if_tmp=`ifconfig -l`
+for cloner in `ifconfig -C 2>/dev/null`; do
+    for int in /etc/ifconfig.${cloner}[0-9]*; do
+            [ ! -f $int ] && break
+            if_tmp="$if_tmp ${int##*.}"
+    done
+done
+
+for if in $if_tmp
 do
+   # COMPATIBILITY: default /etc/rc.d/network uses $int not $if.
+   int=$if
+
    if [ -f /etc/ifconfig.$if ];then
+	if [ -f /etc/ifconfig.$if ]; then
+		if ifconfig $if create 2>/dev/null && \
+		   checkyesno ipfilter; then
+			# resync ipf(4)
+			ipf -y >/dev/null
+		fi
+	fi
+
 	while read args; do
-		echo "ifconfig $if $args"
-		ifconfig $if $args
+		[ -z "$args" ] && continue
+		case "$args" in
+		"#"*|create)
+			;;
+		"!"*)
+			echo ${args#*!}
+			eval ${args#*!}
+			;;
+		*)
+			echo ifconfig $if $args
+			     ifconfig $if $args
+			;;
+		esac
 	done < /etc/ifconfig.$if
    fi
 done
