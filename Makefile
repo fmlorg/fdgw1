@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.23 2001/12/16 04:04:44 fukachan Exp $
+# $FML: Makefile,v 1.24 2001/12/16 06:07:45 fukachan Exp $
 #
 
 #
@@ -18,11 +18,13 @@ KERNEL_CONF?=	FDGW
 SU_CMD?=	su - root -c
 
 
-all: build image
+all:
+	@ echo "make build   (need NOT priviledge)"
+	@ echo "make install (need root priviledge)"
 
 dist:
-	-${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW
-	-${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6
+	-${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW build image
+	-${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build image
 
 build:
 	${SH} ./src/prepare_workdir.sh ${ARCH}.${MODEL}
