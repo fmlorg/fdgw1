@@ -1,6 +1,34 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2003/01/10
+
+   new rc.conf generator
+	clean up model/*/rc.conf.
+	add src/merge_conf.awk 
+
+   clean up rc.conf(s) in conf/ and model/
+	implement new merging process by awk.
+	it creates /etc/rc.conf on image by
+	both model/*/rc.conf and defaults/rc.conf.
+
+   src/Makefile 
+	import model/*/rc.conf as obj.$arch.$model/rc.conf.
+	pass _CONF_DIR to sub make process (but not needed ?).
+
+   src/Makefile.bootfloppy 
+	new merge process by awk which merges obj.$arch.$model/rc.conf
+	and defaults/rc.conf.
+
+	import local/model/$model/ files if exists.
+
+2003/01/09
+
+   clean up conf/1.5/etc/
+	install etc/defaults/rc.conf as /etc/rc.conf on image.
+
+   clean up, fix comments
+
 2002/12/09
 
    /.profile
@@ -228,4 +256,4 @@
 
 
 -----
-$FML: CHANGES,v 1.30 2002/08/05 23:29:38 fukachan Exp $
+$FML: CHANGES,v 1.31 2002/12/09 03:23:04 fukachan Exp $
