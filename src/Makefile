@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.46 2002/04/17 11:54:17 fukachan Exp $
+# $FML: Makefile,v 1.47 2002/04/17 22:59:49 fukachan Exp $
 #
 
 
@@ -29,8 +29,9 @@ BSDSRCDIR?=	/usr/src
 _BSDSRCDIR=	${PWD}/NetBSD
 
 # src/gnu/ master sources to fetch before we start to build fdgw.
-_GNU_SOURCES= squid-2.4.STABLE6-src.tar.gz
-_GNU_SOURCES+= jftpgw-0.13.beta.j.tar.gz
+_SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
+_JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
+
 
 # individual directories to link to
 _DIRS=	etc
@@ -183,23 +184,34 @@ image:
 	@ echo ""	
 
 
+#
+# initialization rules
+#
+INIT_RULES =	_init_mesg _init_dir  _lndir \
+		_init_download \
+		_init_config \
+		_init_model_pre_configure \
+		_init_dhcp \
+		_init_resolver
+
+.if ${MODEL} == "adslrouter"
+INIT_RULES +=	_init_pppoe
+.endif
+
+.if ${MODEL} == "proxybox"
+INIT_RULES +=	_init_squid \
+		_init_jftpgw \
+		_init_stone
+.endif
+
+INIT_RULES +=	_init_model_post_configure
+
 
 ######################################################
 #
 # initialize process before main build process
 #
-_prepare_build_system:	_init_mesg _init_dir  _lndir \
-			_init_download \
-			_init_extract \
-			_init_config \
-			_init_model_pre_configure \
-			_init_pppoe \
-			_init_squid \
-			_init_jftpgw \
-			_init_stone \
-			_init_dhcp \
-			_init_resolver \
-			_init_model_post_configure
+_prepare_build_system:	${INIT_RULES}
 
 _init_mesg:
 	@ echo "
@@ -249,13 +261,6 @@ _init_model_post_configure:
 _init_download:
 	sh fetch.sh ${_GNU_SOURCES};
 
-
-_init_extract:
-	@ if [ ! -f gnu/.extract_done ];then \
-		sh extract.sh ${_GNU_SOURCES};\
-	fi
-	@ touch gnu/.extract_done
-
 _init_pppoe:
 	@ echo "";
 	@ echo "make rp-pppoe for ADSL router";
@@ -272,6 +277,7 @@ _init_squid:
 	@ echo "";
 	@ echo "make squid for proxyfw model";
 	@ echo "";
+	@ sh extract.sh ${_SQUID_SOURCE}
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
 		./configure --prefix=${LOCALBASE} \
@@ -286,6 +292,7 @@ _init_jftpgw:
 	@ echo "";
 	@ echo "make jftpgw for proxyfw model";
 	@ echo "";
+	@ sh extract.sh ${_JFTPGW_SOURCE}
 	@ if [ ! -f gnu/.jftpgw_done ];then \
 	  ( cd gnu/jftpgw/support;\
 		rm -f ipfilter.? ;\

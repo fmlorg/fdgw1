@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: extract.sh,v 1.1 2002/02/21 11:00:47 fukachan Exp $
+# $FML: extract.sh,v 1.2 2002/04/18 01:54:06 fukachan Exp $
 #
 
 tmpdir=./trash/$$
@@ -8,12 +8,17 @@ tmpdir=./trash/$$
 cd gnu || exit 1
 
 test -d $tmpdir || mkdir -p $tmpdir
-mv squid* jftpgw* $tmpdir >/dev/null 2>&1
 
 for tgz in $*
 do
 	name=`basename $tgz .tar.gz`
 	f=../distfiles/$tgz
+
+	if [ -f .extract_${name}_done ];then
+		echo "ignore ${name} building (.extract_${name}_done)"
+		sleep 3
+		continue
+	fi
 
 	echo Extracting $tgz
 
@@ -38,6 +43,8 @@ do
 	then
 		mv jftpgw* jftpgw || exit 1
 	fi
+
+	touch .extract_${name}_done
 done
 
 exit 0
