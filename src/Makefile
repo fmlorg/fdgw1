@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.64 2003/01/17 09:22:04 fukachan Exp $
+# $FML: Makefile,v 1.65 2003/01/17 11:36:13 fukachan Exp $
 #
 
 
@@ -17,7 +17,11 @@ ARCH?=		`uname -p`
 __VERSION != uname -r
 NetBSD_VERSION?=	${__VERSION:C|^(...).*|\1|}
 
+# netbsd version dependent configuration: conf/1.5/...
 _CONF_DIR=	conf/${NetBSD_VERSION}
+
+# netbsd version dependent configuration: model/1.5/...
+_MODEL_DIR=	model/${NetBSD_VERSION}
 
 # 
 MODEL?=         natbox
@@ -287,7 +291,7 @@ _init_config:
 	ln ../${_CONF_DIR}/mtree.conf  .
 	-rm -f disktab.preinstall termcap.mini
 	ln -s ../${_CONF_DIR} conf
-	ln -s ../model model
+	ln -s ../${_MODEL_DIR} model
 	cp distrib/${ARCH}/floppies/disktab.preinstall disktab.preinstall
 	cp distrib/${ARCH}/floppies/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
