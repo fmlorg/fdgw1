@@ -61,12 +61,10 @@ then
 	route add default `cat /conf/etc/mygate`
 fi
 
-if checkyesno syslogd; then
-   if [ -f /conf/etc/syslog.conf ]
-   then
+if [ -f /conf/etc/syslog.conf ]
+then
 	cp /dev/null var/run/utmp
 	syslogd -f /conf/etc/syslog.conf
-   fi
 fi
 
 if [ -f /conf/etc/ipf.conf ]
