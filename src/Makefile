@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.68 2004/01/28 09:14:34 fukachan Exp $
+# $FML: Makefile,v 1.69 2004/02/05 10:16:21 fukachan Exp $
 #
 
 
@@ -267,6 +267,10 @@ INIT_RULES +=	_init_pim6sd
 INIT_RULES +=	_init_racoon
 .endif
 
+.if ${MODEL} == "gentraffic"
+INIT_RULES +=	_init_ttcp
+.endif
+
 INIT_RULES +=	_init_model_post_configure
 
 
@@ -444,6 +448,15 @@ _init_racoon:
 	  );\
 	  fi
 	@ touch ${STATUS_DIR}/.racoon_done
+
+_init_ttcp:
+	@ echo "";
+	@ echo "make ttcp for gentraffic model";
+	@ echo "";
+	@ if [ ! -f ${STATUS_DIR}/.ttcp_done ];then \
+		(cd ${PDS_DIR}/ttcp; make );\
+	fi
+	@ touch ${STATUS_DIR}/.ttcp_done
 
 
 _prepare_fixed_source: _init_x_syslogd
