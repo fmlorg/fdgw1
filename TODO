@@ -1,0 +1,12 @@
+		TODO MEMO
+
+support NetBSD 1.6.
+
+support pf on 1.6.
+
+bridge model on 1.6.
+
+clean up src/Makefile.* more.
+
+--------------------------------------------------------
+$FML$
