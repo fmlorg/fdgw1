@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.29 2002/01/27 03:47:03 fukachan Exp $
+# $FML: Makefile,v 1.30 2002/01/27 03:59:08 fukachan Exp $
 #
 
 
@@ -137,11 +137,11 @@ build: _prepare_build_system
 	@ echo ""
 	@ echo "build stage 1. make ramdiskbin for ${MODEL} model"
 	@ echo ""
-	-make -f Makefile.ramdisk ${_ARGS} build
+	make -f Makefile.ramdisk ${_ARGS} build
 	@ echo ""
 	@ echo "build stage 2. make netbsd kernel for ${MODEL} model"
 	@ echo ""
-	-make -f Makefile.kernel ${_ARGS} build
+	make -f Makefile.kernel ${_ARGS} build
 	@ echo ""
 	@ echo "build stage for ${MODEL} model done."
 	@ echo ""	
@@ -150,15 +150,15 @@ image:
 	@ echo ""
 	@ echo "image 1. make ramdisk-small.fs for ${MODEL} model"
 	@ echo ""
-	-make -f Makefile.ramdisk ${_ARGS} image
+	make -f Makefile.ramdisk ${_ARGS} image
 	@ echo ""
 	@ echo "image 2. inject mdsetimage into NetBSD Kernel for ${MODEL} model"
 	@ echo ""
-	-make -f Makefile.kernel ${_ARGS} image
+	make -f Makefile.kernel ${_ARGS} image
 	@ echo ""
 	@ echo "image 3. make a bootable floppy and inject netbsd into it for ${MODEL} model"
 	@ echo ""
-	-make -f Makefile.bootfloppy ${_ARGS} image
+	make -f Makefile.bootfloppy ${_ARGS} image
 	@ echo ""
 	@ echo "building image for ${MODEL} model stage done."
 	@ echo ""	
