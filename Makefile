@@ -1,8 +1,9 @@
 #
-# $FML: Makefile,v 1.6 2001/08/15 09:11:28 fukachan Exp $
+# $FML: Makefile,v 1.7 2001/08/15 10:03:35 fukachan Exp $
 #
 
-TOP=		${.CURDIR}/..
+ARCH?=		`uname -p`
+_TOP=		/usr/src/distrib/${ARCH}/floppies
 WARNS=1
 
 IMAGE=		boot.fs
@@ -17,23 +18,23 @@ ${IMAGE}: _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
-	-make -f Makefile.ramdisk MOUNT_POINT=${MOUNT_POINT}
+	-make -f Makefile.ramdisk MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
 	@ echo ""
-	-make -f Makefile.kernel netbsd MOUNT_POINT=${MOUNT_POINT}
+	-make -f Makefile.kernel netbsd MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
 	@ echo ""
 	@ echo "3. make a bootable floppy and install netbsd to it"
 	@ echo ""
-	-make -f Makefile.bootfloppy MOUNT_POINT=${MOUNT_POINT}
+	-make -f Makefile.bootfloppy MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
 	@ echo ""
 	@ echo "done."
 
 _prepare:
 	@ echo "0. prepations ... "
 	-rm -f disktab.preinstall termcap.mini
-	cp ${TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
-	cp ${TOP}/ramdisk-small/termcap.mini       termcap.mini
+	cp ${_TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
+	cp ${_TOP}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
 	ln -s ${_CBIN}.conf ramdiskbin.conf
 	-rm -f list
@@ -41,8 +42,8 @@ _prepare:
 	if [ -x conf/${MODEL}/configure ]; then conf/${MODEL}/configure ; fi
 
 clean cleandir:
-	-make -f ${TOP}/ramdisk-small/Makefile unconfig
-	-make -f ${TOP}/ramdisk-small/Makefile cleandir
+	-make -f Makefile.ramdisk unconfig TOP=${_TOP}
+	-make -f Makefile.ramdisk cleandir TOP=${_TOP}
 	-rm -f disktab.preinstall termcap.mini
 	-rm -f ramdiskbin.conf list
 	-rm -f boot *.fs boot.fs* netbsd* *.tmp *~
