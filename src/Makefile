@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.2 2001/09/06 00:08:55 fukachan Exp $
+# $FML: Makefile,v 1.3 2001/09/06 07:57:20 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -14,21 +14,24 @@ MODEL?=         natbox.basic
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
 
+_ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} BSDSRCDIR=${BSDSRCDIR} \
+		CURDIR=${PWD}
+
 all: ${IMAGE}
 
 ${IMAGE}: _prepare
 	@ echo ""
 	@ echo "1. make file system on md0a (ramdisk-small.fs)"
 	@ echo ""
-	-make -f Makefile.ramdisk MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
+	-make -f Makefile.ramdisk ${_ARGS}
 	@ echo ""
 	@ echo "2. make netbsd kernel and mdsetimage on it"
 	@ echo ""
-	-make -f Makefile.kernel netbsd MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
+	-make -f Makefile.kernel netbsd ${_ARGS}
 	@ echo ""
 	@ echo "3. make a bootable floppy and install netbsd to it"
 	@ echo ""
-	-make -f Makefile.bootfloppy MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP}
+	-make -f Makefile.bootfloppy ${_ARGS}
 	@ echo ""
 	@ echo "done."
 
