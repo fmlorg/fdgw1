@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.30 2002/01/27 03:59:08 fukachan Exp $
+# $FML: Makefile,v 1.31 2002/01/30 12:33:22 fukachan Exp $
 #
 
 
@@ -100,7 +100,7 @@ _SYS_DIR=	${BSDSRCDIR}/sys
 INO_BYTES=	40960
 
 IMAGE=		boot.fs
-MOUNT_POINT=	/mnt
+MOUNT_POINT=	${.CURDIR}/mnt
 MODEL?=         natbox
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
@@ -150,7 +150,8 @@ image:
 	@ echo ""
 	@ echo "image 1. make ramdisk-small.fs for ${MODEL} model"
 	@ echo ""
-	make -f Makefile.ramdisk ${_ARGS} image
+	make -f Makefile.ramdisk ${_ARGS} image ||\
+		(make -f Makefile.ramdisk ${_ARGS} unconfig ; exit 1)
 	@ echo ""
 	@ echo "image 2. inject mdsetimage into NetBSD Kernel for ${MODEL} model"
 	@ echo ""
@@ -158,7 +159,8 @@ image:
 	@ echo ""
 	@ echo "image 3. make a bootable floppy and inject netbsd into it for ${MODEL} model"
 	@ echo ""
-	make -f Makefile.bootfloppy ${_ARGS} image
+	make -f Makefile.bootfloppy ${_ARGS} image ||\
+		(make -f Makefile.bootfloppy ${_ARGS} unconfig; exit 1)
 	@ echo ""
 	@ echo "building image for ${MODEL} model stage done."
 	@ echo ""	
