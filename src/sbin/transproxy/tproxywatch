@@ -10,7 +10,7 @@
 #
 
 MAILTO=root
-TPROXYRUN=/usr/local/sbin/tproxyrun
+TPROXYRUN=/usr/pkg/sbin/tproxyrun
 
 exec > /var/log/tproxywatch.log 2>&1
 

@@ -14,11 +14,11 @@ HOSTNAME1=`grep \`hostname\` /etc/hosts | head -1 | awk '{print$1}'`
 #HOSTNAME3="10.1.0.1"
 
 # Details of the proxy we connect to.
-PROXYNAME="proxy.domain.com"
-PROXYPORT="8080"
+PROXYNAME="localhost"
+PROXYPORT="3128"
 
 # Details of how transproxy will operate.
-TRANSPROXYPORT="8081"
+TRANSPROXYPORT="10080"
 TRANSPROXYLOG="/tmp/tproxy.log"	# Must be writable by the uid/gid we run as.
 
 # List of address that are allowed to connect.
@@ -93,7 +93,7 @@ if [ -n "$FORCE_URL" ]; then
 fi
 
 # Start transproxy running.
-/usr/local/sbin/tproxy -s "$TRANSPROXYPORT" -d $CMD "$PROXYNAME" "$PROXYPORT"
+/usr/pkg/sbin/tproxy -s "$TRANSPROXYPORT" -d $CMD "$PROXYNAME" "$PROXYPORT"
 
 # Remove the filter rules.
 case `uname` in

@@ -1000,7 +1000,7 @@ static void trans_proxy(int sock, struct sockaddr_in *from_addr,
 	int					max_fd;
 	fd_set				read_fd;
 #ifdef IPFILTER
-	natlookup_t			natlook;
+	natlookup_t			natlook, *natlookp;
 #endif
 
 	/*
@@ -1063,11 +1063,11 @@ static void trans_proxy(int sock, struct sockaddr_in *from_addr,
 	natlook.nl_flags = IPN_TCP;
 	natlook.nl_inport = conn.dest_addr.sin_port;
 	natlook.nl_outport = conn.client_addr.sin_port;
-
+  natlookp = &natlook;
 	/*
 	 * Use the NAT device to lookup the mapping pair.
 	 */
-	if (ioctl(natdev, SIOCGNATL, &natlook) == -1)
+	if (ioctl(natdev, SIOCGNATL, &natlookp) == -1)
 	{
 # if defined(LOG_TO_SYSLOG) || defined(LOG_FAULTS_TO_SYSLOG)
 		syslog(LOG_ERR, "ioctl(SIOCGNATL): %m");
@@ -1075,8 +1075,8 @@ static void trans_proxy(int sock, struct sockaddr_in *from_addr,
 		return;
 	}
 
-	conn.dest_addr.sin_addr = natlook.nl_realip;
-	conn.dest_addr.sin_port = natlook.nl_realport;
+	conn.dest_addr.sin_addr = natlookp->nl_realip;
+	conn.dest_addr.sin_port = natlookp->nl_realport;
 #endif
 
 #endif/*!IPTABLES*/
