@@ -2,6 +2,8 @@
 
 2002/04/17
 
+   use our lib/libtransparent/ipfilter.c not jftpgw builtin one
+
    include sysctl into proxybox model
 
 2002/04/16
@@ -166,4 +168,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.18 2002/04/17 07:41:14 fukachan Exp $
+$FML: CHANGES,v 1.19 2002/04/17 10:36:13 fukachan Exp $
