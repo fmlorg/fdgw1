@@ -123,3 +123,7 @@ COPY	${CURDIR}/dot.hdprofile		tmp/.hdprofile
 # SPECIAL	chmod 755 install
 # SPECIAL	chmod 755 upgrade
 # SPECIAL	chmod 755 start
+
+# fake /var/run/dev.db
+COPY	${DESTDIR}/var/run/dev.db		var/run/dev.db
+
