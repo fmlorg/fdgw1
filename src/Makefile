@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.62 2003/01/10 04:01:18 fukachan Exp $
+# $FML: Makefile,v 1.63 2003/01/17 07:07:01 fukachan Exp $
 #
 
 
@@ -32,8 +32,12 @@ BSDSRCDIR?=	/usr/src
 # dir to lndir
 _BSDSRCDIR=	${PWD}/NetBSD
 
-# src/gnu/ master sources to fetch before we start to build fdgw.
-_FETCH_PROGRAM=	sh utils/fetch.sh
+# utilities
+_ENV= env PKG_DIR=${PKG_DIR}
+_FETCH_PROGRAM=	  ${_ENV} ${SH} ${TOOL_DIR}/fetch.sh
+_EXTRACT_PROGRAM= ${_ENV} ${SH} ${TOOL_DIR}/extract.sh
+
+# packages we used for some models
 _SQUID_SOURCE=	squid-2.4.STABLE6-src.tar.gz
 _JFTPGW_SOURCE=	jftpgw-0.13.beta.j.tar.gz
 _ZEBRA_SOURCE=	zebra-0.92a.tar.gz
@@ -235,6 +239,10 @@ INIT_RULES +=	_init_zebra
 INIT_RULES +=	_init_pim6sd
 .endif
 
+.if ${MODEL} == "vpn-racoon"
+INIT_RULES +=	_init_racoon
+.endif
+
 INIT_RULES +=	_init_model_post_configure
 
 
@@ -282,6 +290,7 @@ _init_config:
 	mv ramdiskbin.conf.new ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
+	-rm -f rc.conf
 	ln -s ${_RC_CONF} rc.conf
 
 _init_model_pre_configure:
@@ -298,62 +307,62 @@ _init_pppoe:
 	@ echo "";
 	@ echo "make rp-pppoe for ADSL router";
 	@ echo "";
-	@ if [ ! -f gnu/.pppoe_done ];then \
-	  ( cd gnu/rp-pppoe/src;\
+	@ if [ ! -f ${STATUS_DIR}/.pppoe_done ];then \
+	  ( cd ${GNU_DIR}/rp-pppoe/src;\
 		./configure --prefix=${LOCALBASE} --sysconf=/etc/ppp ;\
 		make ;\
 	  );\
 	  fi
-	@ touch gnu/.pppoe_done
+	@ touch ${STATUS_DIR}/.pppoe_done
 
 _init_squid:
 	@ echo "";
 	@ echo "make squid for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_SQUID_SOURCE}
-	@ sh utils/extract.sh ${_SQUID_SOURCE}
-	@ if [ ! -f gnu/.squid_done ];then \
-	  ( cd gnu/squid;\
+	@ ${_EXTRACT_PROGRAM} ${_SQUID_SOURCE}
+	@ if [ ! -f ${STATUS_DIR}/.squid_done ];then \
+	  ( cd ${PKG_DIR}/squid;\
 		./configure --prefix=${LOCALBASE} \
 		                --localstatedir=/var/squid \
 		                ${SQUID_CONFIGURE_ARGS} ;\
 		make ;\
 	  );\
 	  fi
-	@ touch gnu/.squid_done
+	@ touch ${STATUS_DIR}/.squid_done
 
 _init_jftpgw:
 	@ echo "";
 	@ echo "make jftpgw for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_JFTPGW_SOURCE}
-	@ sh utils/extract.sh ${_JFTPGW_SOURCE}
-	@ if [ ! -f gnu/.jftpgw_done ];then \
-	  ( cd gnu/jftpgw/support;\
+	@ ${_EXTRACT_PROGRAM} ${_JFTPGW_SOURCE}
+	@ if [ ! -f ${STATUS_DIR}/.jftpgw_done ];then \
+	  ( cd ${PKG_DIR}/jftpgw/support;\
 		rm -f ipfilter.? ;\
 		ln -s ../../../lib/libtransparent/ipfilter.? . ;\
 	  );\
-	  ( cd gnu/jftpgw;\
+	  ( cd ${PKG_DIR}/jftpgw;\
 		./configure --prefix=${LOCALBASE} --sysconf=/etc/jftpgw \
 			--disable-libwrap ;\
 		make ;\
 	  );\
 	  fi
-	@ touch gnu/.jftpgw_done
+	@ touch ${STATUS_DIR}/.jftpgw_done
 
 _init_zebra:
 	@ echo "";
 	@ echo "make zebra for proxyfw model";
 	@ echo "";
 	@ ${_FETCH_PROGRAM} ${_ZEBRA_SOURCE}
-	@ sh utils/extract.sh ${_ZEBRA_SOURCE}
-	@ if [ ! -f gnu/.zebra_done ];then \
-	  ( cd gnu/zebra;\
+	@ ${_EXTRACT_PROGRAM} ${_ZEBRA_SOURCE}
+	@ if [ ! -f ${STATUS_DIR}/.zebra_done ];then \
+	  ( cd ${PKG_DIR}/zebra;\
 		./configure --prefix=${LOCALBASE} --sysconf=/etc/zebra ;\
 		make ;\
 	  );\
 	  fi
-	@ touch gnu/.zebra_done
+	@ touch ${STATUS_DIR}/.zebra_done
 
 _init_transproxy:
 	@ echo "";
@@ -370,15 +379,15 @@ _init_stone:
 	@ echo "";
 	@ echo "make stone for proxyfw model";
 	@ echo "";
-	@ if [ ! -f gnu/.stone_done ];then \
-	  ( cd gnu/stone;\
+	@ if [ ! -f ${STATUS_DIR}/.stone_done ];then \
+	  ( cd ${GNU_DIR}/stone;\
 		rm -f ipfilter.? ;\
 		ln -s ../../lib/libtransparent/ipfilter.? . ;\
 		cc  -DUSE_IPF -c -o stone.o stone.c ;\
 		cc  -DUSE_IPF -c -o ipfilter.o ipfilter.c ;\
 	  );\
 	  fi
-	@ touch gnu/.stone_done
+	@ touch ${STATUS_DIR}/.stone_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
@@ -390,10 +399,28 @@ _init_pim6sd:
 	@ echo "";
 	@ echo "make pim6sd for pim6sd model";
 	@ echo "";
-	@ if [ ! -f gnu/.pim6sd_done ];then \
+	@ if [ ! -f ${STATUS_DIR}/.pim6sd_done ];then \
 		(cd usr.sbin/pim6sd/pim6sd/; make );\
 	fi
-	@ touch gnu/.pim6sd_done
+	@ touch ${STATUS_DIR}/.pim6sd_done
+
+_init_racoon:
+	@ echo "";
+	@ echo "make racoon for vpn-racoon model";
+	@ echo "";
+	@ ${_FETCH_PROGRAM} ${_RACOON_SOURCE}
+	@ ${_EXTRACT_PROGRAM} ${_RACOON_SOURCE}
+	@ if [ ! -f ${STATUS_DIR}/.racoon_done ];then \
+	  ( cd ${PKG_DIR}/racoon/libipsec;\
+		make OPSYS=NetBSD ;\
+	  );\
+	  ( cd ${PKG_DIR}/racoon/racoon;\
+		./configure --prefix=${LOCALBASE} --sysconf=/etc/racoon ;\
+		make ;\
+	  );\
+	  fi
+	@ touch ${STATUS_DIR}/.racoon_done
+
 
 #
 # cleaning
