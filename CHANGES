@@ -1,5 +1,9 @@
 		CHANGES
 
+2002/04/17
+
+   include sysctl into proxybox model
+
 2002/04/16
 
    change /etc directory
@@ -162,4 +166,4 @@
 	"syslogd -s" by default
 
 
-$FML: CHANGES,v 1.17 2002/04/17 02:04:15 fukachan Exp $
+$FML: CHANGES,v 1.18 2002/04/17 07:41:14 fukachan Exp $
