@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2001,2002,2003 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002,2003,2004 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.55 2003/04/01 02:01:11 fukachan Exp $
+# $FML: Makefile,v 1.56 2003/07/01 04:58:59 fukachan Exp $
 #
 
 # programs and directories
@@ -15,6 +15,13 @@ PKG_DIR?=	src/pkg
 GNU_DIR?=	src/gnu
 TOOL_DIR?=	src/utils
 STATUS_DIR?=	${PKG_DIR}
+
+#
+# NetBSD infomation
+#
+__VERSION != uname -r
+NetBSD_VERSION?=        ${__VERSION:C|^(...).*|\1|}
+
 
 #
 # specify default image
@@ -47,14 +54,20 @@ dist: dist-build dist-image
 allmodels: allmodels-build allmodels-image
 
 dist-build:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  build
-	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 build
-	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 build
+	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW   build
+	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6  build
+	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6  build
+.if ${NetBSD_VERSION} == 1.6
+	${MAKE} MODEL=bridge     KERNEL_CONF=BRIDGE build
+.endif
 
 dist-image:
-	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  image
-	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6 image
-	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6 image
+	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW   image
+	${MAKE} MODEL=natbox     KERNEL_CONF=FDGW6  image
+	${MAKE} MODEL=riprouter  KERNEL_CONF=FDGW6  image
+.if ${NetBSD_VERSION} == 1.6
+	${MAKE} MODEL=bridge     KERNEL_CONF=BRIDGE image
+.endif
 
 allmodels-build:
 	${MAKE} MODEL=adslrouter KERNEL_CONF=FDGW  build
