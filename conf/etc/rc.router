@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.27 2002/02/20 13:35:41 fukachan Exp $
+# $FML: rc.router,v 1.28 2002/04/17 10:34:26 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -13,6 +13,7 @@ else
 fi
 
 # load configuration
+load_file     /etc/defaults/rc.conf
 load_file     /etc/rc.conf
 
 # link for /bin/ps
@@ -30,19 +31,24 @@ if [ -f /etc/myname ];then
    echo "hostname: `hostname`"
 fi
 
+
 for if in `ifconfig -l`
 do
    if [ -f /etc/ifconfig.$if ];then
-	echo "ifconfig $if `cat /etc/ifconfig.$if`"
-	ifconfig $if `cat /etc/ifconfig.$if`
+	while read args; do
+		echo "ifconfig $if $args"
+		ifconfig $if $args
+	done < /etc/ifconfig.$if
    fi
 done
+
 
 if [ -f /etc/mygate ];then
    route add default `cat /etc/mygate`
 else
    echo 'warn: no default route by default';
 fi
+
 
 if checkyesno syslogd; then
    if [ -f /etc/syslog.conf ];then
@@ -60,27 +66,39 @@ if checkyesno dhcpd; then
    fi
 fi
 
-if [ -f /etc/ipf.conf ];then
-   echo "enable IP Filter"
-   /sbin/ipf -E -f /etc/ipf.conf
-   /usr/sbin/ipfstat -i
-   /usr/sbin/ipfstat -o
 
-   if [ -f /etc/ipnat.conf ];then
-	echo "enable NAT by IP Filter"
-	/usr/sbin/ipnat -f /etc/ipnat.conf
-	/usr/sbin/ipnat -l
+if checkyesno ipfilter; then
+   if [ -f /etc/ipf.conf ];then
+      echo "enable IP Filter"
+      /sbin/ipf -E -f /etc/ipf.conf
+      /usr/sbin/ipfstat -i
+      /usr/sbin/ipfstat -o
+   fi
+
+   if checkyesno ipnat; then
+      if [ -f /etc/ipnat.conf ];then
+   	echo "enable NAT by IP Filter"
+   	/usr/sbin/ipnat -f /etc/ipnat.conf
+   	/usr/sbin/ipnat -l
+      fi
    fi
 
    if checkyesno ipmon; then
-	echo 'starting ipmon'
+   	echo 'starting ipmon'
 	ipmon $ipmon_flags &
    fi
 fi
 
+
 if checkyesno pppoe; then
 	echo 'starting ADSL (pppoe)';
 	/usr/pkg/sbin/adsl-start
+fi
+
+
+if checkyesno route6d; then
+	echo "starting route6d";
+	/usr/sbin/route6d $route6d_flags
 fi
 
 
