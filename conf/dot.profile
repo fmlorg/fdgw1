@@ -33,7 +33,7 @@
 # 
 # <<Id: LICENSE,v 1.2 2000/06/14 15:57:33 cgd Exp>>
 #
-# $FML: dot.profile,v 1.1 2001/09/08 09:43:55 fukachan Exp $
+# $FML: dot.profile,v 1.2 2001/09/10 07:37:39 fukachan Exp $
 #
 
 PATH=/sbin:/bin:/usr/bin:/usr/sbin:/
@@ -75,6 +75,10 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# read configuration from /dev/fd0a (ffs)
 	test -d conf || mkdir conf 
 	mount /dev/fd0a /conf
+
+	# symlink(2) for /etc
+	mv /etc /etc.orig
+	ln -s /conf/etc /etc
 
         if [ -f /conf/etc/rc.router ]
         then
