@@ -14,13 +14,11 @@ ${KERN}: config/ROUTER
 	cp config/ROUTER ${.CURDIR}/../../../../sys/arch/${ARCH}/conf
 	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/conf; config ROUTER)
 	(cd ${.CURDIR}/../../../../sys/arch/${ARCH}/compile/ROUTER; \
-		make depend; \
+		make depend ; \
 		make -j 8 \
 	)
 
-#
-# .include "bootfloppy-common/Makefile.inc"
-#
+# .include "../bootfloppy-common/Makefile.inc"
 #	$NetBSD: Makefile.inc,v 1.18 1999/03/23 18:05:46 drochner Exp $
 
 # TOP is assumed to be defined by Makefile including this one.
@@ -39,12 +37,16 @@ MDEC=		${DESTDIR}/usr/mdec
 STRIP?=		strip
 
 LISTS=		${COMMONDIR}/list
-RAMDISK	!=cd $(.CURDIR)/../floppy_natbox/; \
+RAMDISK	!=cd $(.CURDIR); \
         printf "xxx: .MAKE\n\t@echo \$${.OBJDIR}/ramdisk.fs\n" | \
 	${MAKE} -s -f-
 
 DISKTYPE?=	floppy3
 DISKSIZE?=	2880
+
+#DISKTYPE=	floppy5
+#DISKSIZE=	2400
+
 
 # Some reasonable values for the -i parameter to newfs are:
 #
@@ -93,14 +95,3 @@ clean cleandir distclean:
 .include <bsd.own.mk>
 .include <bsd.obj.mk>
 .include <bsd.subdir.mk>
-
-
-
-
-
-
-
-
-
-
-
