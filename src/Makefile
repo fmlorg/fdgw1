@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.67 2004/01/28 06:23:57 fukachan Exp $
+# $FML: Makefile,v 1.68 2004/01/28 09:14:34 fukachan Exp $
 #
 
 
@@ -82,6 +82,9 @@ _DIR1+=	bin/sync
 _DIR1+=	bin/test
 _DIR1+=	distrib/utils
 _DIR1+=	distrib/i386/floppies
+.if ${NetBSD_VERSION} == 1.6
+_DIR1+=	sbin/brconfig
+.endif
 _DIR1+=	sbin/ifconfig
 _DIR1+=	sbin/init
 _DIR1+=	sbin/mount
