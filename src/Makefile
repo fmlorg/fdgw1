@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.10 2001/09/08 16:14:17 fukachan Exp $
+# $FML: Makefile,v 1.11 2001/09/20 08:47:21 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -46,6 +46,7 @@ ${IMAGE}: _prepare
 _prepare:
 	@ echo "0. prepations ... "
 	-rm -f disktab.preinstall termcap.mini conf model
+	test -d work || mkdir -p work
 	ln ../conf/dot.profile .
 	ln ../conf/mtree.conf  .
 	ln -s ../conf  conf
