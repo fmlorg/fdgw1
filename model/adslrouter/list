@@ -26,6 +26,8 @@ LINK    ramdiskbin                      bin/ps
 LINK    ramdiskbin                      bin/kill
 LINK    ramdiskbin                      bin/echo
 LINK    ramdiskbin                      bin/date
+LINK    ramdiskbin                      bin/sleep
+LINK    ramdiskbin                      bin/expr
 
 LINK	ramdiskbin			sbin/halt
 LINK	ramdiskbin			sbin/ifconfig
@@ -51,6 +53,7 @@ SYMLINK	/bin/cat			usr/bin/logger
 SYMLINK	/bin/cat			usr/bin/id
 SYMLINK /bin/cat			usr/bin/basename
 SYMLINK /bin/cat			usr/bin/uname
+SYMLINK /bin/cat			usr/bin/tty
 
 SYMLINK	/bin/cat			usr/sbin/chown
 SYMLINK	/bin/cat			usr/sbin/chroot
