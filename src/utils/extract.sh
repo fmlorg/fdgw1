@@ -1,6 +1,6 @@
 #!/bin/sh -x
 #
-# $FML: extract.sh,v 1.3 2003/01/10 04:21:24 fukachan Exp $
+# $FML: extract.sh,v 1.4 2003/01/17 09:23:50 fukachan Exp $
 #
 
 RENAME () {
@@ -50,7 +50,7 @@ do
 	echo tar zxf $f
 	eval tar zxf $f
 
-	for prog in squid jftpgw zebra racoon
+	for prog in squid jftpgw zebra racoon pim6sd
 	do
 		RENAME $name $prog
 
