@@ -1,11 +1,11 @@
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.27 2001/12/16 14:52:09 fukachan Exp $
+# $FML: Makefile,v 1.28 2001/12/16 15:31:01 fukachan Exp $
 #
 
 
@@ -27,6 +27,66 @@ BSDSRCDIR?=	/usr/src
 
 # dir to lndir
 _BSDSRCDIR=	${PWD}/NetBSD
+
+# individual directories to link to
+_DIRS=	etc
+_DIRS+=	bin/cat
+_DIRS+=	bin/cp
+_DIRS+=	bin/chmod
+_DIRS+=	bin/csh
+_DIRS+=	bin/date
+_DIRS+=	bin/df
+_DIRS+=	bin/echo
+_DIRS+=	bin/ed
+_DIRS+=	bin/expr
+_DIRS+=	bin/hostname
+_DIRS+=	bin/kill
+_DIRS+=	bin/ln
+_DIRS+=	bin/ls
+_DIRS+=	bin/mkdir
+_DIRS+=	bin/mv
+_DIRS+=	bin/ps
+_DIRS+=	bin/pwd
+_DIRS+=	bin/rm
+_DIRS+=	bin/sh
+_DIRS+=	bin/sleep
+_DIRS+=	bin/stty
+_DIRS+=	bin/sync
+_DIRS+=	bin/test
+.if exists (${BSDSRCDIR}/dist/dhcp)
+_DIRS+=	dist/dhcp
+.endif
+_DIRS+=	dist/ipf
+_DIRS+=	distrib/utils
+_DIRS+=	distrib/i386/floppies
+_DIRS+=	sbin/ifconfig
+_DIRS+=	sbin/init
+_DIRS+=	sbin/mount
+_DIRS+=	sbin/mount_ffs
+_DIRS+=	sbin/mount_kernfs
+_DIRS+=	sbin/mount_msdos
+_DIRS+=	sbin/umount
+_DIRS+=	sbin/ping
+_DIRS+=	sbin/route
+_DIRS+=	sbin/reboot
+_DIRS+=	sbin/shutdown
+_DIRS+=	usr.bin/basename
+_DIRS+=	usr.bin/id
+_DIRS+=	usr.bin/less
+_DIRS+=	usr.bin/logger
+_DIRS+=	usr.bin/sed
+_DIRS+=	usr.bin/tty
+_DIRS+=	usr.bin/uname
+_DIRS+=	usr.sbin/chown
+_DIRS+=	usr.sbin/chroot
+_DIRS+=	usr.sbin/dhcp
+_DIRS+=	usr.sbin/ipf
+_DIRS+=	usr.sbin/pppd
+_DIRS+=	usr.sbin/syslogd
+_DIRS+=	lib/libpcap
+_DIRS+=	sys/netinet
+_DIRS+=	sys/arch/i386/stand
+
 
 _FLOPPY_DIR=	${_BSDSRCDIR}/distrib/${ARCH}/floppies
 
@@ -120,10 +180,12 @@ _init_mesg:
 
 _lndir:
 	@ test -d ${_BSDSRCDIR} || mkdir -p ${_BSDSRCDIR}
-	@ echo lndir ${BSDSRCDIR} ${_BSDSRCDIR}
-	@ if [ ! -f ${_BSDSRCDIR}/.lndir_done ]; then \
-		lndir ${BSDSRCDIR} ${_BSDSRCDIR};\
-	  fi
+	for DIR in ${_DIRS} ; do \
+	  test -d ${_BSDSRCDIR}/$$DIR || mkdir -p ${_BSDSRCDIR}/$$DIR; \
+	  lndir ${BSDSRCDIR}/$$DIR ${_BSDSRCDIR}/$$DIR; \
+	done
+	(cd ${_BSDSRCDIR}/distrib; ln -s -f ${BSDSRCDIR}/distrib/Makefile.inc)
+	(cd ${_BSDSRCDIR}; ln -s -f ${BSDSRCDIR}/Makefile.inc)
 	@ touch ${_BSDSRCDIR}/.lndir_done
 
 _init_dir:
