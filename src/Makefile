@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.4 2001/09/06 12:45:39 fukachan Exp $
+# $FML: Makefile,v 1.5 2001/09/07 12:55:36 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -14,8 +14,10 @@ MODEL?=         natbox.basic
 _LISTS?=	model/${MODEL}/list
 _CBIN?=		model/${MODEL}/ramdiskbin
 
+ETC_DIR?=	conf/etc
+
 _ARGS?=		MOUNT_POINT=${MOUNT_POINT} TOP=${_TOP} BSDSRCDIR=${BSDSRCDIR} \
-		CURDIR=${PWD}
+		CURDIR=${PWD} _ETC_DIR=${ETC_DIR}
 
 all: ${IMAGE}
 
