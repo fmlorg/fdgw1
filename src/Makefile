@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.23 2001/12/16 04:04:45 fukachan Exp $
+# $FML: Makefile,v 1.24 2001/12/16 06:07:46 fukachan Exp $
 #
 
 
@@ -141,7 +141,8 @@ _init_config:
 	cp ${_FLOPPY_DIR}/ramdisk-small/disktab.preinstall disktab.preinstall
 	cp ${_FLOPPY_DIR}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
-	sed "s/__ARCH__/${ARCH}/g" ${_CBIN}.conf > ramdiskbin.conf.new
+	sed "s/__ARCH__/${ARCH}/g" ${_CBIN}.conf |\
+	sh fix_ramdiskbin.conf.sh > ramdiskbin.conf.new
 	mv ramdiskbin.conf.new ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
