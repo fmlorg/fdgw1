@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.33 2002/02/09 06:34:51 fukachan Exp $
+# $FML: Makefile,v 1.34 2002/02/10 11:25:14 fukachan Exp $
 #
 
 
@@ -172,10 +172,15 @@ image:
 # initialize process before main build process
 #
 _prepare_build_system:	_init_mesg _init_dir  _lndir \
-			_init_config _init_model_pre_configure \
-			_init_pppoe _init_squid \
-			_init_dhcp _init_resolver \
-			 _init_model_post_configure
+			_init_config \
+			_init_model_pre_configure \
+			_init_pppoe \
+			_init_squid \
+			_init_jftpgw \
+			_init_dhcp \
+			_init_transproxy \
+			_init_resolver \
+			_init_model_post_configure
 
 _init_mesg:
 	@ echo "
@@ -227,7 +232,7 @@ _init_pppoe:
 	@ echo "";
 	@ if [ ! -f gnu/.pppoe_done ];then \
 	  ( cd gnu/rp-pppoe/src;\
-		./configure --prefix=${LOCALBASE};\
+		./configure --prefix=${LOCALBASE} --sysconf=/etc/ppp ;\
 		make ;\
 	  );\
 	  fi
@@ -239,11 +244,35 @@ _init_squid:
 	@ echo "";
 	@ if [ ! -f gnu/.squid_done ];then \
 	  ( cd gnu/squid;\
-		./configure --prefix=${LOCALBASE};\
+		./configure --prefix=${LOCALBASE} --sysconf=/etc/squid ;\
 		make ;\
 	  );\
 	  fi
 	@ touch gnu/.squid_done
+
+_init_jftpgw:
+	@ echo "";
+	@ echo "make jftpgw for proxyfw model";
+	@ echo "";
+	@ if [ ! -f gnu/.jftpgw_done ];then \
+	  ( cd gnu/jftpgw;\
+		./configure --prefix=${LOCALBASE} --sysconf=/etc/jftpgw \
+			--disable-libwrap ;\
+		make ;\
+	  );\
+	  fi
+	@ touch gnu/.jftpgw_done
+
+_init_transproxy:
+	@ echo "";
+	@ echo "make transproxy for proxyfw model";
+	@ echo "";
+	@ if [ ! -f gnu/.transproxy_done ];then \
+	  ( cd sbin/transproxy;\
+		make ;\
+	  );\
+	  fi
+	@ touch gnu/.transproxy_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
