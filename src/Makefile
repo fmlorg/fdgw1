@@ -1,5 +1,5 @@
 #
-# $FML: Makefile,v 1.9 2001/08/15 10:34:21 fukachan Exp $
+# $FML: Makefile,v 1.1.1.1 2001/09/05 23:47:47 fukachan Exp $
 #
 
 BSDSRCDIR?=	/usr/src
@@ -11,8 +11,8 @@ WARNS=1
 IMAGE=		boot.fs
 MOUNT_POINT=	/mnt
 MODEL?=         natbox.basic
-_LISTS?=	conf/${MODEL}/list
-_CBIN?=		conf/${MODEL}/ramdiskbin
+_LISTS?=	model/${MODEL}/list
+_CBIN?=		model/${MODEL}/ramdiskbin
 
 all: ${IMAGE}
 
@@ -34,15 +34,16 @@ ${IMAGE}: _prepare
 
 _prepare:
 	@ echo "0. prepations ... "
-	-rm -f disktab.preinstall termcap.mini conf
+	-rm -f disktab.preinstall termcap.mini conf model
 	ln -s ../conf conf
+	ln -s ../model model
 	cp ${_TOP}/ramdisk-small/disktab.preinstall disktab.preinstall
 	cp ${_TOP}/ramdisk-small/termcap.mini       termcap.mini
 	-rm -f ramdiskbin.conf
 	ln -s ${_CBIN}.conf ramdiskbin.conf
 	-rm -f list
 	ln -s ${_LISTS} list
-	if [ -x conf/${MODEL}/configure ]; then conf/${MODEL}/configure ; fi
+	if [ -x model/${MODEL}/configure ]; then model/${MODEL}/configure ; fi
 
 clean cleandir:
 	-make -f Makefile.ramdisk unconfig TOP=${_TOP}
