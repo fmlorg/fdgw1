@@ -73,6 +73,7 @@ SYMLINK /bin/cat                usr/sbin/ipnat
 SYMLINK /bin/cat                usr/sbin/ipfstat
 SYMLINK /bin/cat                usr/sbin/ipmon
 SYMLINK /bin/cat                usr/sbin/syslogd
+SYMLINK /bin/cat                usr/sbin/dhcpd
 SPECIAL	/bin/rm ramdiskbin
 
 # utility

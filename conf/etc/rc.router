@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML$
+# $FML: rc.router,v 1.15 2001/09/06 05:40:54 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -63,6 +63,13 @@ then
 	cp /dev/null var/run/utmp
 	syslogd -f /conf/etc/syslog.conf
 fi
+
+if [ -f /conf/etc/dhcpd.conf ]
+then
+	echo starting dhcpd
+	/usr/sbin/dhcpd
+fi
+
 
 if [ -f /conf/etc/ipf.conf ]
 then
