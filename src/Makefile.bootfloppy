@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2001 Ken'ichi Fukamachi <fukachan@fml.org>
+# Copyright (C) 2001,2002 Ken'ichi Fukamachi <fukachan@fml.org>
 #
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile.bootfloppy,v 1.12 2001/12/15 14:31:51 fukachan Exp $
+# $FML: Makefile.bootfloppy,v 1.13 2001/12/16 06:07:46 fukachan Exp $
 #
 
 .include "${TOP}/../../../Makefile.inc"
@@ -26,7 +26,7 @@ STRIP?=		strip
 #
 # working directories for build process
 #
-MOUNT_POINT?=	/mnt
+MOUNT_POINT?=	${.CURDIR}/mnt
 VND?=		vnd0
 VND_DEV=	/dev/${VND}a
 VND_RDEV=	/dev/r${VND}a
@@ -58,6 +58,7 @@ image:	netbsd
 	disklabel -rw ${VND_CDEV} ${DISKTYPE}
 	newfs -B le -m 0 -o space -i ${INO_BYTES} -c 80 ${VND_RDEV} ${DISKTYPE}
 	${MDEC}/installboot -v -f ${MDEC}/biosboot.sym ${VND_RDEV}
+	test -d ${MOUNT_POINT} || mkdir -p ${MOUNT_POINT}
 	mount ${VND_DEV} ${MOUNT_POINT}
 	TOPDIR=${TOP} CURDIR=${.CURDIR} OBJDIR=${.OBJDIR} \
 	    TARGDIR=${MOUNT_POINT} sh ${TOP}/runlist.sh ${LISTS}
@@ -75,6 +76,10 @@ image:	netbsd
 	rm -f ${IMAGE}.[0-9]* ${MODEL}.img
 	test -d ${OBJ_DIR} || mkdir -p ${OBJ_DIR}
 	cp -p ${IMAGE} ${OBJ_DIR}/${MODEL}.img
+
+unconfig:
+	-umount ${MOUNT_POINT}
+	-vnconfig -u ${VND_CDEV}
 
 .include <bsd.own.mk>
 .include <bsd.obj.mk>
