@@ -27,6 +27,8 @@ LINK    ramdiskbin                      bin/[
 LINK    ramdiskbin                      bin/hostname
 LINK    ramdiskbin                      bin/ps
 LINK    ramdiskbin                      bin/kill
+LINK    ramdiskbin                      bin/echo
+LINK    ramdiskbin                      bin/date
 LINK	ramdiskbin			sbin/disklabel
 LINK	ramdiskbin			sbin/fsck
 LINK	ramdiskbin			sbin/fsck_ffs
@@ -62,6 +64,8 @@ SYMLINK	/bin/cat		usr/bin/tar
 SYMLINK	/bin/cat		usr/bin/tip
 SYMLINK	/bin/cat		usr/bin/logger
 SYMLINK	/bin/cat		usr/bin/id
+SYMLINK /bin/cat                usr/bin/basename
+SYMLINK /bin/cat                usr/bin/uname
 #SYMLINK /bin/cat		usr/mdec/installboot
 #SYMLINK /bin/cat		usr/sbin/bad144
 SYMLINK	/bin/cat		usr/sbin/chown
@@ -70,9 +74,11 @@ SYMLINK /bin/cat                usr/sbin/ipnat
 SYMLINK /bin/cat                usr/sbin/ipfstat
 SYMLINK /bin/cat                usr/sbin/ipmon
 SYMLINK /bin/cat                usr/sbin/syslogd
+SYMLINK /bin/cat                usr/sbin/dhcpd
 SPECIAL	/bin/rm ramdiskbin
 
-
+# utility
+COPY	${CURDIR}/utils/x_grep/grep.sh	usr/bin/grep
 
 
 # various files that we need in /etc for the install
