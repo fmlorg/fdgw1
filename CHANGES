@@ -1,6 +1,16 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2003/01/17
+
+   add vpn-racoon model
+	IPSec VPN by IKE.
+	we use racoon as IKE daemon.
+
+   clean up the usage of directories.
+	not use src/gnu/ as a work dir in compilation
+	use src/pkg/ for external packages.
+
 2003/01/10
 
    new rc.conf generator
@@ -256,4 +266,4 @@
 
 
 -----
-$FML: CHANGES,v 1.31 2002/12/09 03:23:04 fukachan Exp $
+$FML: CHANGES,v 1.32 2003/01/10 04:05:35 fukachan Exp $
