@@ -1,6 +1,12 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2002/06/20
+
+   change the directory hierarchy to handle version dependence
+	conf/ -> conf/1.5
+	src.$arch.$model -> obj.$arch.$model
+
 2002/04/25
 
    add variables to control IP forwarding
@@ -198,4 +204,4 @@
 
 
 -----
-$FML: CHANGES,v 1.26 2002/04/24 09:12:29 fukachan Exp $
+$FML: CHANGES,v 1.27 2002/04/25 05:11:36 fukachan Exp $
