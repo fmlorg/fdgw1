@@ -1,9 +1,10 @@
 image.i386
+local
 obj.i386.adslrouter
+obj.i386.mcastrouter6
+obj.i386.multicast6
 obj.i386.natbox
 obj.i386.proxybox
-obj.i386.vpn-ipsec
-obj.i386.riprouter6
 obj.i386.riprouter
-obj.i386.multicast6
-obj.i386.mcastrouter6
+obj.i386.riprouter6
+obj.i386.vpn-ipsec
