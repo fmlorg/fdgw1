@@ -1,12 +1,11 @@
 #!/bin/sh
 #
-# $FML$
+# $FML: gentraffic.sh,v 1.1 2004/05/14 08:48:10 fukachan Exp $
 #
 
-ttcp_mode=-u
-ttcp_target=127.0.0.1
+options="$*"
 
-echo ttcp -t $ttcp_mode $ttcp_target
+echo ttcp $options
 
 (
 
@@ -15,6 +14,6 @@ echo ttcp -t $ttcp_mode $ttcp_target
         cat /bin/cat
    done
 
-) | ttcp -t $ttcp_mode $ttcp_target
+) | ttcp $options
 
 exit 0
