@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: rc.router,v 1.20 2001/09/20 08:34:33 fukachan Exp $
+# $FML: rc.router,v 1.21 2001/09/20 12:22:28 fukachan Exp $
 #
 
 ARCH=`uname -p`
@@ -11,11 +11,6 @@ else
    echo Error: /etc/rc.subr not found 2>&1
    exit 1
 fi
-
-# /etc/
-load_file     /etc/rc.conf
-install_file  /etc/hosts
-install_file  /etc/resolv.conf
 
 # link for /bin/ps
 ln -s /conf/netbsd /netbsd
