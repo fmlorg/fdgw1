@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.59 2002/08/05 15:26:19 fukachan Exp $
+# $FML: Makefile,v 1.60 2002/08/05 23:27:10 fukachan Exp $
 #
 
 
@@ -146,6 +146,7 @@ BIOSBOOT?=	biosboot.sym
 #
 WARNS=1
 
+# conf/etc not conf/1.5/etc in obj.*
 ETC_DIR?=	conf/etc
 
 _ARGS?=		MOUNT_POINT=${MOUNT_POINT} \
