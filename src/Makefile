@@ -5,7 +5,7 @@
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
 #
-# $FML: Makefile,v 1.38 2002/02/15 14:27:06 fukachan Exp $
+# $FML: Makefile,v 1.39 2002/02/18 13:40:53 fukachan Exp $
 #
 
 
@@ -188,6 +188,7 @@ _prepare_build_system:	_init_mesg _init_dir  _lndir \
 			_init_pppoe \
 			_init_squid \
 			_init_jftpgw \
+			_init_stone \
 			_init_dhcp \
 			_init_resolver \
 			_init_model_post_configure
@@ -287,6 +288,20 @@ _init_transproxy:
 	  );\
 	  fi
 	@ touch sbin/.transproxy_done
+
+_init_stone:
+	@ echo "";
+	@ echo "make stone for proxyfw model";
+	@ echo "";
+	@ if [ ! -f gnu/.stone_done ];then \
+	  ( cd gnu/stone;\
+		rm -f ipfilter.? ;\
+		ln -s ../../lib/libtransparent/ipfilter.? . ;\
+		cc  -DUSE_IPF -c -o stone.o stone.c ;\
+		cc  -DUSE_IPF -c -o ipfilter.o ipfilter.c ;\
+	  );\
+	  fi
+	@ touch gnu/.stone_done
 
 _init_dhcp:
 	(cd ${_BSDSRCDIR}/usr.sbin/dhcp;make)
