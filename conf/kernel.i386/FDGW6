@@ -128,7 +128,7 @@ file-system 	KERNFS		# /kern
 # Networking options
 options 	GATEWAY		# packet forwarding
 options 	INET		# IP + ICMP + TCP + UDP
-#options 	INET6		# IPv6
+options 	INET6		# IPv6
 #options 	MROUTING	# IP multicast routing
 #options 	NS		# XNS
 #options 	NSIP		# XNS tunneling over IP
