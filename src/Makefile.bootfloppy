@@ -44,7 +44,7 @@ all:	netbsd
 	fi
 	umount ${MOUNT_POINT}
 	vnconfig -u ${VND_CDEV}
-	rm -f ${IMAGE} ${IMAGE}.[0-9]* ${MODEL}.img
+	rm -f ${IMAGE}.[0-9]* ${MODEL}.img
 	ln ${IMAGE} ${MODEL}.img
 
 .include <bsd.own.mk>
