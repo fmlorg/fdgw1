@@ -1,6 +1,11 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2004/02/07
+
+  remove model/[a-z]* (old directories)
+	now we use model/$version/$model
+
 2004/02/06
 
   new feature: $bridge_flap
@@ -317,4 +322,4 @@
 
 
 -----
-$FML: CHANGES,v 1.39 2004/02/05 10:17:11 fukachan Exp $
+$FML: CHANGES,v 1.40 2004/02/06 04:42:50 fukachan Exp $
