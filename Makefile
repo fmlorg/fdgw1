@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.37 2002/02/12 10:39:46 fukachan Exp $
+# $FML: Makefile,v 1.38 2002/02/12 12:36:09 fukachan Exp $
 #
 
 #
@@ -64,6 +64,9 @@ clean cleandir:
 	@ echo "===> clearing jftpgw";
 	- (cd src/gnu/jftpgw ; gmake distclean )
 	- rm -f src/gnu/.jftpgw_done
+	@ echo "===> clearing stone";
+	- (cd src/gnu/stone ; gmake distclean )
+	- rm -f src/gnu/.stone_done
 	@ echo "===> clearing transproxy";
 	- (cd src/sbin/transproxy ; make clean )
 	- rm -f src/sbin/.transproxy_done
