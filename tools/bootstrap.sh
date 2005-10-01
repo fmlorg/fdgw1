@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FML: prepare_workdir.sh,v 1.2 2002/06/20 09:22:02 fukachan Exp $
+# $FML: prepare_workdir.sh,v 1.3 2003/01/17 07:07:26 fukachan Exp $
 #
 
 # work dir for building package.

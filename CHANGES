@@ -1,6 +1,11 @@
 		CHANGES
 		Last Modified: $Date$ (GMT)
 
+2005/10/01
+
+  create new directory tools/
+	src/utils/prepare_workdir.sh -> tools/bootstrap.sh
+
 2004/05/12
 
   add gentraffic model.
@@ -335,4 +340,4 @@
 
 
 -----
-$FML: CHANGES,v 1.43 2004/02/09 12:30:19 fukachan Exp $
+$FML: CHANGES,v 1.44 2004/05/14 08:48:57 fukachan Exp $

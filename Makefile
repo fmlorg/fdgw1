@@ -4,7 +4,7 @@
 # All rights reserved. This program is free software; you can
 # redistribute it and/or modify it under the same terms as NetBSD itself.
 #
-# $FML: Makefile,v 1.58 2004/02/07 05:53:49 fukachan Exp $
+# $FML: Makefile,v 1.59 2004/05/14 08:46:31 fukachan Exp $
 #
 
 # programs and directories
@@ -90,7 +90,7 @@ allmodels-image:
 	${MAKE} MODEL=vpn-racoon KERNEL_CONF=IPSEC image
 
 build:
-	${SH} ./${TOOL_DIR}/prepare_workdir.sh ${ARCH}.${MODEL}
+	${SH} ./tools/bootstrap.sh ${ARCH}.${MODEL}
 	(cd obj.${ARCH}.${MODEL};${MAKE} ${MAKE_PARAMS} build )
 
 image:
